@@ -1,0 +1,395 @@
+/*
+Theme Name: Segura a Onda
+Theme URI: https://seguraaonda.com.br
+Description: Tema do site Segura a Onda
+Version: 1.0
+Author: Cátia Kitahara
+Author URI: https://catiakitahara.com.br
+Template: twentytwenty
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: seguraaonda
+*/
+
+/*GLOBAL*/
+/*Accent color*/
+.color-accent, .color-accent-hover:hover, .color-accent-hover:focus, :root .has-accent-color, .has-drop-cap:not(:focus):first-letter, .wp-block-button.is-style-outline, a {
+	color: #e73e4d;
+}
+button:not(.toggle), .button, .faux-button, .wp-block-button__link, .wp-block-file .wp-block-file__button, input[type="button"], input[type="reset"], input[type="submit"], .bg-accent, .bg-accent-hover:hover, .bg-accent-hover:focus, :root .has-accent-background-color, .comment-reply-link {
+	background-color:  #e73e4d;
+}
+
+body:not(.overlay-header) .primary-menu > li > a, body:not(.overlay-header) .primary-menu > li > .icon, .modal-menu a, .footer-menu a, .footer-widgets a, #site-footer .wp-block-button.is-style-outline, .wp-block-pullquote:before, .singular:not(.overlay-header) .entry-header a, .archive-header a, .header-footer-group .color-accent, .header-footer-group .color-accent-hover:hover {
+	color: #000;
+}
+
+/*Buttons*/
+@media (min-width: 700px){
+	button, .button, .faux-button, .wp-block-button__link, input[type="button"], input[type="reset"], input[type="submit"] {
+		font-size: 1.5rem;
+	}
+}
+
+/*Typography*/
+@font-face {
+    font-family: 'cerapro-bold';
+    src: url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff2') format('woff2'),
+         url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+h1,h2,h3,h4,h5 {
+	font-family:  'cerapro-bold';
+}
+@media (min-width: 700px){
+	h3, .heading-size-3 {
+    	font-size: 2.8rem;
+	}
+	h4, .heading-size-4 {
+    	font-size: 2.2rem;
+	}
+}
+body, .entry-content, .entry-content p, .entry-content ol, .entry-content ul, .entry-content dl, .entry-content dt, input, textarea, button, .button, .faux-button, .faux-button.more-link, .wp-block-button__link, .wp-block-file__button, .widget_text p, .widget_text ol, .widget_text ul, .widget_text dl, .widget_text dt, .widget-content .rssSummary {
+    font-family: 'Raleway', sans-serif;
+}
+
+/*TOP BAR*/
+/*Hide tagline*/
+.site-description {
+	display: none;
+}
+
+/*FOOTER*/
+.footer-copyright {
+	font-weight: normal;
+	font-size: 1.2rem;
+}
+.footer-copyright a {
+	font-weight: bold;
+}
+
+/*HOME*/
+.home .entry-header {
+	display: none;
+}
+.home .post-inner {
+	padding-top: 0 !important;
+	/* to override media queries */	
+}
+.home .entry-content > .wp-block-group.alignfull.has-background {
+	padding: 0 !important;
+	/* to override media queries */
+}
+.home .wp-block-coblocks-hero h2 {
+	margin-top: 0;
+}
+.home .wp-block-image {
+	margin-bottom: 0 !important;
+/* to override media queries */
+}
+.home .wp-block-image .aligncenter {
+	margin-right: 0;
+	margin-bottom: 0;
+}
+
+/*TEMPLATES*/
+.archive-header, .singular .entry-header {
+	background-color: #fff;
+}
+h1, .heading-size-1 {
+    font-size: 3.6rem !important;
+	/*to override media queries*/
+}
+.singular .entry-header {
+	padding: 4rem 0 !important;
+}
+.post-inner {
+	padding-top: 5rem !important;
+}
+/*avatar*/
+img.avatar {
+    border-radius: 50%;
+    border: none;
+    margin: auto;
+}
+
+/*PLUGINS*/
+
+/*bbPress*/
+body.bbpress:not(.home) .post-inner {
+	max-width: 120rem;
+	margin: auto;
+}
+body.bbpress:not(.home) .post-inner:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+/*login form*/
+.bbp-login-form .bbp-form {
+	border: none !important;
+	background-color: #f9f9f9;
+	max-width: 320px;
+}
+
+.seguraaonda-register-link {
+	font-size: 1.3rem;
+}
+/*forum sidebar*/
+.bbpress .sidebar-wrapper .widget {
+	margin: 0 4rem 5rem;
+	background-color: #f9f9f9;
+    padding: 20px;
+}
+.bbp-logged-in ul {
+	clear: both;
+	margin-top: 4rem;
+}
+
+/*bbPress login widget*/
+a.button.logout-link {
+    background: none;
+    padding: 0;
+    text-transform: none;
+    color: #e73e4d;
+    font-weight: normal;
+    letter-spacing: normal;
+    text-decoration: underline;
+    text-align: left;
+    font-size: inherit;
+}
+a.button.logout-link:hover {
+	text-decoration: none;
+}
+/*hide author and date below title*/
+.bbpress .post-meta-wrapper {
+	display: none;
+}
+/*fix search form margin*/
+#bbpress-forums #bbp-search-form {
+	margin-bottom: 4rem;
+}
+
+.forum-description {
+	clear: both;
+}
+div.bbp-template-notice, div.indicator-hint {
+	border: none !important;
+	padding: .5rem 1rem;
+	margin: 0 auto 2rem;
+}
+/*hide tiny avatars*/
+.bbp-author-link .avatar-14 {
+	display: none !important;
+}
+/*fix avatar size*/
+#bbpress-forums div.bbp-forum-author img.avatar, #bbpress-forums div.bbp-reply-author img.avatar, #bbpress-forums div.bbp-topic-author img.avatar{
+	max-width: 50px;
+}
+span.bbp-admin-links {
+	display: block;
+	float: none;
+	border-top: 1px solid #cccc;
+	text-align: right;
+}
+#bbpress-forums .bbp-forums-list {
+	border-left: none;
+}
+#bbpress-forums .bbp-forums-list .bbp-forum {
+	display: block;
+}
+#bbpress-forums ul.bbp-forums, #bbpress-forums ul.bbp-lead-topic, #bbpress-forums ul.bbp-replies, #bbpress-forums ul.bbp-search-results, #bbpress-forums ul.bbp-topics, div.bbp-forum-header, div.bbp-reply-header, div.bbp-topic-header {
+	border: none;
+}
+#bbpress-forums div.odd, #bbpress-forums ul.odd {
+    background-color: transparent;
+}
+#bbpress-forums div.odd, #bbpress-forums div.even {
+    margin-bottom: 5rem;
+}
+div.bbp-template-notice + .bbp-pagination, #bbpress-forums li.bbp-footer, body.topic #bbpress-forums li.bbp-header {
+	display: none;
+}
+#bbpress-forums div.bbp-forum-header, #bbpress-forums div.bbp-reply-header, #bbpress-forums div.bbp-topic-header {
+	background-color: transparent;
+}
+/*forum typography*/
+#bbpress-forums,
+div.bbp-breadcrumb, div.bbp-topic-tags, div.bbp-template-notice li, div.bbp-template-notice p, #bbpress-forums ul.bbp-forums, #bbpress-forums ul.bbp-lead-topic, #bbpress-forums ul.bbp-replies, #bbpress-forums ul.bbp-search-results, #bbpress-forums ul.bbp-topics {
+	font-size: 1.8rem;
+	line-height: 1.5;
+}
+.bbp-meta, .bbp-pagination {
+	font-size: 1.4rem;
+}
+#bbpress-forums h1 {
+	font-size: 3.2rem;
+}
+#bbpress-forums #bbp-user-wrapper h2.entry-title {
+	font-size: 2.8rem;
+}
+#bbpress-forums div.bbp-forum-title h3,#bbpress-forums div.bbp-reply-title h3,#bbpress-forums div.bbp-topic-title h3 {
+	font-size: 2rem;
+}
+.bbp-logged-in h4 {
+	font-size: 1.6rem;
+	margin-top: 0 !important;
+}
+.bbpress .sidebar-wrapper .widget-content {
+	font-size: 1.6rem;
+	line-height: 1.5;
+}
+.bbpress .sidebar-wrapper .widget-content ul {
+	margin-left: 0;
+	list-style: none;
+}
+#bbpress-forums .bbp-forums-list .bbp-forum, #bbpress-forums div.bbp-forum-author .bbp-author-role,#bbpress-forums div.bbp-reply-author .bbp-author-role,#bbpress-forums div.bbp-topic-author .bbp-author-role, span.bbp-author-ip, div.bbp-breadcrumb, div.bbp-topic-tags, .bbp-row-actions #favorite-toggle a, .bbp-row-actions #subscription-toggle a, #bbpress-forums .bbp-forum-info .bbp-forum-content,#bbpress-forums p.bbp-topic-meta, span.bbp-admin-links a, #bbpress-forums .bbp-pagination-links a,#bbpress-forums .bbp-pagination-links span.current, #bbpress-forums .bbp-topic-pagination a, body.page .bbp-reply-form code,body.page .bbp-topic-form code,body.reply-edit .bbp-reply-form code,body.single-forum .bbp-topic-form code,body.single-topic .bbp-reply-form code,body.topic-edit .bbp-topic-form code, #bbpress-forums div.bbp-the-content-wrapper textarea.bbp-the-content, #bbpress-forums div.bbp-the-content-wrapper input[type=button], #bbpress-forums #bbp-your-profile fieldset p.description, div.bbp-template-notice li,div.bbp-template-notice p, #bbpress-forums div.bbp-template-notice code, #bbpress-forums .bbp-reply-content ul.bbp-reply-revision-log,#bbpress-forums .bbp-reply-content ul.bbp-topic-revision-log,#bbpress-forums .bbp-topic-content ul.bbp-topic-revision-log, #bbpress-forums div.bbp-reply-author .bbp-author-name, #bbpress-forums div.bbp-topic-author .bbp-author-name {
+	font-size: 1.4rem;
+}
+/*Fix share buttons*/
+#bbpress-forums .sharedaddy li {
+	margin: 0 5px 5px 0;
+}
+/*Fix Manual do Site colors*/
+#bbpress-forums ul.bbp-parent-forum-913 {
+	color: #000 !important;
+}
+#bbpress-forums ul.bbp-parent-forum-913 a {
+    color: #e73e4d !important;
+}
+/*fix forum user page layout*/
+#bbpress-forums #bbp-single-user-details {
+	width: auto;
+	float: none;
+	background-color: #f9f9f9;
+	padding: 2rem;
+}
+#bbpress-forums #bbp-user-body {
+	margin-left: 0;
+}
+#bbpress-forums #bbp-single-user-details #bbp-user-avatar {
+    margin: auto;
+}
+#bbpress-forums #bbp-user-wrapper fieldset.bbp-form, #bbpress-forums #bbp-user-wrapper ul.bbp-forums, #bbpress-forums #bbp-user-wrapper ul.bbp-lead-topic, #bbpress-forums #bbp-user-wrapper ul.bbp-replies, #bbpress-forums #bbp-user-wrapper ul.bbp-topics {
+	clear: both;
+}
+input#ts, input#rs, #bbp-search-form #bbp_search {
+    width: auto;
+    display: inline-block;
+}
+/*fix author-avatars plugin layout*/
+.shortcode-author-avatars .author-list, .shortcode-author-avatars div.author-list .user {
+    float: none !important;
+}
+.shortcode-author-avatars .author-list:after {
+    content: "";
+    clear: both;
+    display: block;
+}
+.shortcode-author-avatars div.author-list .user {
+	padding: 0 2rem 4rem !important;
+}
+.shortcode-author-avatars img.avatar {
+    margin: 0 auto 2rem;
+}
+.shortcode-author-avatars .biography {
+    font-size: 1.6rem;
+    font-style: italic;
+}
+/*Login forms*/
+.bbp-login-form label {
+	width: auto;
+}
+#bbpress-forums fieldset.bbp-form input[type="checkbox"] {
+    margin-bottom: 0;
+}
+
+@media screen and (min-width: 700px){
+	body.bbpress .entry-content > *:not(.alignwide):not(.alignfull):not(.alignleft):not(.alignright):not(.is-style-wide) {
+		max-width: unset;
+		width: calc(100% - 8rem);
+	}
+	body.bbpress:not(.home) .entry-content {
+        width: 75%;
+        float: left;
+    }
+    body.bbpress .sidebar-wrapper {
+        width: 25%;
+        float: right;
+    }
+    body.bbpress .sidebar-wrapper .widget {
+        margin-right: 0;
+    }
+    body.bbpress.bbp-user-page .entry-content, body.bbpress.bbp-user-edit .entry-content {
+    	width: auto;
+    	float: none;
+    	max-width: 120rem;
+    	margin: auto;
+    }
+    #bbpress-forums #bbp-single-user-details {
+		width: 25%;
+		float: left;
+	}
+	#bbpress-forums #bbp-user-body {
+		margin-left: 25%;
+		padding-left: 4rem;
+	}
+	.shortcode-author-avatars {
+        max-width: 120rem !important;
+    }
+    .shortcode-author-avatars div.author-list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .shortcode-author-avatars div.author-list .user {
+        flex: 33.333333% 1 0;
+        width: 33.333333%;
+        padding: 0 2rem 5rem;
+    }
+}
+
+/*Flags*/
+.flag a:before {
+	background-size: contain;
+	background-position: 50%;
+	background-repeat: no-repeat;
+	position: relative;
+	display: inline-block;
+	width: 1.33333333em;
+	line-height: 1em;
+	margin-right: 10px;
+	content: '\00a0';
+}
+.flag.espanha a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/es.svg);
+}
+.flag.colombia a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/co.svg);
+}
+.flag.mexico a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/mx.svg);
+}
+.flag.costarica a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/cr.svg);
+}
+.flag.polonia a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/pl.svg);
+}
+.flag.equador a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/ec.svg);
+}
+.flag.franca a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/fr.svg);
+}
+.flag.uruguai a:before {
+	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/uy.svg);
+}
+
+/*Coblocks*/
+.wp-block-coblocks-feature {
+	justify-content: flex-start;
+}
+.wp-block-coblocks-icon__inner a {
+	left: 0;
+}

@@ -1,0 +1,30 @@
+/* Front end styles. Only added to pages with shortcode on. */
+/*.flag-icon-spacing {
+	margin: 0 0 0 0;
+	padding: 0 4px 0 4px;
+}*/
+/*.img-thumbnail {
+	display: inline-block;
+	max-width: 100%;
+	height: auto;
+	padding: 4px;
+	line-height: 1.42857143;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	-webkit-transition: all .2s ease-in-out;
+	-o-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+
+.flag {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+}*/
+
