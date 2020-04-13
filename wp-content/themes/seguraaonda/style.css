@@ -274,6 +274,9 @@ div.bbp-breadcrumb, div.bbp-topic-tags, div.bbp-template-notice li, div.bbp-temp
 #bbpress-forums #bbp-user-wrapper fieldset.bbp-form, #bbpress-forums #bbp-user-wrapper ul.bbp-forums, #bbpress-forums #bbp-user-wrapper ul.bbp-lead-topic, #bbpress-forums #bbp-user-wrapper ul.bbp-replies, #bbpress-forums #bbp-user-wrapper ul.bbp-topics {
 	clear: both;
 }
+.bbp-user-edit #bbpress-forums #bbp-user-wrapper fieldset.bbp-form {
+	clear: none;
+}
 input#ts, input#rs, #bbp-search-form #bbp_search {
     width: auto;
     display: inline-block;
