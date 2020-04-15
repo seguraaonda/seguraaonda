@@ -352,43 +352,6 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
     }
 }
 
-/*Flags*/
-.flag a:before {
-	background-size: contain;
-	background-position: 50%;
-	background-repeat: no-repeat;
-	position: relative;
-	display: inline-block;
-	width: 1.33333333em;
-	line-height: 1em;
-	margin-right: 10px;
-	content: '\00a0';
-}
-.flag.espanha a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/es.svg);
-}
-.flag.colombia a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/co.svg);
-}
-.flag.mexico a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/mx.svg);
-}
-.flag.costarica a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/cr.svg);
-}
-.flag.polonia a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/pl.svg);
-}
-.flag.equador a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/ec.svg);
-}
-.flag.franca a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/fr.svg);
-}
-.flag.uruguai a:before {
-	background-image: url(https://seguraaonda.com.br/wp-content/plugins/svg-flags-lite/assets/flag-icon-css/flags/4x3/uy.svg);
-}
-
 /*Coblocks*/
 .wp-block-coblocks-feature {
 	justify-content: flex-start;
