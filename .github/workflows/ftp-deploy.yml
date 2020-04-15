@@ -2,8 +2,6 @@
 
 name: Deploy
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     branches: [ stable ]
@@ -21,5 +19,5 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@3.0.0
       with:
         ftp-server: ftp.seguraaonda.com.br
-        ftp-username: mseguraaonda.com.br
+        ftp-username: seguraaonda.com.br
         ftp-password: ${{ secrets.FTP_PASSWORD }}
