@@ -87,10 +87,14 @@ class UserList {
 	var $contact_links = false;
 
 	/**
-	 * Size of avatars.
+	 * Extra Class names.
 	 */
 	var $display_extra = array();
 
+	/**
+	 * Size of avatar border_radius.
+	 */
+	var $border_radius = 0;
 	/**
 	 * Size of avatars.
 	 */
@@ -151,7 +155,7 @@ class UserList {
 	 * - {class} is replaced by user specific classes
 	 * - {user} is replaced by the user avatar (and possibly name)
 	 */
-	var $user_template = '<div class="{class}">{user}</div>';
+	var $user_template = '<div class="{class}" style="{style}">{user}</div>';
 
 
 	function __construct() {
@@ -349,15 +353,20 @@ class UserList {
 	 * @return String html
 	 */
 	function format_user( $user ) {
-		$tpl_vars = array( '{class}' => '', '{user}' => '' );
+		$tpl_vars = array( '{class}' => '', '{user}' => '', '{style}' => '' );
 
 		$avatar_size = intval( $this->avatar_size );
 		if ( ! $avatar_size ) {
 			$avatar_size = false;
 		}
 
-
 		$name = '';
+		if ( $this->show_name ) {
+			$name = $user->display_name;
+		}
+
+		$alt = $title = $name;
+
 		$divcss = array( 'user' );
 		if ( $this->show_name ) {
 			$name = $user->display_name;
@@ -793,6 +802,25 @@ class UserList {
 
 				$avatar = preg_replace( '@ ?\/>@', ' alt="' . $alt . '"  />', $avatar );
 			}
+
+
+			if ( ! stripos( $avatar, 'style=' ) ) {
+				$avatar_style = '';
+				if ( ! empty( $this->border_radius ) ) {
+					$avatar_style .= ' border-radius:' . absint( $this->border_radius ) . '%;';
+				}
+				/**
+				 * filter the avatar alt
+				 *
+				 * @param string $alt users nicename.
+				 * @param object $user The user object
+				 */
+				$avatar_style = apply_filters( 'aa_user_avatar_style', $avatar_style, $user );
+
+				$avatar = preg_replace( '@ ?\/>@', ' style="' . $avatar_style . '"  />', $avatar );
+			}
+
+
 		}
 
 
@@ -897,6 +925,30 @@ class UserList {
 			 */
 			$html .= apply_filters( 'aa_user_display_extra', $this->display_extra, $user );
 		}
+		$style = '';
+		if ( ! empty( $this->align ) ) {
+			switch ( $this->align ) {
+				case 'left':
+					$style = "float: left; margin-right: 10px;";
+					break;
+				case 'right':
+					$style = "float: right; margin-left: 10px;";
+					break;
+				case 'center':
+					$style = "text-align: center; margin-left:auto;  margin-right:auto;  width: fit-content; float: none";
+					break;
+			}
+		}
+
+		/**
+		 * filter the array used to create the style for the user
+		 *
+		 * @param array $CSS The array of string used to create classes on user DIV.
+		 * @param object $user the user object
+		 */
+		$tpl_vars['{style}'] = apply_filters( 'aa_user_final_style', $style, $user );
+
+
 		/**
 		 * filter the array used to create the css for the user
 		 *
@@ -1194,7 +1246,7 @@ class UserList {
 			$roleQuery = ' AND(' . $roleQuery . ')';
 		}
 
-		// can't wrape into pepare as these are all table names
+		// can't wrap into prepare as these are all table names
 		$query = "SELECT user_id, user_login, display_name, user_email, user_url, user_registered, meta_key, meta_value FROM $wpdb->users, $wpdb->usermeta " .
 		         " WHERE " . $wpdb->users . ".ID = " . $wpdb->usermeta . ".user_id AND " . $blogs_condition . " AND user_status = 0" . $roleQuery;
 
@@ -1510,7 +1562,6 @@ class UserList {
 		return $this->_sort_direction() * strcasecmp( remove_accents( $a->display_name ), remove_accents( $b->display_name ) );
 	}
 
-	/**
 
 	/**
 	 * Given two users, this function compares the user's display names.
