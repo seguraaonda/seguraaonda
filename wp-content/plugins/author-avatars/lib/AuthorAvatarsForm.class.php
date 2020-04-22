@@ -142,7 +142,7 @@ class AuthorAvatarsForm {
 	 *
 	 * @see    http://codex.wordpress.org/WPMU_Functions/get_blog_list
 	 * @access private
-	 * @return Array of blog names
+	 * @return array of blog names
 	 */
 	function _getAllBlogs() {
 		global $wpdb;
@@ -246,7 +246,7 @@ class AuthorAvatarsForm {
 	 * Retrieves all roles, and returns them as an associative array (key -> role name)
 	 *
 	 * @access private
-	 * @return Array of role names.
+	 * @return array of role names.
 	 */
 	function _getAllRoles() {
 		global $wpdb;
@@ -602,7 +602,7 @@ class AuthorAvatarsForm {
 	 * Retrieves all roles, and returns them as an associative array (key -> role name)
 	 *
 	 * @access private
-	 * @return Array of role names.
+	 * @return array of role names.
 	 */
 	function _get_all_users( $users = array() ) {
 		global $wpdb;
@@ -788,7 +788,6 @@ class AuthorAvatarsForm {
 
 		return $order_options;
 	}
-
 }
 
 ?>
