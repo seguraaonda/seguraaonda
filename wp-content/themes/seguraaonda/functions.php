@@ -132,12 +132,13 @@ add_action('bbp_template_after_user_details_menu_items', 'seguraaonda_user_profi
 
 // Add address custom fields to bbpress topics on front end
 function seguraaonda_topic_location_field() {
-   $value = get_post_meta( bbp_get_topic_id(), 'topic-location', true);
-   echo '<label for="topic-location">Location:</label><br>';
-   echo "<input type='text' name='topic-location' value='".$value."'>";
+	$value = get_post_meta( bbp_get_topic_id(), 'topic-location', true);
+	echo '<label for="topic-location">Location:</label><br>';
+	echo "<input type='text' name='topic-location' value='".$value."'>";
 }
 add_action ( 'bbp_theme_after_topic_form_content', 'seguraaonda_topic_location_field');
 
+function seguraaonda_save_topic_location_field() {
 //Save and update the values from the front end
 	if (isset($_POST) && $_POST['topic-location']!='' && function_exists( 'gmw_update_post_location' )) {
 
