@@ -129,3 +129,26 @@ function seguraaonda_user_profile_logout_link() {
 	}
 }
 add_action('bbp_template_after_user_details_menu_items', 'seguraaonda_user_profile_logout_link');
+
+// Add address custom fields to bbpress topics on front end
+function seguraaonda_topic_location_field() {
+   $value = get_post_meta( bbp_get_topic_id(), 'topic-location', true);
+   echo '<label for="topic-location">Location:</label><br>';
+   echo "<input type='text' name='topic-location' value='".$value."'>";
+}
+add_action ( 'bbp_theme_after_topic_form_content', 'seguraaonda_topic_location_field');
+
+//Save and update the values from the front end
+	if (isset($_POST) && $_POST['topic-location']!='' && function_exists( 'gmw_update_post_location' )) {
+
+		update_post_meta( $topic_id, 'topic-location', $_POST['topic-location'] );
+		
+		$location = get_post_meta( $topic_id, 'topic-location', true );
+	
+		//run geocoder function
+		gmw_update_post_location( $topic_id, $location );
+	}
+    
+}
+add_action ( 'bbp_new_topic', 'seguraaonda_save_topic_location_field', 10, 1 );
+add_action ( 'bbp_edit_topic', 'seguraaonda_save_topic_location_field', 10, 1 );
