@@ -39,11 +39,11 @@ body:not(.overlay-header) .primary-menu > li > a, body:not(.overlay-header) .pri
     font-weight: normal;
     font-style: normal;
 }
-h1,h2,h3,h4,h5 {
+h1,h2,h3,h4,h5,.entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 	font-family:  'cerapro-bold';
 }
 @media (min-width: 700px){
-	h3, .heading-size-3 {
+	h3, .heading-size-3, .entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
     	font-size: 2.8rem;
 	}
 	h4, .heading-size-4 {
@@ -104,6 +104,10 @@ h1, .heading-size-1 {
 .singular .entry-header {
 	padding: 4rem 0 !important;
 }
+.singular .featured-media:before {
+    background-color: #ddd;
+}
+
 .post-inner {
 	padding-top: 5rem !important;
 }
@@ -358,4 +362,14 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 }
 .wp-block-coblocks-icon__inner a {
 	left: 0;
+}
+/*Jetpack*/
+.entry-content #jp-relatedposts {
+	max-width: 58rem;
+	font-size: 1.6rem;
+	background-color: #f9f9f9;
+	padding: 20px;
+}
+#jp-relatedposts h3.jp-relatedposts-headline em:before {
+	display: none;
 }
