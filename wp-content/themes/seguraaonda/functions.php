@@ -13,6 +13,12 @@ function seguraaonda_enqueue_scripts() {
     	array( $parent_style ),
     	wp_get_theme()->get('Version')
     );
+
+	$mapkeyurl = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAVZ3eJiglE0xi7wnD0XDUXKrb-p6MQ9aM';
+	$dir_url = get_stylesheet_directory_uri() . '/assets/js/acf-map.js';
+
+	wp_enqueue_script( 'map_script', $dir_url, array('jquery'), '1.0', true );
+    wp_enqueue_script( 'googlemap', $mapkeyurl, true);
 }
 
 add_action( 'wp_enqueue_scripts', 'seguraaonda_enqueue_scripts' );
@@ -255,3 +261,31 @@ function seguraaonda_user_profile_logout_link() {
 	}
 }
 add_action('bbp_template_after_user_details_menu_items', 'seguraaonda_user_profile_logout_link');
+
+//Add ACF setting for google maps api key
+function seguraaonda_acf_init() {
+	acf_update_setting('google_api_key', 'AIzaSyAVZ3eJiglE0xi7wnD0XDUXKrb-p6MQ9aM');
+}
+add_action('acf/init', 'seguraaonda_acf_init');
+
+//Display topic location in topic single
+function seguraaonda_display_topic_location() {
+	$location = get_field('localizacao');
+	if( $location ) {
+
+	// Loop over segments and construct HTML.
+		$address = '';
+		foreach( array('street_number', 'street_name', 'city', 'state', 'post_code', 'country') as $i => $k ) {
+			if( isset( $location[ $k ] ) ) {
+				$address .= sprintf( '<span class="sao-topic-%s">%s</span>, ', $k, $location[ $k ] );
+			}
+		}
+
+	// Trim trailing comma.
+		$address = trim( $address, ', ' );
+
+	// Display HTML.
+		echo '<p class="sao-topic-location">Localidade: ' . $address . '.</p>';
+	}
+}
+add_action('bbp_template_before_single_topic', 'seguraaonda_display_topic_location');

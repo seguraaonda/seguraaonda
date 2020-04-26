@@ -39,11 +39,11 @@ body:not(.overlay-header) .primary-menu > li > a, body:not(.overlay-header) .pri
     font-weight: normal;
     font-style: normal;
 }
-h1,h2,h3,h4,h5 {
+h1,h2,h3,h4,h5,.entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 	font-family:  'cerapro-bold';
 }
 @media (min-width: 700px){
-	h3, .heading-size-3 {
+	h3, .heading-size-3, .entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
     	font-size: 2.8rem;
 	}
 	h4, .heading-size-4 {
@@ -104,6 +104,10 @@ h1, .heading-size-1 {
 .singular .entry-header {
 	padding: 4rem 0 !important;
 }
+.singular .featured-media:before {
+    background-color: #ddd;
+}
+
 .post-inner {
 	padding-top: 5rem !important;
 }
@@ -187,6 +191,7 @@ div.bbp-template-notice, div.indicator-hint {
 #bbpress-forums div.bbp-forum-author img.avatar, #bbpress-forums div.bbp-reply-author img.avatar, #bbpress-forums div.bbp-topic-author img.avatar{
 	max-width: 50px;
 }
+/*fix action links above topics*/
 span.bbp-admin-links {
 	display: block;
 	float: none;
@@ -219,6 +224,27 @@ div.bbp-template-notice + .bbp-pagination, #bbpress-forums li.bbp-footer, body.t
 div.bbp-breadcrumb, div.bbp-topic-tags, div.bbp-template-notice li, div.bbp-template-notice p, #bbpress-forums ul.bbp-forums, #bbpress-forums ul.bbp-lead-topic, #bbpress-forums ul.bbp-replies, #bbpress-forums ul.bbp-search-results, #bbpress-forums ul.bbp-topics {
 	font-size: 1.8rem;
 	line-height: 1.5;
+}
+p.sao-topic-location,#bbpress-forums div.bbp-topic-tags {
+    float: left;
+    clear: left;
+    width: 50%;
+    font-size: 1.4rem;
+    margin-bottom: 1em;
+}
+
+div.bbp-breadcrumb {
+    width: 100%;
+}
+#bbpress-forums div.bbp-topic-tags a {
+    text-decoration: none;
+    background: #e6e6e6;
+    padding: 1px 5px 2px;
+    border-radius: 3px;
+}
+#bbpress-forums div.bbp-topic-tags a:hover {
+    background: #000;
+    color: #fff;
 }
 .bbp-meta, .bbp-pagination {
 	font-size: 1.4rem;
@@ -358,4 +384,25 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 }
 .wp-block-coblocks-icon__inner a {
 	left: 0;
+}
+/*Jetpack*/
+.entry-content #jp-relatedposts {
+	max-width: 58rem;
+	font-size: 1.6rem;
+	background-color: #f9f9f9;
+	padding: 20px;
+}
+#jp-relatedposts h3.jp-relatedposts-headline em:before {
+	display: none;
+}
+.acf-map {
+    width: 100%;
+    height: 400px;
+    border: #ccc solid 1px;
+    margin: 20px 0;
+}
+
+// Fixes potential theme css conflict.
+.acf-map img {
+   max-width: inherit !important;
 }
