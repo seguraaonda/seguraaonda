@@ -151,7 +151,7 @@ function seguraaonda_display_topic_location() {
 		$address = '';
 		foreach( array('street_number', 'street_name', 'city', 'state', 'post_code', 'country') as $i => $k ) {
 			if( isset( $location[ $k ] ) ) {
-				$address .= sprintf( '<span class="segment-%s">%s</span>, ', $k, $location[ $k ] );
+				$address .= sprintf( '<span class="sao-topic-%s">%s</span>, ', $k, $location[ $k ] );
 			}
 		}
 
@@ -159,7 +159,7 @@ function seguraaonda_display_topic_location() {
 		$address = trim( $address, ', ' );
 
 	// Display HTML.
-		echo '<p>' . $address . '.</p>';
+		echo '<p class="sao-topic-location">Localidade: ' . $address . '.</p>';
 	}
 }
 add_action('bbp_template_before_single_topic', 'seguraaonda_display_topic_location');

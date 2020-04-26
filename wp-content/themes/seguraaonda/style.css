@@ -191,6 +191,7 @@ div.bbp-template-notice, div.indicator-hint {
 #bbpress-forums div.bbp-forum-author img.avatar, #bbpress-forums div.bbp-reply-author img.avatar, #bbpress-forums div.bbp-topic-author img.avatar{
 	max-width: 50px;
 }
+/*fix action links above topics*/
 span.bbp-admin-links {
 	display: block;
 	float: none;
@@ -223,6 +224,27 @@ div.bbp-template-notice + .bbp-pagination, #bbpress-forums li.bbp-footer, body.t
 div.bbp-breadcrumb, div.bbp-topic-tags, div.bbp-template-notice li, div.bbp-template-notice p, #bbpress-forums ul.bbp-forums, #bbpress-forums ul.bbp-lead-topic, #bbpress-forums ul.bbp-replies, #bbpress-forums ul.bbp-search-results, #bbpress-forums ul.bbp-topics {
 	font-size: 1.8rem;
 	line-height: 1.5;
+}
+p.sao-topic-location,#bbpress-forums div.bbp-topic-tags {
+    float: left;
+    clear: left;
+    width: 50%;
+    font-size: 1.4rem;
+    margin-bottom: 1em;
+}
+
+div.bbp-breadcrumb {
+    width: 100%;
+}
+#bbpress-forums div.bbp-topic-tags a {
+    text-decoration: none;
+    background: #e6e6e6;
+    padding: 1px 5px 2px;
+    border-radius: 3px;
+}
+#bbpress-forums div.bbp-topic-tags a:hover {
+    background: #000;
+    color: #fff;
 }
 .bbp-meta, .bbp-pagination {
 	font-size: 1.4rem;
