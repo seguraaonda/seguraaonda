@@ -118,6 +118,7 @@ function centerMap( map ) {
 $(document).ready(function(){
     $('.acf-map').each(function(){
         var map = initMap( $(this) );
+        google.maps.event.trigger(map, 'resize');
     });
 });
 

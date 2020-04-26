@@ -14,34 +14,27 @@ get_header();
 
 <main id="site-content" role="main">
 
-	<?php
 
-	if ( have_posts() ) {
+		<?php 
+		$the_query_map = new WP_Query( array( 'post_type' => 'topic', 'posts_per_page' => -1, 'order' => 'ASC', 'orderby' => 'menu_order' ) );
 
-		while ( have_posts() ) {
-			the_post();
-			if( have_rows('locations') ): ?>
-    			<div class="acf-map" data-zoom="16">
-        	<?php while ( have_rows('locations') ) : the_row(); 
+		if($the_query_map->have_posts()) :
+			while($the_query_map->have_posts()):
+				$the_query_map->the_post();
+				$the_ID = get_the_ID();
+				$get_google_map = get_field('localizacao', $value);
 
-            // Load sub field values.
-            $location = get_sub_field('location');
-            $title = get_sub_field('description');
-            $description = get_sub_field('description');
-            ?>
-            <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>">
-                <h3><?php echo esc_html( $title ); ?></h3>
-                <p><em><?php echo esc_html( $location['address'] ); ?></em></p>
-                <p><?php echo esc_html( $description ); ?></p>
-            </div>
-    <?php endwhile; ?>
-    </div>
-<?php endif; ?>
-		}
-	}
-	?>
+				$output_map[$the_ID]['map'] = '<div class="marker" data-lat="'.$get_google_map['lat'].'" data-lng="'.$get_google_map['lng'].'"></div>';
 
+			endwhile; endif;
+			wp_reset_postdata();
 
+			?><div class="acf-map"><?php
+			foreach( $output_map as $key => $map_marker ):
+				echo $map_marker['map'];
+			endforeach;
+			?>
+		</div>
 </main><!-- #site-content -->
 
 <?php get_template_part( 'template-parts/footer-menus-widgets' ); ?>
