@@ -24,7 +24,7 @@ get_header();
 				</div><!-- .entry-content -->
 			</div><!-- .post-inner -->
 
-			<div class="section-inner">
+			<div class="section-inner section-inner-memorial">
 				<?php
 				$victims = new WP_Query( array('post_type' => 'victim'));
 				?>

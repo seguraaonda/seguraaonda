@@ -417,7 +417,7 @@ article.victim h2.entry-title {
     margin: 2rem auto;
 }
 @media (min-width: 700px) {
-	.page-template-victim .section-inner {
+	.page-template-memorial .section-inner-memorial {
     	display: flex;
     	flex-wrap: wrap;
 	}
