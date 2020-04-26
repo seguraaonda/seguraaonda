@@ -79,6 +79,7 @@ function seguraaonda_memorial_cpt() {
 		'hierarchical'       => false,
 		'menu_position'      => null,
 		'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
+		'menu_icon'          => 'dashicons-heart',
 	);
 
 	register_post_type( 'memorial', $args );
