@@ -14,29 +14,36 @@
 ?>
 
 <article <?php post_class(); ?> id="post-<?php the_ID(); ?>">
-
-	<header class="entry-header has-text-align-center">
-		<div class="entry-header-inner section-inner medium">
-			<?php the_title( '<h2 class="entry-title heading-size-1">', '</h2>' ); ?>
-		</div>
-	</header>
-
-	<div class="post-inner">
-
 		<div class="entry-content">
-
-			<?php the_content(); ?>
-
-		</div><!-- .entry-content -->
-		<div>
+			<?php if ( has_post_thumbnail()) :  the_post_thumbnail('thumbnail'); ; ?>
+			<?php else : ?>
+				<img alt="" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/memorial.jpg" />
+			<?php endif; ?>
+			<?php the_title( '<h2 class="entry-title heading-size-4">', '</h2>' ); ?>
+			<div class="sao-victim-info">
 			<?php
-				$age = get_post_meta( get_the_ID(), 'seguraaonda-memorial-age', true );
-				if( !empty( $age ) ) {
-					echo $age;
+				if(get_field('data')) {
+					echo '<p><strong>Data:</strong> ' . get_field('data') . '</p>';
 				}
- 
+				if(get_field('idade')) {
+					echo '<p><strong>Idade:</strong> ' . get_field('idade') . '</p>';
+				}
+				if(get_field('genero')) {
+					echo '<p><strong>Genero:</strong> ' . get_field('genero') . '</p>';
+				}
+				if(get_field('profissao')) {
+					echo '<p><strong>Profissão:</strong> ' . get_field('profissao') . '</p>';
+				}
+			?>
+			<?php seguraaonda_display_location() ?>
+			</div>
+			<?php the_excerpt(); ?>
+			<?php
+				if(get_field('fonte')) {
+					echo '<p><a href="' . get_field('fonte') . '">Fonte</a></p>';
+				}
 			?>
 
-	</div><!-- .post-inner -->
+		</div><!-- .entry-content -->
 
 </article><!-- .post -->

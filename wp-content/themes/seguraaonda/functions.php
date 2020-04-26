@@ -43,27 +43,27 @@ function seguraaonda_sidebar_registration() {
 
 add_action( 'widgets_init', 'seguraaonda_sidebar_registration' );
 
-//Register Memorial custom post type
-function seguraaonda_memorial_cpt() {
+//Register Victim custom post type
+function seguraaonda_victim_cpt() {
 	$labels = array(
-		'name'                  => _x( 'Memorial', 'Post type general name', 'seguraaonda' ),
+		'name'                  => _x( 'Victim', 'Post type general name', 'seguraaonda' ),
 		'singular_name'         => _x( 'Victim', 'Post type singular name', 'seguraaonda' ),
-		'menu_name'             => _x( 'Memorial', 'Admin Menu text', 'seguraaonda' ),
+		'menu_name'             => _x( 'Victim', 'Admin Menu text', 'seguraaonda' ),
 		'name_admin_bar'        => _x( 'Victim', 'Add New on Toolbar', 'seguraaonda' ),
 		'add_new'               => __( 'Add New', 'seguraaonda' ),
 		'add_new_item'          => __( 'Add New Victim', 'seguraaonda' ),
 		'new_item'              => __( 'New Victim', 'seguraaonda' ),
 		'edit_item'             => __( 'Edit Victim', 'seguraaonda' ),
 		'view_item'             => __( 'View Victim', 'seguraaonda' ),
-		'all_items'             => __( 'All Memorial', 'seguraaonda' ),
-		'search_items'          => __( 'Search Memorial', 'seguraaonda' ),
+		'all_items'             => __( 'All Victims', 'seguraaonda' ),
+		'search_items'          => __( 'Search Victim', 'seguraaonda' ),
 		'not_found'             => __( 'No victims found.', 'seguraaonda' ),
 		'not_found_in_trash'    => __( 'No victims found in Trash.', 'seguraaonda' ),
 		'featured_image'        => _x( 'Victim Picture', 'Overrides the “Featured Image” phrase for this post type. Added in 4.3', 'seguraaonda' ),
 		'set_featured_image'    => _x( 'Set picture', 'Overrides the “Set featured image” phrase for this post type. Added in 4.3', 'seguraaonda' ),
 		'remove_featured_image' => _x( 'Remove picture', 'Overrides the “Remove featured image” phrase for this post type. Added in 4.3', 'seguraaonda' ),
 		'use_featured_image'    => _x( 'Use as picture', 'Overrides the “Use as featured image” phrase for this post type. Added in 4.3', 'seguraaonda' ),
-		'archives'              => _x( 'Memorial', 'The post type archive label used in nav menus. Default “Post Archives”. Added in 4.4', 'seguraaonda' ),
+		'archives'              => _x( 'Victim', 'The post type archive label used in nav menus. Default “Post Archives”. Added in 4.4', 'seguraaonda' ),
 	);
 
 	$args = array(
@@ -73,98 +73,27 @@ function seguraaonda_memorial_cpt() {
 		'show_ui'            => true,
 		'show_in_menu'       => true,
 		'query_var'          => true,
-		'rewrite'            => array( 'slug' => 'memorial' ),
+		'rewrite'            => array( 'slug' => 'victim' ),
 		'capability_type'    => 'post',
-		'has_archive'        => true,
 		'hierarchical'       => false,
 		'menu_position'      => null,
-		'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
+		'supports'           => array( 'title', 'thumbnail', 'excerpt' ),
 		'menu_icon'          => 'dashicons-heart',
 	);
 
-	register_post_type( 'memorial', $args );
+	register_post_type( 'victim', $args );
 }
-add_action('init', 'seguraaonda_memorial_cpt');
+add_action('init', 'seguraaonda_victim_cpt');
 
 //Flush rewrite rules when activating theme
 function seguraaonda_rewrite_flush() {
 
-	seguraaonda_memorial_cpt();
+	seguraaonda_victim_cpt();
 	flush_rewrite_rules();
 }
 add_action( 'after_switch_theme', 'seguraaonda_rewrite_flush' );
 
-//Create Memorial metaboxes
-function seguraaonda_memorial_meta_boxes_setup() {
 
-	add_action( 'add_meta_boxes', 'seguraaonda_add_memorial_meta_boxes' );
-	add_action( 'save_post', 'seguraaonda_save_memorial_info_meta', 10, 2 );
-}
-
-add_action( 'load-post.php', 'seguraaonda_memorial_meta_boxes_setup' );
-add_action( 'load-post-new.php', 'seguraaonda_memorial_meta_boxes_setup' );
-
-// Create meta boxes to be displayed on the Memorial editor screen.
-function seguraaonda_add_memorial_meta_boxes() {
-
-	add_meta_box(
-		'info',      // Unique ID
-		esc_html__( 'Victim Information', 'seguraaonda' ),    // Title
-		'seguraaonda_memorial_info_meta_box',   // Callback function
-		'memorial',         // Admin page (or post type)
-		'side',         // Context
-		'default'         // Priority
-	);
-}
-// Display the memorial meta box.
-function seguraaonda_memorial_info_meta_box( $post ) {
-
-	wp_nonce_field( basename( __FILE__ ), 'seguraaonda_memorial_info_nonce' );
-	$seguraaonda_memorial_info_stored_meta = get_post_meta( $post->ID );
-	?>
-
-	<p>
-		<label for="seguraaonda-memorial-age"><?php _e( "Age", 'seguraaonda' ); ?></label>
-		<br />
-		<input class="widefat" type="text" name="seguraaonda-memorial-age" id="seguraaonda-memorial-age" value="<?php if ( isset ( $seguraaonda_memorial_info_stored_meta['seguraaonda-memorial-age'] ) ) echo $seguraaonda_memorial_info_stored_meta['seguraaonda-memorial-age'][0]; ?>" size="30" />
-	</p>
-	<p>
-		<label for="seguraaonda-memorial-occupation"><?php _e( "Occupation", 'seguraaonda' ); ?></label>
-		<br />
-		<input class="widefat" type="text" name="seguraaonda-memorial-occupation" id="seguraaonda-memorial-occupation" value="<?php if ( isset ( $seguraaonda_memorial_info_stored_meta['seguraaonda-memorial-occupation'] ) ) echo $seguraaonda_memorial_info_stored_meta['seguraaonda-memorial-occupation'][0]; ?>" size="30" />
-	</p>
-
-	<?php
-}
-
-// Save the memorial meta box metadata.
-function seguraaonda_save_memorial_info_meta( $post_id, $post ) {
-
-	$is_autosave = wp_is_post_autosave( $post_id );
-	$is_revision = wp_is_post_revision( $post_id );
-	$is_valid_nonce = ( isset( $_POST[ 'seguraaonda_memorial_info_nonce' ] ) && wp_verify_nonce( $_POST[ 'seguraaonda_memorial_info_nonce' ], basename( __FILE__ ) ) ) ? 'true' : 'false';
- 
-	// Exits script depending on save status
-	if ( $is_autosave || $is_revision || !$is_valid_nonce ) {
-		return $post_id;
-	}
-
-	// Get the post type object.
-	$post_type = get_post_type_object( $post->post_type );
-
-	// Check if the current user has permission to edit the post.
-	if ( !current_user_can( $post_type->cap->edit_post, $post_id ) )
-		return $post_id;
-
-	// Checks for input and sanitizes/saves if needed
-	if( isset( $_POST[ 'seguraaonda-memorial-age' ] ) ) {
-		update_post_meta( $post_id, 'seguraaonda-memorial-age', sanitize_text_field( $_POST[ 'seguraaonda-memorial-age' ] ) );
-	}
-	// Checks for input and sanitizes/saves if needed
-	if( isset( $_POST[ 'seguraaonda-memorial-occupation' ] ) ) {
-		update_post_meta( $post_id, 'seguraaonda-memorial-occupation', sanitize_text_field( $_POST[ 'seguraaonda-memorial-occupation' ] ) );
-	}
-}
 
 //Add description after forums titles on forum index
 function seguraaonda_singleforum_description() {
@@ -269,16 +198,18 @@ function seguraaonda_acf_init() {
 }
 add_action('acf/init', 'seguraaonda_acf_init');
 
+
+
 //Display topic location in topic single
-function seguraaonda_display_topic_location() {
+function seguraaonda_display_location() {
 	$location = get_field('localizacao');
 	if( $location ) {
 
 	// Loop over segments and construct HTML.
 		$address = '';
-		foreach( array('street_number', 'street_name', 'city', 'state', 'post_code', 'country') as $i => $k ) {
+		foreach( array('street_name', 'street_number', 'city', 'state', 'post_code', 'country') as $i => $k ) {
 			if( isset( $location[ $k ] ) ) {
-				$address .= sprintf( '<span class="sao-topic-%s">%s</span>, ', $k, $location[ $k ] );
+				$address .= sprintf( '<span class="sao-%s">%s</span>, ', $k, $location[ $k ] );
 			}
 		}
 
@@ -286,7 +217,7 @@ function seguraaonda_display_topic_location() {
 		$address = trim( $address, ', ' );
 
 	// Display HTML.
-		echo '<p class="sao-topic-location">Localidade: ' . $address . '.</p>';
+		echo '<p class="sao-location"><strong>Localidade:</strong> ' . $address . '.</p>';
 	}
 }
 add_action('bbp_template_before_single_topic', 'seguraaonda_display_topic_location');
