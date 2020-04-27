@@ -218,4 +218,4 @@ function seguraaonda_display_location() {
 		echo '<p class="sao-location"><strong>Localidade:</strong> ' . $address . '.</p>';
 	}
 }
-add_action('bbp_template_before_single_topic', 'seguraaonda_display_topic_location');
+add_action('bbp_template_before_single_topic', 'seguraaonda_display_location');
