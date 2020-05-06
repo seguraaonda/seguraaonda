@@ -73,6 +73,9 @@ body, .entry-content, .entry-content p, .entry-content ol, .entry-content ul, .e
 .home .entry-header {
 	display: none;
 }
+.home figure.featured-media {
+    display: none !important;
+}
 .home .post-inner {
 	padding-top: 0 !important;
 	/* to override media queries */	
