@@ -81,7 +81,7 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $data = explode( "\n", $image_data );
 
-                if ( ( isset( $data[ 1 ] ) && ! empty( $data[ 1 ] )) || isset( $data[ 2 ] ) ) {
+                if ( ( ! isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) ) {
 
                         $delim = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_' . $method . '_delim' ) );
 
@@ -93,7 +93,6 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 if ( empty( $data ) || ! is_array( $data ) ) {
                         return true;
                 }
-
 
                 foreach ( $data as $index => $image ) {
 
@@ -188,7 +187,7 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $data = explode( "\n", $value );
 
-                if ( ( isset( $data[ 1 ] ) && ! empty( $data[ 1 ] )) || isset( $data[ 2 ] ) ) {
+                if ( ( ! isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) ) {
 
                         $meta = $data;
                 } else {
@@ -207,10 +206,10 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
         private function prepare_image_meta() {
 
                 $this->image_meta = [
-                        'title' => $this->get_image_meta_values( "title" ),
+                        'title'   => $this->get_image_meta_values( "title" ),
                         'caption' => $this->get_image_meta_values( "caption" ),
-                        'alt' => $this->get_image_meta_values( "alt" ),
-                        'desc' => $this->get_image_meta_values( "description" )
+                        'alt'     => $this->get_image_meta_values( "alt" ),
+                        'desc'    => $this->get_image_meta_values( "description" )
                 ];
         }
 
@@ -324,11 +323,11 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                         $attachment = array(
                                 'post_mime_type' => $wp_filetype[ 'type' ],
-                                'post_parent' => $this->item_id,
-                                'post_title' => preg_replace( '/\.[^.]+$/', '', $filename ),
-                                'post_content' => '',
-                                'post_status' => 'inherit',
-                                'post_author' => $this->get_user_id()
+                                'post_parent'    => $this->item_id,
+                                'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
+                                'post_content'   => '',
+                                'post_status'    => 'inherit',
+                                'post_author'    => $this->get_user_id()
                         );
 
                         $attachment_id = wp_insert_attachment( $attachment, $upload_file[ 'file' ], $this->item_id );
@@ -379,10 +378,10 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 $this->attach = get_posts(
                         [
                                 'post_parent' => $this->item_id,
-                                'post_type' => 'attachment',
+                                'post_type'   => 'attachment',
                                 'numberposts' => -1,
                                 'post_status' => null,
-                                "fields" => "ids"
+                                "fields"      => "ids"
                         ]
                 );
         }

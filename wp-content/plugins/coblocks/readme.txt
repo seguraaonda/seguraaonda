@@ -6,7 +6,7 @@ Tags: page builder, Gutenberg blocks, WordPress blocks, gutenberg, blocks
 Requires at least: 5.0
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 1.25.0
+Stable tag: 1.26.1
 License: GPL-2.0
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,20 +123,6 @@ Developers can also apply minor style touch-ups to their themes if necessary. If
 
 == Changelog ==
 
-### Enhancements
-* Improve logic to handle Accordion block open state [#1458](https://github.com/godaddy-wordpress/coblocks/pull/1458)
-* Introduce Vertical Alignment controls to Row block [#1437](https://github.com/godaddy-wordpress/coblocks/pull/1437)
-
 ### Bug Fixes
-* Fix accordion display across IE/Edge browsers [#1456](https://github.com/godaddy-wordpress/coblocks/pull/1456)
-* Fix checkbox icon SVG to display properly [#1461](https://github.com/godaddy-wordpress/coblocks/pull/1461)
-* Fix Contact Form block submissions not sending [#1467](https://github.com/godaddy-wordpress/coblocks/pull/1467)
-* Fix Row block alignment bug with Go theme [#1459](https://github.com/godaddy-wordpress/coblocks/pull/1459)
-
-### Misc
-* Add proper example to the Pricing Table block [#1450](https://github.com/godaddy-wordpress/coblocks/pull/1450)
-* Deploy canary build to wpnux [#1452](https://github.com/godaddy-wordpress/coblocks/pull/1452)
-* Improve WP.org FAQs [#1464](https://github.com/godaddy-wordpress/coblocks/pull/1464)
-* Properly scope the datepicker to prevent conflicts [#1447](https://github.com/godaddy-wordpress/coblocks/pull/1447)
-* Refactor lightbox to remove jQuery requirement [#1429](https://github.com/godaddy-wordpress/coblocks/pull/1429)
-* Update CONTRIBUTORS.md [#1462](https://github.com/godaddy-wordpress/coblocks/pull/1462)
+* Render a submit button if not found in the block content [#1479](https://github.com/godaddy-wordpress/coblocks/pull/1479)
+* Remove a condition where a variable may not be defined [#1477](https://github.com/godaddy-wordpress/coblocks/pull/1477)

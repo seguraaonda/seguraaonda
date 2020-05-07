@@ -222,7 +222,7 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                 $this->process_log[ 'last_activity' ] = date( 'Y-m-d H:i:s' );
 
                 $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ),
-                        'process_log' => maybe_serialize( $this->process_log ) ), array(
+                        'process_log'      => maybe_serialize( $this->process_log ) ), array(
                         'id' => $this->wpie_import_id ) );
 
                 do_action( 'wpie_after_post_import', $this->item_id, $this->wpie_final_data, $this->wpie_import_option );
@@ -314,34 +314,81 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                                 $post_types = array( $post_types );
                         }
 
-                        $sql = $wpdb->prepare( "SELECT " . $wpdb->posts . ".ID FROM " . $wpdb->posts . " INNER JOIN " . $wpdb->postmeta . " ON ( " . $wpdb->posts . ".ID = " . $wpdb->postmeta . ".post_id ) WHERE 1=1 AND ( ( " . $wpdb->postmeta . ".meta_key = %s AND (" . $wpdb->postmeta . ".meta_value = %s OR " . $wpdb->postmeta . ".meta_value = %s OR REPLACE(REPLACE(REPLACE(" . $wpdb->postmeta . ".meta_value, ' ', ''), '\\t', ''), '\\n', '') = %s) ) ) AND " . $wpdb->posts . ".post_type IN ('" . implode( "','", $post_types ) . "') AND ((" . $wpdb->posts . ".post_status <> 'trash' AND " . $wpdb->posts . ".post_status <> 'auto-draft')) GROUP BY " . $wpdb->posts . ".ID ORDER BY " . $wpdb->posts . ".ID ASC LIMIT 0,1", trim( $meta_key ), trim( $meta_val ), htmlspecialchars( trim( $meta_val ) ), preg_replace( '%[ \\t\\n]%', '', trim( $meta_val ) ) );
+                        $sql_post_type = implode( "','", $post_types );
 
-                        $query = $wpdb->get_results( $sql );
+                        $id = $wpdb->get_var(
+                                $wpdb->prepare(
+                                        "
+                                                SELECT posts.ID
+                                                FROM {$wpdb->posts} as posts
+                                                INNER JOIN {$wpdb->postmeta} AS postmeta ON posts.ID = postmeta.post_id
+                                                WHERE posts.post_type IN ( '{$sql_post_type}' )
+                                                AND NOT IN ('trash','auto-draft' )
+                                                AND postmeta.meta_key = %s                                               
+                                                AND postmeta.meta_value = %s
+                                                ORDER BY posts.ID ASC
+                                                LIMIT 0, 1
+                                        ",
+                                        $meta_key,
+                                        $meta_val
+                                )
+                        );
 
-                        if ( ! empty( $query ) ) {
-                                foreach ( $query as $p ) {
-                                        $this->existing_item_id = $p->ID;
-                                        unset( $p );
-                                        break;
-                                }
-                        }
-                        unset( $query );
-
-                        if ( $this->existing_item_id != 0 ) {
-
-                                $query = $wpdb->get_results( $wpdb->prepare( "SELECT " . $wpdb->posts . ".ID FROM " . $wpdb->posts . " INNER JOIN " . $wpdb->postmeta . " ON (" . $wpdb->posts . ".ID = " . $wpdb->postmeta . ".post_id) WHERE 1=1 AND " . $wpdb->posts . ".post_type IN ('" . implode( "','", $post_types ) . "') AND (" . $wpdb->posts . ".post_status = 'publish' OR " . $wpdb->posts . ".post_status = 'future' OR " . $wpdb->posts . ".post_status = 'draft' OR " . $wpdb->posts . ".post_status = 'pending' OR " . $wpdb->posts . ".post_status = 'trash' OR " . $wpdb->posts . ".post_status = 'private') AND ( (" . $wpdb->postmeta . ".meta_key = '%s' AND (" . $wpdb->postmeta . ".meta_value = '%s' OR " . $wpdb->postmeta . ".meta_value = '%s' OR " . $wpdb->postmeta . ".meta_value = '%s') ) ) GROUP BY " . $wpdb->posts . ".ID ORDER BY " . $wpdb->posts . ".ID ASC LIMIT 0, 1", trim( $meta_key ), trim( $meta_val ), htmlspecialchars( trim( $meta_val ) ), esc_attr( trim( $meta_val ) ) ) );
-
-                                if ( ! empty( $query ) ) {
-                                        foreach ( $query as $p ) {
-                                                $this->existing_item_id = $p->ID;
-                                                unset( $p );
-                                                break;
-                                        }
-                                }
-                                unset( $query );
+                        if ( absint( $id ) > 0 ) {
+                                $this->existing_item_id = $id;
                         }
 
-                        unset( $meta_key, $meta_val, $post_types, $sql );
+                        if ( $this->existing_item_id === 0 ) {
+
+                                $id = $wpdb->get_var(
+                                        $wpdb->prepare(
+                                                "
+                                                        SELECT posts.ID
+                                                        FROM {$wpdb->posts} as posts
+                                                        INNER JOIN {$wpdb->postmeta} AS postmeta ON posts.ID = postmeta.post_id
+                                                        WHERE posts.post_type IN ( '{$sql_post_type}' )
+                                                        AND postmeta.meta_key = %s                                               
+                                                        AND postmeta.meta_value = %s
+                                                        ORDER BY posts.ID ASC
+                                                        LIMIT 0, 1
+                                                ",
+                                                $meta_key,
+                                                $meta_val
+                                        )
+                                );
+
+                                if ( absint( $id ) > 0 ) {
+                                        $this->existing_item_id = $id;
+                                }
+                        }
+                        if ( $this->existing_item_id === 0 ) {
+
+                                $id = $wpdb->get_var(
+                                        $wpdb->prepare(
+                                                "
+                                                        SELECT posts.ID
+                                                        FROM {$wpdb->posts} as posts
+                                                        INNER JOIN {$wpdb->postmeta} AS postmeta ON posts.ID = postmeta.post_id
+                                                        WHERE posts.post_type IN ( '{$sql_post_type}' )
+                                                        AND postmeta.meta_key IN ( %s,%s )                                               
+                                                        AND postmeta.meta_value IN( %s,%s,%s )
+                                                        ORDER BY posts.ID ASC
+                                                        LIMIT 0, 1
+                                                ",
+                                                $meta_key,
+                                                trim( $meta_key ),
+                                                $meta_val,
+                                                trim( $meta_val ),
+                                                preg_replace( '%[ \\t\\n]%', '', $meta_val )
+                                        )
+                                );
+
+                                if ( absint( $id ) > 0 ) {
+                                        $this->existing_item_id = $id;
+                                }
+                        }
+
+                        unset( $meta_key, $meta_val, $post_types, $sql_post_type, $id );
                 }
                 unset( $wpie_duplicate_indicator );
         }
@@ -469,12 +516,12 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
 
                                                                                 if ( $_child_only == 1 ) {
                                                                                         $_temp_term_data = array(
-                                                                                                "term" => $_term,
+                                                                                                "term"   => $_term,
                                                                                                 "parent" => $_temp_parent_id
                                                                                         );
                                                                                 } else {
                                                                                         $terms[] = array(
-                                                                                                "term" => $_term,
+                                                                                                "term"   => $_term,
                                                                                                 "parent" => $_temp_parent_id
                                                                                         );
                                                                                 }
@@ -490,7 +537,7 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                                                                         unset( $_temp_term_data );
                                                                 } else {
                                                                         $terms[] = array(
-                                                                                "term" => $term_data,
+                                                                                "term"   => $term_data,
                                                                                 "parent" => null
                                                                         );
                                                                 }

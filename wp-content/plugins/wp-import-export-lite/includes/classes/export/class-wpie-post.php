@@ -6,26 +6,26 @@ use WP_User_Query;
 use WP_Query;
 use wpie\export\media;
 
-if (!defined('ABSPATH')) {
-        die(__("Can't load this file directly", 'wp-import-export-lite'));
+if ( ! defined( 'ABSPATH' ) ) {
+        die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-if (file_exists(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export-engine.php')) {
+if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export-engine.php' ) ) {
 
         require_once(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export-engine.php');
 }
 
 class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
-        protected $item_where = array ();
-        protected $item_join = array ();
+        protected $item_where = array();
+        protected $item_join = array();
         private $user_where = "";
         private $user_join = array();
 
-        protected function get_fields($exclude_meta = array()) {
+        protected function get_fields( $exclude_meta = array() ) {
 
                 $standard_fields = array(
-                        "title"     => __("Standerd", 'wp-import-export-lite'),
+                        "title"     => __( "Standerd", 'wp-import-export-lite' ),
                         "isDefault" => true,
                         "data"      => array(
                                 array(
@@ -67,7 +67,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                         )
                 );
                 $image_fields = array(
-                        "title"      => __("Images", 'wp-import-export-lite'),
+                        "title"      => __( "Images", 'wp-import-export-lite' ),
                         "isFiltered" => false,
                         "data"       => array(
                                 array(
@@ -106,7 +106,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 );
 
                 $attachment_fields = array(
-                        "title"      => __("Attachments", 'wp-import-export-lite'),
+                        "title"      => __( "Attachments", 'wp-import-export-lite' ),
                         "isFiltered" => false,
                         "data"       => array(
                                 array(
@@ -145,7 +145,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 );
 
                 $author_fields = array(
-                        "title"      => __("Author", 'wp-import-export-lite'),
+                        "title"      => __( "Author", 'wp-import-export-lite' ),
                         "isExported" => false,
                         "data"       => array(
                                 array(
@@ -198,7 +198,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 );
 
                 $other_fields = array(
-                        "title" => __("Other", 'wp-import-export-lite'),
+                        "title" => __( "Other", 'wp-import-export-lite' ),
                         "data"  => array(
                                 array(
                                         'name' => 'Status',
@@ -264,16 +264,16 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                         )
                 );
 
-                $taxonomy_data = $this->get_taxonomies_by_post_type($this->export_type, "wpie_tax", false);
+                $taxonomy_data = $this->get_taxonomies_by_post_type( $this->export_type, "wpie_tax", false );
 
                 $taxonomy = array(
-                        "title" => __("Taxonomy", 'wp-import-export-lite'),
+                        "title" => __( "Taxonomy", 'wp-import-export-lite' ),
                         "data"  => $taxonomy_data
                 );
 
-                unset($taxonomy_data);
+                unset( $taxonomy_data );
 
-                $metas = $this->get_meta_keys($this->export_type);
+                $metas = $this->get_meta_keys( $this->export_type );
 
                 $export_fields = array(
                         "standard"   => $standard_fields,
@@ -286,61 +286,61 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 );
 
 
-                $addon_class = apply_filters('wpie_prepare_post_fields', array(), $this->export_type);
+                $addon_class = apply_filters( 'wpie_prepare_post_fields', array(), $this->export_type );
 
-                if (!empty($addon_class)) {
+                if ( ! empty( $addon_class ) ) {
 
-                        foreach ($addon_class as $addon) {
+                        foreach ( $addon_class as $addon ) {
 
-                                if (class_exists($addon)) {
+                                if ( class_exists( $addon ) ) {
 
                                         $addon_data = new $addon();
 
-                                        if (method_exists($addon_data, "pre_process_fields")) {
+                                        if ( method_exists( $addon_data, "pre_process_fields" ) ) {
 
-                                                $addon_data->pre_process_fields($export_fields, $this->export_type);
+                                                $addon_data->pre_process_fields( $export_fields, $this->export_type );
                                         }
 
-                                        unset($addon_data);
+                                        unset( $addon_data );
                                 }
                         }
                 }
 
                 $meta_data = array();
 
-                if (!empty($export_fields["meta"])) {
-                        foreach ($export_fields["meta"] as $key) {
+                if ( ! empty( $export_fields[ "meta" ] ) ) {
+                        foreach ( $export_fields[ "meta" ] as $key ) {
 
-                                if (empty(trim($key))) {
+                                if ( empty( trim( $key ) ) ) {
                                         continue;
                                 }
-                                $meta_data[] = apply_filters("wpie_pre_item_meta", array(
+                                $meta_data[] = apply_filters( "wpie_pre_item_meta", array(
                                         'name'    => $key,
                                         'type'    => "wpie_cf",
                                         'metaKey' => $key
-                                        ), $key);
+                                        ), $key );
                         }
                 }
 
-                unset($metas);
+                unset( $metas );
 
                 $meta_fields = array(
-                        "title" => __("Custom Fields", 'wp-import-export-lite'),
+                        "title" => __( "Custom Fields", 'wp-import-export-lite' ),
                         "data"  => $meta_data
                 );
 
-                $export_fields['meta'] = $meta_fields;
+                $export_fields[ 'meta' ] = $meta_fields;
 
-                unset($standard_fields, $meta_fields, $taxonomy, $image_fields, $attachment_fields, $author_fields, $other_fields, $addon_class, $meta_data);
+                unset( $standard_fields, $meta_fields, $taxonomy, $image_fields, $attachment_fields, $author_fields, $other_fields, $addon_class, $meta_data );
 
-                return apply_filters("wpie_export_fields", $export_fields, $this->export_type);
+                return apply_filters( "wpie_export_fields", $export_fields, $this->export_type );
         }
 
-        protected function get_meta_keys($export_type = array()) {
+        protected function get_meta_keys( $export_type = array() ) {
 
                 global $wpdb;
 
-                $post_type = implode("','", $export_type);
+                $post_type = implode( "','", $export_type );
 
                 $sql = "SELECT DISTINCT $wpdb->postmeta.meta_key
 			FROM $wpdb->postmeta,$wpdb->posts
@@ -349,35 +349,35 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 			HAVING $wpdb->postmeta.meta_key NOT LIKE %s
 			ORDER BY $wpdb->postmeta.meta_key
 			LIMIT %d";
-                $limit = apply_filters('wpie_postmeta_form_limit', 500);
+                $limit = apply_filters( 'wpie_postmeta_form_limit', 500 );
 
-                $keys = $wpdb->get_col($wpdb->prepare($sql, $wpdb->esc_like('_') . 'edit%', $limit));
+                $keys = $wpdb->get_col( $wpdb->prepare( $sql, $wpdb->esc_like( '_' ) . 'edit%', $limit ) );
 
-                unset($post_type, $sql, $limit);
+                unset( $post_type, $sql, $limit );
 
                 return $keys;
         }
 
-        protected function parse_rule($filter = array()) {
+        protected function parse_rule( $filter = array() ) {
 
-                if (isset($filter['element'])) {
+                if ( isset( $filter[ 'element' ] ) ) {
 
-                        $filter['element'] = $this->get_valid_element($filter['element']);
+                        $filter[ 'element' ] = $this->get_valid_element( $filter[ 'element' ] );
 
-                        $filter['condition'] = isset($filter['condition']) ? $filter['condition'] : "";
+                        $filter[ 'condition' ] = isset( $filter[ 'condition' ] ) ? $filter[ 'condition' ] : "";
 
-                        $filter['value'] = isset($filter['value']) ? $filter['value'] : "";
+                        $filter[ 'value' ] = isset( $filter[ 'value' ] ) ? $filter[ 'value' ] : "";
 
-                        $filter['clause'] = isset($filter['clause']) ? $filter['clause'] : "";
+                        $filter[ 'clause' ] = isset( $filter[ 'clause' ] ) ? $filter[ 'clause' ] : "";
 
                         global $wpdb;
 
-                        switch ($filter['element']) {
+                        switch ( $filter[ 'element' ] ) {
                                 case 'ID':
                                 case 'id':
                                 case 'post_parent':
                                 case 'post_author':
-                                        $this->item_where[] = " {$wpdb->posts}.{$filter['element']} " . $this->add_filter_rule($filter, true, false);
+                                        $this->item_where[] = " {$wpdb->posts}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, true, false );
                                         break;
                                 case 'post_status':
                                 case 'post_title':
@@ -386,16 +386,16 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                 case 'guid':
                                 case 'post_name':
                                 case 'menu_order':
-                                        $this->item_where[] = " {$wpdb->posts}.{$filter['element']} " . $this->add_filter_rule($filter, false, false);
+                                        $this->item_where[] = " {$wpdb->posts}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, false, false );
                                         break;
                                 case 'post_date':
                                 case 'post_modified':
-                                        $filter['value'] = $this->add_date_filter_rule($filter);
-                                        $this->item_where[] = " {$wpdb->posts}.{$filter['element']} " . $this->add_filter_rule($filter, false, false);
+                                        $filter[ 'value' ] = $this->add_date_filter_rule( $filter );
+                                        $this->item_where[] = " {$wpdb->posts}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, false, false );
                                         break;
                                 case 'user_ID':
-                                        $filter['element'] = 'post_author';
-                                        $this->item_where[] = " {$wpdb->posts}.{$filter['element']} " . $this->add_filter_rule($filter, true, false);
+                                        $filter[ 'element' ] = 'post_author';
+                                        $this->item_where[] = " {$wpdb->posts}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, true, false );
                                         break;
                                 case 'user_login':
                                 case 'user_nicename':
@@ -414,7 +414,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                         $meta_query = false;
 
-                                        switch ($filter['element']) {
+                                        switch ( $filter[ 'element' ] ) {
                                                 case 'wp_capabilities':
 
                                                         $meta_query = true;
@@ -423,14 +423,14 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                         $this->user_join[] = " INNER JOIN {$wpdb->usermeta} ON ({$wpdb->usermeta}.user_id = {$wpdb->users}.ID) ";
 
-                                                        $this->user_where .= "{$wpdb->usermeta}.meta_key = '$cap_key' AND {$wpdb->usermeta}.meta_value " . $this->add_filter_rule($filter, false, false);
+                                                        $this->user_where .= "{$wpdb->usermeta}.meta_key = '$cap_key' AND {$wpdb->usermeta}.meta_value " . $this->add_filter_rule( $filter, false, false );
 
-                                                        unset($cap_key);
+                                                        unset( $cap_key );
 
                                                         break;
                                                 case 'user_registered':
-                                                        $filter['value'] = $this->add_date_filter_rule($filter);
-                                                        $this->user_where .= "{$wpdb->users}.{$filter['element']} " . $this->add_filter_rule($filter, false, false);
+                                                        $filter[ 'value' ] = $this->add_date_filter_rule( $filter );
+                                                        $this->user_where .= "{$wpdb->users}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, false, false );
                                                         break;
                                                 case 'user_login':
                                                 case 'user_nicename':
@@ -438,98 +438,98 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                 case 'display_name':
                                                 case 'nickname':
                                                 case 'description':
-                                                        $this->user_where .= "{$wpdb->users}.{$filter['element']} " . $this->add_filter_rule($filter, false, false);
+                                                        $this->user_where .= "{$wpdb->users}.{$filter[ 'element' ]} " . $this->add_filter_rule( $filter, false, false );
                                                         break;
                                                 default:
 
-                                                        if (strpos($filter['element'], "wpie_cf_") === 0) {
+                                                        if ( strpos( $filter[ 'element' ], "wpie_cf_" ) === 0 ) {
 
-                                                                $meta_key = str_replace("wpie_cf_", "", $filter['element']);
+                                                                $meta_key = str_replace( "wpie_cf_", "", $filter[ 'element' ] );
 
-                                                                if ($filter['clause'] == 'is_empty') {
+                                                                if ( $filter[ 'clause' ] == 'is_empty' ) {
 
                                                                         $this->user_join[] = " LEFT JOIN {$wpdb->usermeta} ON ({$wpdb->usermeta}.user_id = {$wpdb->users}.ID AND {$wpdb->usermeta}.meta_key = '$meta_key') ";
 
-                                                                        $this->user_where .= "{$wpdb->usermeta}.umeta_id " . $this->add_filter_rule($filter, false, false);
+                                                                        $this->user_where .= "{$wpdb->usermeta}.umeta_id " . $this->add_filter_rule( $filter, false, false );
                                                                 } else {
                                                                         $this->user_join[] = " INNER JOIN {$wpdb->usermeta} ON ({$wpdb->usermeta}.user_id = {$wpdb->users}.ID) ";
 
-                                                                        $this->user_where .= "{$wpdb->usermeta}.meta_key = '$meta_key' AND {$wpdb->usermeta}.meta_value " . $this->add_filter_rule($filter, false, false);
+                                                                        $this->user_where .= "{$wpdb->usermeta}.meta_key = '$meta_key' AND {$wpdb->usermeta}.meta_value " . $this->add_filter_rule( $filter, false, false );
                                                                 }
-                                                                unset($meta_key);
+                                                                unset( $meta_key );
                                                         }
                                                         break;
                                         }
 
                                         $this->user_where .= $meta_query ? " ) GROUP BY {$wpdb->users}.ID" : ")";
 
-                                        unset($meta_query);
+                                        unset( $meta_query );
 
-                                        add_action('pre_user_query', array($this, 'pre_user_query'), 10, 1);
+                                        add_action( 'pre_user_query', array( $this, 'pre_user_query' ), 10, 1 );
 
-                                        $user_query = new \WP_User_Query(array('orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids'));
+                                        $user_query = new \WP_User_Query( array( 'orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids' ) );
 
-                                        remove_action('pre_user_query', array($this, 'pre_user_query'));
+                                        remove_action( 'pre_user_query', array( $this, 'pre_user_query' ) );
 
                                         $user_list = array();
 
-                                        if (!empty($user_query->results)) {
-                                                foreach ($user_query->results as $user) {
+                                        if ( ! empty( $user_query->results ) ) {
+                                                foreach ( $user_query->results as $user ) {
                                                         $user_list[] = $user->ID;
                                                 }
                                         }
 
-                                        if (!empty($user_list)) {
+                                        if ( ! empty( $user_list ) ) {
 
-                                                $users_str = implode(",", $user_list);
+                                                $users_str = implode( ",", $user_list );
 
                                                 $user_data_where = "{$wpdb->posts}.post_author IN ($users_str)";
 
-                                                if (!empty($filter['clause'])) {
+                                                if ( ! empty( $filter[ 'clause' ] ) ) {
 
-                                                        $user_data_where .= " " . $filter['clause'] . " ";
+                                                        $user_data_where .= " " . $filter[ 'clause' ] . " ";
                                                 }
 
                                                 $this->item_where[] = $user_data_where;
 
-                                                unset($users_str, $user_data_where);
+                                                unset( $users_str, $user_data_where );
                                         }
 
-                                        unset($user_list);
+                                        unset( $user_list );
 
                                         break;
                                 case 'wpie_tax':
 
-                                        if (!empty($filter['value'])) {
+                                        if ( ! empty( $filter[ 'value' ] ) ) {
 
-                                                $tx_name = isset($filter['taxName']) ? $filter['taxName'] : "category";
+                                                $tx_name = isset( $filter[ 'taxName' ] ) ? $filter[ 'taxName' ] : "category";
 
                                                 $terms = array();
 
-                                                $txs = explode(",", $filter['value']);
+                                                $txs = explode( ",", $filter[ 'value' ] );
 
-                                                if (!empty($txs)) {
-                                                        foreach ($txs as $tx) {
-                                                                if (is_numeric($tx)) {
+                                                if ( ! empty( $txs ) ) {
+                                                        foreach ( $txs as $tx ) {
+                                                                if ( is_numeric( $tx ) ) {
                                                                         $terms[] = $tx;
                                                                 } else {
-                                                                        $term = term_exists($tx, $tx_name);
+                                                                        $term = term_exists( $tx, $tx_name );
 
-                                                                        if (isset($term['term_taxonomy_id'])) {
-                                                                                $terms[] = $term['term_taxonomy_id'];
+                                                                        if ( isset( $term[ 'term_taxonomy_id' ] ) ) {
+                                                                                $terms[] = $term[ 'term_taxonomy_id' ];
                                                                         }
-                                                                        unset($term);
+                                                                        unset( $term );
                                                                 }
                                                         }
                                                 }
 
-                                                unset($txs, $tx_name);
+                                                unset( $txs, $tx_name );
 
-                                                if (!empty($terms)) {
+                                                if ( ! empty( $terms ) ) {
 
-                                                        $terms_str = implode(",", $terms);
+                                                        $terms_str = implode( ",", $terms );
 
-                                                        switch ($filter['condition']) {
+                                                        switch ( $filter[ 'condition' ] ) {
                                                                 case 'in':
 
                                                                         $table_alias = 'tr' . time() . uniqid();
@@ -538,13 +538,13 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                                         $term_tx_data = "$table_alias.term_taxonomy_id IN ($terms_str)";
 
-                                                                        if (!empty($filter['clause'])) {
-                                                                                $term_tx_data .= " " . $filter['clause'] . " ";
+                                                                        if ( ! empty( $filter[ 'clause' ] ) ) {
+                                                                                $term_tx_data .= " " . $filter[ 'clause' ] . " ";
                                                                         }
 
                                                                         $this->item_where[] = $term_tx_data;
 
-                                                                        unset($table_alias, $term_tx_data);
+                                                                        unset( $table_alias, $term_tx_data );
 
                                                                         break;
                                                                 case 'not_in':
@@ -555,13 +555,13 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                                             WHERE term_taxonomy_id IN ($terms_str)
                                                                           )";
 
-                                                                        if (!empty($filter['clause'])) {
-                                                                                $term_not_in_tx_data .= " " . $filter['clause'] . " ";
+                                                                        if ( ! empty( $filter[ 'clause' ] ) ) {
+                                                                                $term_not_in_tx_data .= " " . $filter[ 'clause' ] . " ";
                                                                         }
 
                                                                         $this->item_where[] = $term_not_in_tx_data;
 
-                                                                        unset($term_not_in_tx_data);
+                                                                        unset( $term_not_in_tx_data );
 
                                                                         break;
                                                                 default:
@@ -569,34 +569,34 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                                         break;
                                                         }
 
-                                                        unset($terms_str);
+                                                        unset( $terms_str );
                                                 }
 
-                                                unset($terms);
+                                                unset( $terms );
                                         }
                                         break;
                                 case 'wpie_cf':
 
-                                        $meta_key = isset($filter['metaKey']) ? $filter['metaKey'] : "";
+                                        $meta_key = isset( $filter[ 'metaKey' ] ) ? $filter[ 'metaKey' ] : "";
 
-                                        $table_alias = (count($this->item_join) > 0) ? 'meta' . count($this->item_join) : 'meta';
+                                        $table_alias = (count( $this->item_join ) > 0) ? 'meta' . count( $this->item_join ) : 'meta';
 
-                                        if ($filter['condition'] == 'is_empty') {
+                                        if ( $filter[ 'condition' ] == 'is_empty' ) {
 
                                                 $this->item_join[] = " LEFT JOIN {$wpdb->postmeta} AS $table_alias ON ($table_alias.post_id = {$wpdb->posts}.ID AND $table_alias.meta_key = '$meta_key') ";
 
-                                                $this->item_where[] = "$table_alias.meta_id " . $this->add_filter_rule($filter, false, false);
+                                                $this->item_where[] = "$table_alias.meta_id " . $this->add_filter_rule( $filter, false, false );
                                         } else {
 
-                                                if (in_array($meta_key, array('_completed_date'))) {
-                                                        $filter['value'] = $this->add_date_filter_rule($filter);
+                                                if ( in_array( $meta_key, array( '_completed_date' ) ) ) {
+                                                        $filter[ 'value' ] = $this->add_date_filter_rule( $filter );
                                                 }
 
                                                 $this->item_join[] = " INNER JOIN {$wpdb->postmeta} AS $table_alias ON ({$wpdb->posts}.ID = $table_alias.post_id) ";
 
-                                                $this->item_where[] = "$table_alias.meta_key = '$meta_key' AND $table_alias.meta_value " . $this->add_filter_rule($filter, false, $table_alias);
+                                                $this->item_where[] = "$table_alias.meta_key = '$meta_key' AND $table_alias.meta_value " . $this->add_filter_rule( $filter, false, $table_alias );
                                         }
-                                        unset($meta_key, $table_alias);
+                                        unset( $meta_key, $table_alias );
                                         break;
                                 default:
 
@@ -618,114 +618,114 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                 unset( $item_where, $item_join );
                         }
                 }
-                unset($filter);
+                unset( $filter );
         }
 
         protected function process_export() {
 
                 $query = array(
                         'post_type'      => $this->export_type,
-                        'post_status'    => 'any',
+                        'post_status'    => array_keys( get_post_stati() ),
                         'orderby'        => "ID",
                         'order'          => 'ASC',
                         'fields'         => 'ids',
-                        'offset'         => isset($this->process_log['exported']) ? absint($this->process_log['exported']) : 0,
-                        'posts_per_page' => isset($this->template_options['wpie_records_per_iteration']) ? absint($this->template_options['wpie_records_per_iteration']) : 50
+                        'offset'         => isset( $this->process_log[ 'exported' ] ) ? absint( $this->process_log[ 'exported' ] ) : 0,
+                        'posts_per_page' => isset( $this->template_options[ 'wpie_records_per_iteration' ] ) ? absint( $this->template_options[ 'wpie_records_per_iteration' ] ) : 50
                 );
 
-                if ($this->opration == "count" || $this->opration == "ids") {
-                        $query['offset'] = 0;
-                        $query['posts_per_page'] = -1;
+                if ( $this->opration === "count" || $this->opration === "ids" ) {
+                        $query[ 'offset' ] = 0;
+                        $query[ 'posts_per_page' ] = -1;
                 }
 
-                $query = apply_filters('wpie_pre_execute_post_query', $query);
+                $query = apply_filters( 'wpie_pre_execute_post_query', $query );
 
-                add_filter('posts_where', array($this, 'posts_where'), 10, 1);
+                add_filter( 'posts_where', array( $this, 'posts_where' ), 10, 1 );
 
-                add_filter('posts_join', array($this, 'posts_join'), 10, 1);
+                add_filter( 'posts_join', array( $this, 'posts_join' ), 10, 1 );
 
-                $post_result = new \WP_Query($query);
+                $post_result = new \WP_Query( $query );
 
-                unset($query);
+                unset( $query );
 
-                remove_filter('posts_where', array($this, 'posts_where'), 10, 1);
+                remove_filter( 'posts_where', array( $this, 'posts_where' ), 10, 1 );
 
-                remove_filter('posts_join', array($this, 'posts_join'), 10, 1);
+                remove_filter( 'posts_join', array( $this, 'posts_join' ), 10, 1 );
 
                 wp_reset_postdata();
 
-                if ($this->opration == "count") {
-                        return count($post_result->posts);
-                } elseif ($this->opration == "ids") {
+                if ( $this->opration === "count" ) {
+                        return count( $post_result->posts );
+                } elseif ( $this->opration === "ids" ) {
                         return $post_result->posts;
                 }
 
                 $post_data = $post_result->posts;
 
-                unset($post_result);
+                unset( $post_result );
 
-                $this->process_items($post_data);
+                $this->process_items( $post_data );
 
                 return true;
         }
 
-        protected function process_items($post_data = array()) {
+        protected function process_items( $post_data = array() ) {
 
-                $fields_data = (isset($this->template_options['fields_data']) && trim($this->template_options['fields_data']) != "") ? explode("~||~", wpie_sanitize_field(wp_unslash($this->template_options['fields_data']))) : array();
+                $fields_data = (isset( $this->template_options[ 'fields_data' ] ) && trim( $this->template_options[ 'fields_data' ] ) != "") ? explode( "~||~", wpie_sanitize_field( wp_unslash( $this->template_options[ 'fields_data' ] ) ) ) : array();
 
-                $site_date_format = get_option('date_format');
+                $site_date_format = get_option( 'date_format' );
 
                 $users = array();
 
                 $media = array();
 
-                if ($this->addons && is_array($this->addons)) {
+                if ( $this->addons && is_array( $this->addons ) ) {
 
-                        foreach ($this->addons as $addon) {
+                        foreach ( $this->addons as $addon ) {
 
-                                if (method_exists($addon, "init_export_process")) {
+                                if ( method_exists( $addon, "init_export_process" ) ) {
 
-                                        $addon->init_export_process($post_data, $this->template_options, $this->export_id);
+                                        $addon->init_export_process( $post_data, $this->template_options, $this->export_id );
                                 }
                         }
                 }
 
-                if ($post_data) {
+                if ( $post_data ) {
 
-                        foreach ($post_data as $post_id) {
+                        foreach ( $post_data as $post_id ) {
 
-                                $item = get_post($post_id);
+                                $item = get_post( $post_id );
 
                                 $this->export_data = array();
 
                                 $this->has_multiple_rows = false;
 
-                                if (!empty($fields_data)) {
+                                if ( ! empty( $fields_data ) ) {
 
-                                        foreach ($fields_data as $field) {
+                                        foreach ( $fields_data as $field ) {
 
-                                                if (empty($field)) {
+                                                if ( empty( $field ) ) {
                                                         continue;
                                                 }
-                                                $new_field = explode("|~|", $field);
+                                                $new_field = explode( "|~|", $field );
 
-                                                $field_label = isset($new_field[0]) ? wpie_sanitize_field($new_field[0]) : "";
+                                                $field_label = isset( $new_field[ 0 ] ) ? wpie_sanitize_field( $new_field[ 0 ] ) : "";
 
-                                                $field_option = isset($new_field[1]) ? json_decode(wpie_sanitize_field($new_field[1]), true) : "";
+                                                $field_option = isset( $new_field[ 1 ] ) ? json_decode( wpie_sanitize_field( $new_field[ 1 ] ), true ) : "";
 
-                                                $field_type = isset($field_option['type']) ? wpie_sanitize_field($field_option['type']) : "";
+                                                $field_type = isset( $field_option[ 'type' ] ) ? wpie_sanitize_field( $field_option[ 'type' ] ) : "";
 
-                                                $is_php = isset($field_option['isPhp']) ? wpie_sanitize_field($field_option['isPhp']) == 1 : false;
+                                                $is_php = isset( $field_option[ 'isPhp' ] ) ? wpie_sanitize_field( $field_option[ 'isPhp' ] ) == 1 : false;
 
-                                                $php_func = isset($field_option['phpFun']) ? wpie_sanitize_field($field_option['phpFun']) : "";
+                                                $php_func = isset( $field_option[ 'phpFun' ] ) ? wpie_sanitize_field( $field_option[ 'phpFun' ] ) : "";
 
-                                                $date_type = isset($field_option['dateType']) ? wpie_sanitize_field($field_option['dateType']) : "";
+                                                $date_type = isset( $field_option[ 'dateType' ] ) ? wpie_sanitize_field( $field_option[ 'dateType' ] ) : "";
 
-                                                $date_format = isset($field_option['dateFormat']) ? wpie_sanitize_field($field_option['dateFormat']) : "";
+                                                $date_format = isset( $field_option[ 'dateFormat' ] ) ? wpie_sanitize_field( $field_option[ 'dateFormat' ] ) : "";
 
-                                                $field_name = strtolower(preg_replace("/[^a-zA-Z0-9]+/", "", $field_type . $field_label));
+                                                $field_name = strtolower( preg_replace( "/[^a-zA-Z0-9]+/", "", $field_type . $field_label ) );
 
-                                                if (isset($this->export_data[$field_name])) {
+                                                if ( isset( $this->export_data[ $field_name ] ) ) {
 
                                                         $base_name = $field_name;
 
@@ -735,321 +735,321 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                         $element_name = "";
 
-                                                        while (!$is_added) {
+                                                        while ( ! $is_added ) {
 
-                                                                $element_name = $base_name . '_' . md5($i);
+                                                                $element_name = $base_name . '_' . md5( $i );
 
-                                                                if (!isset($this->export_data[$element_name])) {
+                                                                if ( ! isset( $this->export_data[ $element_name ] ) ) {
 
                                                                         $field_name = $element_name;
 
                                                                         $is_added = true;
                                                                 }
-                                                                $i++;
+                                                                $i ++;
                                                         }
-                                                        unset($element_name, $base_name, $i, $is_added);
+                                                        unset( $element_name, $base_name, $i, $is_added );
                                                 }
 
-                                                if ($this->process_log['exported'] == 0) {
+                                                if ( $this->process_log[ 'exported' ] == 0 ) {
 
-                                                        $this->export_labels[$field_name] = $field_label;
+                                                        $this->export_labels[ $field_name ] = $field_label;
 
-                                                        if ($this->addons && is_array($this->addons)) {
+                                                        if ( $this->addons && is_array( $this->addons ) ) {
 
-                                                                foreach ($this->addons as $addon) {
+                                                                foreach ( $this->addons as $addon ) {
 
-                                                                        if (method_exists($addon, "change_export_labels")) {
+                                                                        if ( method_exists( $addon, "change_export_labels" ) ) {
 
-                                                                                $addon->change_export_labels($this->export_labels, $field_type, $field_name, $field_label, $field_option);
+                                                                                $addon->change_export_labels( $this->export_labels, $field_type, $field_name, $field_label, $field_option );
                                                                         }
                                                                 }
                                                         }
                                                 }
-                                                if ($this->addons && is_array($this->addons)) {
+                                                if ( $this->addons && is_array( $this->addons ) ) {
 
-                                                        foreach ($this->addons as $addon) {
+                                                        foreach ( $this->addons as $addon ) {
 
-                                                                if (method_exists($addon, "pre_process_data")) {
+                                                                if ( method_exists( $addon, "pre_process_data" ) ) {
 
-                                                                        $addon->pre_process_data($this->export_labels, $field_type, $field_name, $field_label);
+                                                                        $addon->pre_process_data( $this->export_labels, $field_type, $field_name, $field_label );
                                                                 }
                                                         }
                                                 }
 
-                                                switch ($field_type) {
+                                                switch ( $field_type ) {
 
                                                         case 'id':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_id', $this->apply_user_function($item->ID, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_id', $this->apply_user_function( $item->ID, $is_php, $php_func ), $item );
                                                                 break;
                                                         case 'permalink':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_permalink', $this->apply_user_function(get_permalink($item), $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_permalink', $this->apply_user_function( get_permalink( $item ), $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'post_type':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_type', $this->apply_user_function($item->post_type, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_type', $this->apply_user_function( $item->post_type, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'title':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_title', $this->apply_user_function($item->post_title, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_title', $this->apply_user_function( $item->post_title, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'content':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_content', $this->apply_user_function($item->post_content, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_content', $this->apply_user_function( $item->post_content, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'date':
 
-                                                                $post_date = $this->get_date_field($date_type, get_post_time('U', true, $item->ID), $date_format, $site_date_format);
+                                                                $post_date = $this->get_date_field( $date_type, get_post_time( 'U', true, $item->ID ), $date_format, $site_date_format );
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_date', $this->apply_user_function($post_date, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_date', $this->apply_user_function( $post_date, $is_php, $php_func ), $item );
 
-                                                                unset($post_date);
+                                                                unset( $post_date );
 
                                                                 break;
 
                                                         case 'post_modified':
 
-                                                                $post_modified_date = $this->get_date_field($date_type, get_post_modified_time('U', true, $item->ID), $date_format, $site_date_format);
+                                                                $post_modified_date = $this->get_date_field( $date_type, get_post_modified_time( 'U', true, $item->ID ), $date_format, $site_date_format );
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_modified_time', $this->apply_user_function($post_modified_date, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_modified_time', $this->apply_user_function( $post_modified_date, $is_php, $php_func ), $item );
 
-                                                                unset($post_modified_date);
+                                                                unset( $post_modified_date );
 
                                                                 break;
 
                                                         case 'parent':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_parent', $this->apply_user_function($item->post_parent, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_parent', $this->apply_user_function( $item->post_parent, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'parent_slug':
 
                                                                 $parent_slug = '';
 
-                                                                if ($item->post_parent != 0) {
+                                                                if ( $item->post_parent != 0 ) {
 
-                                                                        $wpie_parent_posts = get_post_ancestors($item->ID);
+                                                                        $wpie_parent_posts = get_post_ancestors( $item->ID );
 
-                                                                        if (!empty($wpie_parent_posts)) {
+                                                                        if ( ! empty( $wpie_parent_posts ) ) {
 
                                                                                 $wpie_slugs = array();
 
-                                                                                foreach ($wpie_parent_posts as $wpie_parent_post) {
+                                                                                foreach ( $wpie_parent_posts as $wpie_parent_post ) {
 
-                                                                                        $the_post = get_post($wpie_parent_post);
+                                                                                        $the_post = get_post( $wpie_parent_post );
 
-                                                                                        if ($the_post) {
+                                                                                        if ( $the_post ) {
                                                                                                 $wpie_slugs[] = $the_post->post_name;
                                                                                         }
 
-                                                                                        unset($the_post);
+                                                                                        unset( $the_post );
                                                                                 }
 
-                                                                                $parent_slug = implode("/", array_reverse($wpie_slugs));
+                                                                                $parent_slug = implode( "/", array_reverse( $wpie_slugs ) );
 
-                                                                                unset($wpie_slugs);
+                                                                                unset( $wpie_slugs );
                                                                         } else {
 
-                                                                                $the_post = get_post($item->post_parent);
+                                                                                $the_post = get_post( $item->post_parent );
 
-                                                                                if ($the_post) {
+                                                                                if ( $the_post ) {
                                                                                         $parent_slug = $the_post->post_name;
                                                                                 }
 
-                                                                                unset($the_post);
+                                                                                unset( $the_post );
                                                                         }
 
-                                                                        unset($wpie_parent_posts);
+                                                                        unset( $wpie_parent_posts );
                                                                 } else {
                                                                         $parent_slug = $item->post_parent;
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_parent_slug', $this->apply_user_function($parent_slug, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_parent_slug', $this->apply_user_function( $parent_slug, $is_php, $php_func ), $item );
 
-                                                                unset($parent_slug);
+                                                                unset( $parent_slug );
 
                                                                 break;
                                                         case 'comment_status':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_comment_status', $this->apply_user_function($item->comment_status, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_comment_status', $this->apply_user_function( $item->comment_status, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'ping_status':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_ping_status', $this->apply_user_function($item->ping_status, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_ping_status', $this->apply_user_function( $item->ping_status, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'template':
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_template', $this->apply_user_function(get_post_meta($item->ID, '_wp_page_template', true), $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_template', $this->apply_user_function( get_post_meta( $item->ID, '_wp_page_template', true ), $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'order':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_menu_order', $this->apply_user_function($item->menu_order, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_menu_order', $this->apply_user_function( $item->menu_order, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'status':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_status', $this->apply_user_function($item->post_status, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_status', $this->apply_user_function( $item->post_status, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'format':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_format', $this->apply_user_function(get_post_format($item->ID), $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_format', $this->apply_user_function( get_post_format( $item->ID ), $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'author_id':
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_author_id', $this->apply_user_function($item->post_author, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_author_id', $this->apply_user_function( $item->post_author, $is_php, $php_func ), $item );
                                                                 break;
 
                                                         case 'author_username':
 
-                                                                if (!isset($users[$item->post_author])) {
-                                                                        $users[$item->post_author] = get_user_by('id', $item->post_author);
+                                                                if ( ! isset( $users[ $item->post_author ] ) ) {
+                                                                        $users[ $item->post_author ] = get_user_by( 'id', $item->post_author );
                                                                 }
 
-                                                                $user_data = $users[$item->post_author];
+                                                                $user_data = $users[ $item->post_author ];
 
-                                                                if (is_object($user_data)) {
-                                                                        $username = isset($user_data->user_login) ? $user_data->user_login : "";
+                                                                if ( is_object( $user_data ) ) {
+                                                                        $username = isset( $user_data->user_login ) ? $user_data->user_login : "";
                                                                 } else {
                                                                         $username = '';
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_author', $this->apply_user_function($username, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_author', $this->apply_user_function( $username, $is_php, $php_func ), $item );
 
-                                                                unset($user_data, $username);
+                                                                unset( $user_data, $username );
 
                                                                 break;
                                                         case 'author_email':
 
-                                                                if (!isset($users[$item->post_author])) {
-                                                                        $users[$item->post_author] = get_user_by('id', $item->post_author);
+                                                                if ( ! isset( $users[ $item->post_author ] ) ) {
+                                                                        $users[ $item->post_author ] = get_user_by( 'id', $item->post_author );
                                                                 }
 
-                                                                $user_data = $users[$item->post_author];
+                                                                $user_data = $users[ $item->post_author ];
 
-                                                                if (is_object($user_data)) {
-                                                                        $user_email = isset($user_data->user_email) ? $user_data->user_email : "";
+                                                                if ( is_object( $user_data ) ) {
+                                                                        $user_email = isset( $user_data->user_email ) ? $user_data->user_email : "";
                                                                 } else {
                                                                         $user_email = '';
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_author_email', $this->apply_user_function($user_email, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_author_email', $this->apply_user_function( $user_email, $is_php, $php_func ), $item );
 
-                                                                unset($user_data, $user_email);
+                                                                unset( $user_data, $user_email );
 
                                                                 break;
                                                         case 'wpie_cf_first_name':
 
-                                                                if (!isset($users[$item->post_author])) {
-                                                                        $users[$item->post_author] = get_user_by('id', $item->post_author);
+                                                                if ( ! isset( $users[ $item->post_author ] ) ) {
+                                                                        $users[ $item->post_author ] = get_user_by( 'id', $item->post_author );
                                                                 }
 
-                                                                $user_data = $users[$item->post_author];
+                                                                $user_data = $users[ $item->post_author ];
 
-                                                                if (is_object($user_data)) {
-                                                                        $user_fname = isset($user_data->first_name) ? $user_data->first_name : "";
+                                                                if ( is_object( $user_data ) ) {
+                                                                        $user_fname = isset( $user_data->first_name ) ? $user_data->first_name : "";
                                                                 } else {
                                                                         $user_fname = '';
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_author_first_name', $this->apply_user_function($user_fname, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_author_first_name', $this->apply_user_function( $user_fname, $is_php, $php_func ), $item );
 
-                                                                unset($user_data, $user_fname);
+                                                                unset( $user_data, $user_fname );
 
                                                                 break;
                                                         case 'wpie_cf_last_name':
 
-                                                                if (!isset($users[$item->post_author])) {
-                                                                        $users[$item->post_author] = get_user_by('id', $item->post_author);
+                                                                if ( ! isset( $users[ $item->post_author ] ) ) {
+                                                                        $users[ $item->post_author ] = get_user_by( 'id', $item->post_author );
                                                                 }
 
-                                                                $user_data = $users[$item->post_author];
+                                                                $user_data = $users[ $item->post_author ];
 
-                                                                if (is_object($user_data)) {
-                                                                        $user_lname = isset($user_data->last_name) ? $user_data->last_name : "";
+                                                                if ( is_object( $user_data ) ) {
+                                                                        $user_lname = isset( $user_data->last_name ) ? $user_data->last_name : "";
                                                                 } else {
                                                                         $user_lname = '';
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_author_last_name', $this->apply_user_function($user_lname, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_author_last_name', $this->apply_user_function( $user_lname, $is_php, $php_func ), $item );
 
-                                                                unset($user_data, $user_lname);
+                                                                unset( $user_data, $user_lname );
 
                                                                 break;
 
                                                         case 'slug':
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_slug', $this->apply_user_function($item->post_name, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_slug', $this->apply_user_function( $item->post_name, $is_php, $php_func ), $item );
 
                                                                 break;
 
                                                         case 'excerpt':
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_excerpt', $this->apply_user_function($item->post_excerpt, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_excerpt', $this->apply_user_function( $item->post_excerpt, $is_php, $php_func ), $item );
 
                                                                 break;
                                                         case 'wpie_cf':
 
                                                                 $meta_value = "";
 
-                                                                $meta_key = isset($field_option['metaKey']) ? wpie_sanitize_field($field_option['metaKey']) : "";
+                                                                $meta_key = isset( $field_option[ 'metaKey' ] ) ? wpie_sanitize_field( $field_option[ 'metaKey' ] ) : "";
 
-                                                                if ($meta_key != "") {
+                                                                if ( $meta_key != "" ) {
 
-                                                                        $post_meta_value = get_post_meta($item->ID, $meta_key);
+                                                                        $post_meta_value = get_post_meta( $item->ID, $meta_key );
 
-                                                                        if (!empty($post_meta_value) && is_array($post_meta_value)) {
+                                                                        if ( ! empty( $post_meta_value ) && is_array( $post_meta_value ) ) {
 
-                                                                                foreach ($post_meta_value as $mkey => $mvalue) {
-                                                                                        if (empty($meta_value)) {
-                                                                                                $meta_value = maybe_serialize($mvalue);
+                                                                                foreach ( $post_meta_value as $mkey => $mvalue ) {
+                                                                                        if ( empty( $meta_value ) ) {
+                                                                                                $meta_value = maybe_serialize( $mvalue );
                                                                                         } else {
-                                                                                                $meta_value = $meta_value . "||" . maybe_serialize($mvalue);
+                                                                                                $meta_value = $meta_value . "||" . maybe_serialize( $mvalue );
                                                                                         }
                                                                                 }
                                                                         }
-                                                                        unset($post_meta_value);
+                                                                        unset( $post_meta_value );
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_meta', $this->apply_user_function($meta_value, $is_php, $php_func), $meta_key, $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_meta', $this->apply_user_function( $meta_value, $is_php, $php_func ), $meta_key, $item );
 
-                                                                unset($meta_value, $meta_key);
+                                                                unset( $meta_value, $meta_key );
 
                                                                 break;
                                                         case 'wpie_tax':
 
-                                                                $tax_name = isset($field_option['taxName']) ? wpie_sanitize_field($field_option['taxName']) : "";
+                                                                $tax_name = isset( $field_option[ 'taxName' ] ) ? wpie_sanitize_field( $field_option[ 'taxName' ] ) : "";
 
                                                                 $tax_value = array();
 
-                                                                if ($tax_name != "") {
+                                                                if ( $tax_name != "" ) {
 
                                                                         $_post_id = $item->ID;
-                                                                        if ($this->addons && is_array($this->addons)) {
-                                                                                foreach ($this->addons as $addon) {
-                                                                                        if (method_exists($addon, "process_item_taxonomy_id")) {
-                                                                                                $_post_id = $addon->process_item_taxonomy_id($_post_id, $field_type, $field_name, $field_option, $item);
+                                                                        if ( $this->addons && is_array( $this->addons ) ) {
+                                                                                foreach ( $this->addons as $addon ) {
+                                                                                        if ( method_exists( $addon, "process_item_taxonomy_id" ) ) {
+                                                                                                $_post_id = $addon->process_item_taxonomy_id( $_post_id, $field_type, $field_name, $field_option, $item );
                                                                                         }
                                                                                 }
                                                                         }
 
-                                                                        $tax_value = $this->get_hierarchy_by_post_id($_post_id, $tax_name);
+                                                                        $tax_value = $this->get_hierarchy_by_post_id( $_post_id, $tax_name );
                                                                 }
 
-                                                                if (!empty($tax_value)) {
-                                                                        $tax_value = implode(",", $tax_value);
+                                                                if ( ! empty( $tax_value ) ) {
+                                                                        $tax_value = implode( ",", $tax_value );
                                                                 }
 
-                                                                $this->export_data[$field_name] = $tax_value;
+                                                                $this->export_data[ $field_name ] = $tax_value;
 
-                                                                if ($this->addons && is_array($this->addons)) {
-                                                                        foreach ($this->addons as $addon) {
-                                                                                if (method_exists($addon, "process_item_taxonomy")) {
-                                                                                        $addon->process_item_taxonomy($this->export_data, $field_type, $field_name, $field_option, $item);
+                                                                if ( $this->addons && is_array( $this->addons ) ) {
+                                                                        foreach ( $this->addons as $addon ) {
+                                                                                if ( method_exists( $addon, "process_item_taxonomy" ) ) {
+                                                                                        $addon->process_item_taxonomy( $this->export_data, $field_type, $field_name, $field_option, $item );
                                                                                 }
                                                                         }
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_term', $this->apply_user_function($this->export_data[$field_name], $is_php, $php_func), $tax_name, $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_term', $this->apply_user_function( $this->export_data[ $field_name ], $is_php, $php_func ), $tax_name, $item );
 
-                                                                unset($tax_name, $tax_value);
+                                                                unset( $tax_name, $tax_value );
 
                                                                 break;
 
@@ -1063,33 +1063,33 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                         case 'attachment_description':
                                                         case 'attachment_alt':
 
-                                                                if (file_exists(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php')) {
+                                                                if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php' ) ) {
 
                                                                         require_once(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php');
                                                                 }
 
                                                                 $wpie_media = new \wpie\export\media\WPIE_Media();
 
-                                                                if (!(isset($media[$item->ID]))) {
+                                                                if ( ! (isset( $media[ $item->ID ] )) ) {
 
-                                                                        $media[$item->ID] = $wpie_media->get_media($item->ID);
+                                                                        $media[ $item->ID ] = $wpie_media->get_media( $item->ID );
                                                                 }
 
                                                                 $attach_value = "";
 
-                                                                if (!empty($media[$item->ID])) {
+                                                                if ( ! empty( $media[ $item->ID ] ) ) {
 
-                                                                        $attch = $wpie_media->get_attch($media[$item->ID], $field_type, 'post');
+                                                                        $attch = $wpie_media->get_attch( $media[ $item->ID ], $field_type, 'post' );
 
-                                                                        if (!empty($attch)) {
-                                                                                $attach_value = implode("||", $attch);
+                                                                        if ( ! empty( $attch ) ) {
+                                                                                $attach_value = implode( "||", $attch );
                                                                         }
-                                                                        unset($attch);
+                                                                        unset( $attch );
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_attach_' . $field_type, $this->apply_user_function($attach_value, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_attach_' . $field_type, $this->apply_user_function( $attach_value, $is_php, $php_func ), $item );
 
-                                                                unset($wpie_media, $attach_value);
+                                                                unset( $wpie_media, $attach_value );
 
                                                                 break;
                                                         // Media Images
@@ -1103,61 +1103,61 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                         case 'image_description':
                                                         case 'image_alt':
 
-                                                                if (file_exists(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php')) {
+                                                                if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php' ) ) {
 
                                                                         require_once(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-media.php');
                                                                 }
 
                                                                 $wpie_media = new \wpie\export\media\WPIE_Media();
 
-                                                                if (!(isset($media[$item->ID]))) {
+                                                                if ( ! (isset( $media[ $item->ID ] )) ) {
 
-                                                                        $media[$item->ID] = $wpie_media->get_media($item->ID);
+                                                                        $media[ $item->ID ] = $wpie_media->get_media( $item->ID );
                                                                 }
 
                                                                 $image_media = "";
 
-                                                                if (isset($media[$item->ID])) {
+                                                                if ( isset( $media[ $item->ID ] ) ) {
 
-                                                                        $image_data = $wpie_media->get_images($item->ID, $media[$item->ID], $field_type, 'post');
+                                                                        $image_data = $wpie_media->get_images( $item->ID, $media[ $item->ID ], $field_type, 'post' );
 
-                                                                        if (!empty($image_data)) {
-                                                                                $image_media = implode("||", $image_data);
+                                                                        if ( ! empty( $image_data ) ) {
+                                                                                $image_media = implode( "||", $image_data );
                                                                         }
 
-                                                                        unset($image_data);
+                                                                        unset( $image_data );
                                                                 }
 
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_image_' . $field_type, $this->apply_user_function($image_media, $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_image_' . $field_type, $this->apply_user_function( $image_media, $is_php, $php_func ), $item );
 
-                                                                unset($wpie_media, $image_media);
+                                                                unset( $wpie_media, $image_media );
 
                                                                 break;
 
                                                         default:
-                                                                $this->export_data[$field_name] = apply_filters('wpie_export_post_field', $this->apply_user_function("", $is_php, $php_func), $item);
+                                                                $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_field', $this->apply_user_function( "", $is_php, $php_func ), $item );
                                                                 break;
                                                 }
 
 
-                                                if ($this->addons && is_array($this->addons)) {
-                                                        foreach ($this->addons as $addon) {
-                                                                if (method_exists($addon, "process_addon_data")) {
-                                                                        $addon->process_addon_data($this->export_data, $field_type, $field_name, $field_option, $item, $site_date_format);
+                                                if ( $this->addons && is_array( $this->addons ) ) {
+                                                        foreach ( $this->addons as $addon ) {
+                                                                if ( method_exists( $addon, "process_addon_data" ) ) {
+                                                                        $addon->process_addon_data( $this->export_data, $field_type, $field_name, $field_option, $item, $site_date_format );
                                                                 }
                                                         }
                                                 }
 
-                                                unset($new_field, $field_label, $field_option, $field_type, $is_php, $php_func, $date_type, $date_format, $field_name);
+                                                unset( $new_field, $field_label, $field_option, $field_type, $is_php, $php_func, $date_type, $date_format, $field_name );
                                         }
 
-                                        if ($this->addons && is_array($this->addons)) {
+                                        if ( $this->addons && is_array( $this->addons ) ) {
 
-                                                foreach ($this->addons as $addon) {
+                                                foreach ( $this->addons as $addon ) {
 
-                                                        if (method_exists($addon, "finalyze_export_process")) {
+                                                        if ( method_exists( $addon, "finalyze_export_process" ) ) {
 
-                                                                $addon->finalyze_export_process($this->export_data, $this->has_multiple_rows);
+                                                                $addon->finalyze_export_process( $this->export_data, $this->has_multiple_rows );
                                                         }
                                                 }
                                         }
@@ -1165,48 +1165,48 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                         $this->process_data();
                                 }
 
-                                unset($item);
+                                unset( $item );
                         }
                 }
 
-                unset($fields_data, $site_date_format, $users, $media);
+                unset( $fields_data, $site_date_format, $users, $media );
         }
 
-        public function posts_where($data = "") {
+        public function posts_where( $data = "" ) {
 
                 global $wpdb;
 
-                $this->item_where = apply_filters('wpie_export_posts_where', $this->item_where, $this->item_join);
+                $this->item_where = apply_filters( 'wpie_export_posts_where', $this->item_where, $this->item_join );
 
-                if (!empty($this->item_where)) {
+                if ( ! empty( $this->item_where ) ) {
 
-                        $post_where = preg_replace( array ( '/OR$/', '/OR $/', '/AND$/', '/AND $/' ), " ", preg_replace( array ( '%^ OR %', '%^ AND %' ), ' ', implode( ' ', $this->item_where ) ) );
+                        $post_where = preg_replace( array( '/OR$/', '/OR $/', '/AND$/', '/AND $/' ), " ", preg_replace( array( '%^ OR %', '%^ AND %' ), ' ', implode( ' ', $this->item_where ) ) );
 
                         $data .= " AND ( " . $post_where . ") GROUP BY {$wpdb->posts}.ID";
 
-                        unset($post_where);
+                        unset( $post_where );
                 }
 
                 return $data;
         }
 
-        public function posts_join($data = "") {
+        public function posts_join( $data = "" ) {
 
-                $this->item_join = apply_filters('wpie_export_posts_join', $this->item_join);
+                $this->item_join = apply_filters( 'wpie_export_posts_join', $this->item_join );
 
-                if (!empty($this->item_join)) {
+                if ( ! empty( $this->item_join ) ) {
 
-                        $data .= implode(' ', array_unique($this->item_join));
+                        $data .= implode( ' ', array_unique( $this->item_join ) );
                 }
 
                 return $data;
         }
 
-        private function get_valid_element($element = "") {
+        private function get_valid_element( $element = "" ) {
 
-                switch ($element) {
+                switch ( $element ) {
                         case 'id':
-                                $return_data = strtoupper($element);
+                                $return_data = strtoupper( $element );
                                 break;
                         case 'parent':
                         case 'author':
@@ -1240,17 +1240,17 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return $return_data;
         }
 
-        private function check_children_assign($parent, $taxonomy, $term_ids = array()) {
+        private function check_children_assign( $parent, $taxonomy, $term_ids = array() ) {
 
                 $is_latest_child = true;
 
-                $children = get_term_children($parent, $taxonomy);
+                $children = get_term_children( $parent, $taxonomy );
 
-                if (!is_wp_error($children) && is_array($children) && !empty($children)) {
+                if ( ! is_wp_error( $children ) && is_array( $children ) && ! empty( $children ) ) {
 
-                        foreach ($children as $child) {
+                        foreach ( $children as $child ) {
 
-                                if (in_array($child, $term_ids)) {
+                                if ( in_array( $child, $term_ids ) ) {
 
                                         $is_latest_child = false;
 
@@ -1258,85 +1258,85 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                 }
                         }
                 }
-                unset($children);
+                unset( $children );
 
                 return $is_latest_child;
         }
 
-        public function get_hierarchy_by_taxonomy_id($tax_ids = array(), $tax_name = "") {
+        public function get_hierarchy_by_taxonomy_id( $tax_ids = array(), $tax_name = "" ) {
 
-                if (is_array($tax_ids) && !empty($tax_ids)) {
+                if ( is_array( $tax_ids ) && ! empty( $tax_ids ) ) {
 
                         global $wp_version;
 
-                        if (version_compare($wp_version, '4.5.0', '<')) {
+                        if ( version_compare( $wp_version, '4.5.0', '<' ) ) {
 
-                                $taxonomies = get_terms($tax_name, array('include' => $tax_ids, "hide_empty" => false));
+                                $taxonomies = get_terms( $tax_name, array( 'include' => $tax_ids, "hide_empty" => false ) );
                         } else {
-                                $taxonomies = get_terms(array('taxonomy' => $tax_name, 'include' => $tax_ids, "hide_empty" => false));
+                                $taxonomies = get_terms( array( 'taxonomy' => $tax_name, 'include' => $tax_ids, "hide_empty" => false ) );
                         }
 
-                        return $this->get_hierarchy_by_taxonomy($taxonomies);
+                        return $this->get_hierarchy_by_taxonomy( $taxonomies );
                 }
                 return false;
         }
 
-        private function get_hierarchy_by_post_id($_post_id = 0, $tax_name = "") {
+        private function get_hierarchy_by_post_id( $_post_id = 0, $tax_name = "" ) {
 
-                $taxonomies = get_the_terms($_post_id, $tax_name);
+                $taxonomies = get_the_terms( $_post_id, $tax_name );
 
-                return $this->get_hierarchy_by_taxonomy($taxonomies, $tax_name);
+                return $this->get_hierarchy_by_taxonomy( $taxonomies, $tax_name );
         }
 
-        private function get_hierarchy_by_taxonomy($taxonomy = array(), $tax_name = "") {
+        private function get_hierarchy_by_taxonomy( $taxonomy = array(), $tax_name = "" ) {
 
                 $hierarchy_groups = array();
 
-                if (!is_wp_error($taxonomy) && !empty($taxonomy)) {
+                if ( ! is_wp_error( $taxonomy ) && ! empty( $taxonomy ) ) {
 
                         $tax_ids = array();
 
-                        foreach ($taxonomy as $tax_list) {
+                        foreach ( $taxonomy as $tax_list ) {
                                 $tax_ids[] = $tax_list->term_id;
                         }
 
-                        foreach ($taxonomy as $tax_list) {
+                        foreach ( $taxonomy as $tax_list ) {
 
-                                if ($this->check_children_assign($tax_list->term_id, $tax_name, $tax_ids)) {
+                                if ( $this->check_children_assign( $tax_list->term_id, $tax_name, $tax_ids ) ) {
 
-                                        $ancestors = get_ancestors($tax_list->term_id, $tax_name);
+                                        $ancestors = get_ancestors( $tax_list->term_id, $tax_name );
 
-                                        if (count($ancestors) > 0) {
+                                        if ( count( $ancestors ) > 0 ) {
 
                                                 $hierarchy = array();
 
-                                                for ($i = count($ancestors) - 1; $i >= 0; $i--) {
+                                                for ( $i = count( $ancestors ) - 1; $i >= 0; $i -- ) {
 
-                                                        $term = get_term_by('id', $ancestors[$i], $tax_name);
+                                                        $term = get_term_by( 'id', $ancestors[ $i ], $tax_name );
 
-                                                        if ($term) {
+                                                        if ( $term ) {
                                                                 $hierarchy[] = $term->name;
                                                         }
-                                                        unset($term);
+                                                        unset( $term );
                                                 }
 
                                                 $hierarchy[] = $tax_list->name;
 
-                                                $hierarchy_groups[] = implode('>', $hierarchy);
+                                                $hierarchy_groups[] = implode( '>', $hierarchy );
 
-                                                unset($hierarchy);
+                                                unset( $hierarchy );
                                         } else {
 
                                                 $hierarchy_groups[] = $tax_list->name;
                                         }
-                                        unset($ancestors);
+                                        unset( $ancestors );
                                 }
                         }
 
-                        unset($tax_ids);
+                        unset( $tax_ids );
                 }
 
-                if (!empty($hierarchy_groups)) {
+                if ( ! empty( $hierarchy_groups ) ) {
 
                         return $hierarchy_groups;
                 }
@@ -1344,18 +1344,18 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return false;
         }
 
-        public function pre_user_query($obj) {
+        public function pre_user_query( $obj ) {
 
                 $obj->query_where .= $this->user_where;
 
-                if (!empty($this->user_join)) {
-                        $obj->query_from .= implode(' ', array_unique($this->user_join));
+                if ( ! empty( $this->user_join ) ) {
+                        $obj->query_from .= implode( ' ', array_unique( $this->user_join ) );
                 }
         }
 
         public function __destruct() {
-                foreach ($this as $key => $value) {
-                        unset($this->$key);
+                foreach ( $this as $key => $value ) {
+                        unset( $this->$key );
                 }
         }
 

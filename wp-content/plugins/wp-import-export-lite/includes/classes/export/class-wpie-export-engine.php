@@ -24,25 +24,25 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
         public function init_engine( $export_type = "post", $opration = "export", $template = null ) {
 
                 if ( $export_type == "product" ) {
-                        $this->export_type = array ( "product", "product_variation" );
+                        $this->export_type = array( "product", "product_variation" );
                 } else {
 
-                        $this->export_type = array ( $export_type );
+                        $this->export_type = array( $export_type );
                 }
 
-                $this->opration = $opration;
+                $this->opration = strtolower( trim( $opration ) );
 
-                if ( $opration == "fields" ) {
+                if ( $opration === "fields" ) {
                         $this->template_options = $template;
                         return $this->get_fields();
-                } elseif ( $opration == "count" ) {
+                } elseif ( $opration === "count" ) {
                         return $this->get_item_data( $template );
-                } elseif ( $opration == "ids" ) {
+                } elseif ( $opration === "ids" ) {
                         return $this->get_item_data( $template );
-                } elseif ( $opration == "preview" ) {
+                } elseif ( $opration === "preview" ) {
                         $this->is_preview = true;
                         return $this->get_item_data( $template );
-                } elseif ( $opration == "import_backup" ) {
+                } elseif ( $opration === "import_backup" ) {
                         return $this->get_backup_data( $template );
                 } else {
                         return $this->init_export( $template );
@@ -53,7 +53,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                 $this->template_options = $template;
 
-                $this->process_log = array (
+                $this->process_log = array(
                         'exported' => isset( $this->template_options[ 'count' ] ) ? $this->template_options[ 'count' ] : 0,
                         'total'    => 0,
                 );
@@ -68,7 +68,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                 $id = isset( $this->template_options[ 'id' ] ) && absint( $this->template_options[ 'id' ] ) > 0 ? absint( $this->template_options[ 'id' ] ) : 0;
 
-                $this->process_items( array ( $id ) );
+                $this->process_items( array( $id ) );
 
                 unset( $id );
 
@@ -81,7 +81,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                 $this->template_options = $template;
 
-                $this->process_log = array (
+                $this->process_log = array(
                         'exported' => 0,
                         'total'    => 0,
                 );
@@ -106,7 +106,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
         private function init_export_addons() {
 
-                $addon_class = apply_filters( 'wpie_prepare_export_addons', array (), $this->export_type );
+                $addon_class = apply_filters( 'wpie_prepare_export_addons', array(), $this->export_type );
 
                 if ( ! empty( $addon_class ) ) {
 
@@ -133,15 +133,15 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                 $this->export_id = isset( $template->id ) ? $template->id : 0;
 
-                $this->template_options = isset( $template->options ) ? maybe_unserialize( $template->options ) : array ();
+                $this->template_options = isset( $template->options ) ? maybe_unserialize( $template->options ) : array();
 
                 global $wpdb;
 
-                $wpdb->update( $wpdb->prefix . "wpie_template", array ( 'process_lock' => 1 ), array ( 'id' => absint( $this->export_id ) ) );
+                $wpdb->update( $wpdb->prefix . "wpie_template", array( 'process_lock' => 1 ), array( 'id' => absint( $this->export_id ) ) );
 
-                $process_data = isset( $template->process_log ) ? maybe_unserialize( $template->process_log ) : array ();
+                $process_data = isset( $template->process_log ) ? maybe_unserialize( $template->process_log ) : array();
 
-                $this->process_log = array (
+                $this->process_log = array(
                         'exported' => (isset( $process_data[ 'exported' ] ) && $process_data[ 'exported' ] != "") ? absint( $process_data[ 'exported' ] ) : 0,
                         'total'    => (isset( $process_data[ 'total' ] ) && $process_data[ 'total' ] != "") ? absint( $process_data[ 'total' ] ) : 0,
                 );
@@ -166,12 +166,12 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                 $this->close_export_file();
 
-                $final_data = array (
+                $final_data = array(
                         'last_update_date' => current_time( 'mysql' ),
                         'process_lock'     => 0,
                 );
 
-                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array ( 'id' => $this->export_id ) );
+                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array( 'id' => $this->export_id ) );
 
                 unset( $final_data, $filepath );
 
@@ -223,7 +223,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                                 $this->process_log[ 'exported' ] ++;
 
-                                $final_data = array (
+                                $final_data = array(
                                         'last_update_date' => current_time( 'mysql' ),
                                         'process_log'      => maybe_serialize( $this->process_log ),
                                 );
@@ -259,7 +259,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                                 global $wpdb;
 
-                                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array ( 'id' => $this->export_id ) );
+                                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array( 'id' => $this->export_id ) );
 
                                 do_action( 'wpie_export_complete', $this->export_id, $this->opration, $this->template_options );
 
@@ -267,7 +267,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
                         }
                 }
 
-                $this->export_data = array ();
+                $this->export_data = array();
         }
 
         protected function manage_rules() {
@@ -288,7 +288,7 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
 
                                         $options = explode( "`|~`", $data );
 
-                                        $filter = array ();
+                                        $filter = array();
 
                                         $rule = isset( $options[ 0 ] ) ? wpie_sanitize_field( wp_unslash( $options[ 0 ] ) ) : "";
 
