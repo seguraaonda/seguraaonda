@@ -57,11 +57,12 @@ function initMarker( $marker, map ) {
         lat: parseFloat( lat ),
         lng: parseFloat( lng )
     };
-
+    var iconBase = object_name.templateUrl + '/assets/img/';
     // Create marker instance.
     var marker = new google.maps.Marker({
         position : latLng,
-        map: map
+        map: map,
+        icon: iconBase + 'pin.png'
     });
 
     // Append to reference for later use.
