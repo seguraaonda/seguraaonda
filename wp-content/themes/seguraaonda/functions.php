@@ -195,7 +195,7 @@ add_action('bbp_template_after_user_details_menu_items', 'seguraaonda_user_profi
 
 //Add ACF setting for google maps api key
 function seguraaonda_acf_init() {
-	acf_update_setting('google_api_key', 'AIzaSyAVZ3eJiglE0xi7wnD0XDUXKrb-p6MQ9aM');
+	acf_update_setting('google_api_key', 'AIzaSyCIOOogfsVQsOF3VSl6RH928JX8chhFwEg');
 }
 add_action('acf/init', 'seguraaonda_acf_init');
 
