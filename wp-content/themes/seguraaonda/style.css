@@ -451,6 +451,9 @@ article.victim .meta-icon {
     font-size: 1.8rem;
     margin: 2rem auto;
 }
+.post-type-archive-victim #searchform {
+	margin: auto;
+}
 .post-type-archive-victim #searchform input[type="text"] {
     width: 250px;
     display: inline-block;
