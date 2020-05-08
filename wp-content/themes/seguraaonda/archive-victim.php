@@ -47,6 +47,14 @@ get_header();
 	<?php wp_reset_query(); ?>
 
 	<div class="section-inner section-inner-memorial">
+		<form role="search" action="<?php echo site_url('/'); ?>" method="get" id="searchform">
+			<input type="text" name="s" placeholder="Encontrar vítima"/>
+			<input type="hidden" name="post_type" value="victim" /> 
+			<input type="submit" alt="Pesquisar" value="Pesquisar" />
+		</form>
+	</div>
+
+	<div class="section-inner section-inner-memorial">
 		
 	<?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
 

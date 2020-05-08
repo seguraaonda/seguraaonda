@@ -121,6 +121,18 @@ img.avatar {
     margin: auto;
 }
 
+/*BLOCKS*/
+
+/*file*/
+.entry-content .wp-block-file, .entry-content .wp-block-file a.wp-block-file__button {
+    font-size: 1.6rem;
+    font-family: Raleway;
+}
+
+a.wp-block-file__button {
+    flex: 0 0 auto; 
+}
+
 /*PLUGINS*/
 
 /*bbPress*/
@@ -399,9 +411,15 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 	display: none;
 }
 
+.akismet_comment_form_privacy_notice {
+	max-width: 58rem;
+	width: calc(100% - 4rem);
+	margin: auto;
+	font-size: 1.4rem
+}
 /*Victim*/
 .section-inner-memorial {
-	margin-top: 8rem;
+	margin-top: 4rem;
 }
 article.victim {
     border: 1rem solid #fff;
@@ -432,6 +450,11 @@ article.victim .meta-icon {
 .post-type-archive-victim article.victim h2.entry-title {
     font-size: 1.8rem;
     margin: 2rem auto;
+}
+.post-type-archive-victim #searchform input[type="text"] {
+    width: 250px;
+    display: inline-block;
+    vertical-align: middle;
 }
 .single-victim .comment-reply-title {
 	font-size: 0;
