@@ -80,7 +80,7 @@ function seguraaonda_victim_cpt() {
 		'capability_type'    => 'post',
 		'hierarchical'       => false,
 		'menu_position'      => null,
-		'supports'           => array( 'title', 'thumbnail', 'excerpt' ),
+		'supports'           => array( 'title', 'thumbnail', 'excerpt', 'comments' ),
 		'menu_icon'          => 'dashicons-heart',
 	);
 
@@ -96,7 +96,25 @@ function seguraaonda_rewrite_flush() {
 }
 add_action( 'after_switch_theme', 'seguraaonda_rewrite_flush' );
 
+//Order victims by title
+function seguguraaonda_victim_order( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( 'victim' ) ) {
+        $query->set( 'orderby', 'title' );
+        $query->set('order', 'ASC');
+        return;
+    }
+}
+add_action( 'pre_get_posts', 'seguguraaonda_victim_order', 1 );
 
+function seguraaonda_victim_archive_title( $title )
+{
+    if ( is_post_type_archive('victim') ) {
+        $title = 'Memorial';
+    }
+ 
+    return $title;
+}
+add_filter( 'pre_get_document_title', 'seguraaonda_victim_archive_title' );
 
 //Add description after forums titles on forum index
 function seguraaonda_singleforum_description() {
