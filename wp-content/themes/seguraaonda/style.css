@@ -33,25 +33,25 @@ body:not(.overlay-header) .primary-menu > li > a, body:not(.overlay-header) .pri
 
 /*Typography*/
 @font-face {
-    font-family: 'cerapro-bold';
-    src: url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff2') format('woff2'),
-         url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+	font-family: 'cerapro-bold';
+	src: url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff2') format('woff2'),
+		 url('./assets/fonts/cerapro-bold/cerapro-bold-webfont.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
 }
 h1,h2,h3,h4,h5,.entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 	font-family:  'cerapro-bold';
 }
 @media (min-width: 700px){
 	h3, .heading-size-3, .entry-content div.sharedaddy h3.sd-title, .entry-content h3.sd-title, .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
-    	font-size: 2.8rem;
+		font-size: 2.8rem;
 	}
 	h4, .heading-size-4 {
-    	font-size: 2.2rem;
+		font-size: 2.2rem;
 	}
 }
 body, .entry-content, .entry-content p, .entry-content ol, .entry-content ul, .entry-content dl, .entry-content dt, input, textarea, button, .button, .faux-button, .faux-button.more-link, .wp-block-button__link, .wp-block-file__button, .widget_text p, .widget_text ol, .widget_text ul, .widget_text dl, .widget_text dt, .widget-content .rssSummary {
-    font-family: 'Raleway', sans-serif;
+	font-family: 'Raleway', sans-serif;
 }
 
 /*TOP BAR*/
@@ -74,7 +74,7 @@ body, .entry-content, .entry-content p, .entry-content ol, .entry-content ul, .e
 	display: none;
 }
 .home figure.featured-media {
-    display: none !important;
+	display: none !important;
 }
 .home .post-inner {
 	padding-top: 0 !important;
@@ -101,14 +101,14 @@ body, .entry-content, .entry-content p, .entry-content ol, .entry-content ul, .e
 	background-color: #fff;
 }
 h1, .heading-size-1 {
-    font-size: 3.6rem !important;
+	font-size: 3.6rem !important;
 	/*to override media queries*/
 }
 .singular .entry-header {
 	padding: 4rem 0 !important;
 }
 .singular .featured-media:before {
-    background-color: #ddd;
+	background-color: #ddd;
 }
 
 .post-inner {
@@ -116,21 +116,21 @@ h1, .heading-size-1 {
 }
 /*avatar*/
 img.avatar {
-    border-radius: 50%;
-    border: none;
-    margin: auto;
+	border-radius: 50%;
+	border: none;
+	margin: auto;
 }
 
 /*BLOCKS*/
 
 /*file*/
 .entry-content .wp-block-file, .entry-content .wp-block-file a.wp-block-file__button {
-    font-size: 1.6rem;
-    font-family: Raleway;
+	font-size: 1.6rem;
+	font-family: Raleway;
 }
 
 a.wp-block-file__button {
-    flex: 0 0 auto; 
+	flex: 0 0 auto; 
 }
 
 /*PLUGINS*/
@@ -159,7 +159,7 @@ body.bbpress:not(.home) .post-inner:after {
 .bbpress .sidebar-wrapper .widget {
 	margin: 0 4rem 5rem;
 	background-color: #f9f9f9;
-    padding: 20px;
+	padding: 20px;
 }
 .bbp-logged-in ul {
 	clear: both;
@@ -168,15 +168,15 @@ body.bbpress:not(.home) .post-inner:after {
 
 /*bbPress login widget*/
 a.button.logout-link {
-    background: none;
-    padding: 0;
-    text-transform: none;
-    color: #e73e4d;
-    font-weight: normal;
-    letter-spacing: normal;
-    text-decoration: underline;
-    text-align: left;
-    font-size: inherit;
+	background: none;
+	padding: 0;
+	text-transform: none;
+	color: #e73e4d;
+	font-weight: normal;
+	letter-spacing: normal;
+	text-decoration: underline;
+	text-align: left;
+	font-size: inherit;
 }
 a.button.logout-link:hover {
 	text-decoration: none;
@@ -223,10 +223,10 @@ span.bbp-admin-links {
 	border: none;
 }
 #bbpress-forums div.odd, #bbpress-forums ul.odd {
-    background-color: transparent;
+	background-color: transparent;
 }
 #bbpress-forums div.odd, #bbpress-forums div.even {
-    margin-bottom: 5rem;
+	margin-bottom: 5rem;
 }
 div.bbp-template-notice + .bbp-pagination, #bbpress-forums li.bbp-footer, body.topic #bbpress-forums li.bbp-header {
 	display: none;
@@ -241,25 +241,25 @@ div.bbp-breadcrumb, div.bbp-topic-tags, div.bbp-template-notice li, div.bbp-temp
 	line-height: 1.5;
 }
 #bbpress-forums p.sao-location, #bbpress-forums div.bbp-topic-tags {
-    float: left;
-    clear: left;
-    width: 50%;
-    font-size: 1.4rem;
-    margin-bottom: 1em;
+	float: left;
+	clear: left;
+	width: 50%;
+	font-size: 1.4rem;
+	margin-bottom: 1em;
 }
 
 div.bbp-breadcrumb {
-    width: 100%;
+	width: 100%;
 }
 #bbpress-forums div.bbp-topic-tags a {
-    text-decoration: none;
-    background: #e6e6e6;
-    padding: 1px 5px 2px;
-    border-radius: 3px;
+	text-decoration: none;
+	background: #e6e6e6;
+	padding: 1px 5px 2px;
+	border-radius: 3px;
 }
 #bbpress-forums div.bbp-topic-tags a:hover {
-    background: #000;
-    color: #fff;
+	background: #000;
+	color: #fff;
 }
 .bbp-meta, .bbp-pagination {
 	font-size: 1.4rem;
@@ -297,7 +297,7 @@ div.bbp-breadcrumb {
 	color: #000 !important;
 }
 #bbpress-forums ul.bbp-parent-forum-913 a {
-    color: #e73e4d !important;
+	color: #e73e4d !important;
 }
 /*fix forum user page layout*/
 #bbpress-forums #bbp-single-user-details {
@@ -310,7 +310,7 @@ div.bbp-breadcrumb {
 	margin-left: 0;
 }
 #bbpress-forums #bbp-single-user-details #bbp-user-avatar {
-    margin: auto;
+	margin: auto;
 }
 #bbpress-forums #bbp-user-wrapper fieldset.bbp-form, #bbpress-forums #bbp-user-wrapper ul.bbp-forums, #bbpress-forums #bbp-user-wrapper ul.bbp-lead-topic, #bbpress-forums #bbp-user-wrapper ul.bbp-replies, #bbpress-forums #bbp-user-wrapper ul.bbp-topics {
 	clear: both;
@@ -319,34 +319,34 @@ div.bbp-breadcrumb {
 	clear: none;
 }
 input#ts, input#rs, #bbp-search-form #bbp_search {
-    width: auto;
-    display: inline-block;
+	width: auto;
+	display: inline-block;
 }
 /*fix author-avatars plugin layout*/
 .shortcode-author-avatars .author-list, .shortcode-author-avatars div.author-list .user {
-    float: none !important;
+	float: none !important;
 }
 .shortcode-author-avatars .author-list:after {
-    content: "";
-    clear: both;
-    display: block;
+	content: "";
+	clear: both;
+	display: block;
 }
 .shortcode-author-avatars div.author-list .user {
 	padding: 0 2rem 4rem !important;
 }
 .shortcode-author-avatars img.avatar {
-    margin: 0 auto 2rem;
+	margin: 0 auto 2rem;
 }
 .shortcode-author-avatars .biography {
-    font-size: 1.6rem;
-    font-style: italic;
+	font-size: 1.6rem;
+	font-style: italic;
 }
 /*Login forms*/
 .bbp-login-form label {
 	width: auto;
 }
 #bbpress-forums fieldset.bbp-form input[type="checkbox"] {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 @media screen and (min-width: 700px){
@@ -355,23 +355,23 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 		width: calc(100% - 8rem);
 	}
 	body.bbpress:not(.home) .entry-content {
-        width: 75%;
-        float: left;
-    }
-    body.bbpress .sidebar-wrapper {
-        width: 25%;
-        float: right;
-    }
-    body.bbpress .sidebar-wrapper .widget {
-        margin-right: 0;
-    }
-    body.bbpress.bbp-user-page .entry-content, body.bbpress.bbp-user-edit .entry-content {
-    	width: auto;
-    	float: none;
-    	max-width: 120rem;
-    	margin: auto;
-    }
-    #bbpress-forums #bbp-single-user-details {
+		width: 75%;
+		float: left;
+	}
+	body.bbpress .sidebar-wrapper {
+		width: 25%;
+		float: right;
+	}
+	body.bbpress .sidebar-wrapper .widget {
+		margin-right: 0;
+	}
+	body.bbpress.bbp-user-page .entry-content, body.bbpress.bbp-user-edit .entry-content {
+		width: auto;
+		float: none;
+		max-width: 120rem;
+		margin: auto;
+	}
+	#bbpress-forums #bbp-single-user-details {
 		width: 25%;
 		float: left;
 	}
@@ -380,17 +380,17 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 		padding-left: 4rem;
 	}
 	.shortcode-author-avatars {
-        max-width: 120rem !important;
-    }
-    .shortcode-author-avatars div.author-list {
-        display: flex;
-        flex-wrap: wrap;
-    }
-    .shortcode-author-avatars div.author-list .user {
-        flex: 33.333333% 1 0;
-        width: 33.333333%;
-        padding: 0 2rem 5rem;
-    }
+		max-width: 120rem !important;
+	}
+	.shortcode-author-avatars div.author-list {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.shortcode-author-avatars div.author-list .user {
+		flex: 33.333333% 1 0;
+		width: 33.333333%;
+		padding: 0 2rem 5rem;
+	}
 }
 
 /*Coblocks*/
@@ -418,16 +418,34 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 	font-size: 1.4rem
 }
 /*Victim*/
+.post-type-archive-victim article.page {
+	position: relative;
+}
+.post-type-archive-victim article.page:before {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	content: "";
+	z-index: -1;
+	opacity: .25;
+	filter: grayscale(1);
+	background-image: url(https://seguraaonda.com.br/wp-content/uploads/2020/05/1280px-Sempre_Viva_no_cerrado.jpg);
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-size: cover;
+}
 .section-inner-memorial {
 	margin-top: 4rem;
 }
 article.victim {
-    border: 1rem solid #fff;
-    background-color: #f9f9f9;
+	border: 1rem solid #fff;
+	background-color: #f9f9f9;
 }
 article.victim .entry-content {
-    padding: 2rem 0;
-    font-size: 1.4rem;
+	padding: 2rem 0;
+	font-size: 1.4rem;
 }
 article.victim img {
 	border-radius: 50%;
@@ -436,28 +454,28 @@ article.victim .sao-victim-info p {
 	margin: 0;
 }
 article.victim .meta-wrapper {
-    align-items: center;
-    display: flex;
-    flex-wrap: nowrap;
+	align-items: center;
+	display: flex;
+	flex-wrap: nowrap;
 }
 article.victim .meta-icon {
-    flex-shrink: 0;
-    margin-right: 1rem;
+	flex-shrink: 0;
+	margin-right: 1rem;
 }
 .post-type-archive-victim article.victim img {
 	max-width: 120px !important;
 }
 .post-type-archive-victim article.victim h2.entry-title {
-    font-size: 1.8rem;
-    margin: 2rem auto;
+	font-size: 1.8rem;
+	margin: 2rem auto;
 }
 .post-type-archive-victim #searchform {
 	margin: auto;
 }
 .post-type-archive-victim #searchform input[type="text"] {
-    width: 250px;
-    display: inline-block;
-    vertical-align: middle;
+	width: 250px;
+	display: inline-block;
+	vertical-align: middle;
 }
 .single-victim .comment-reply-title {
 	font-size: 0;
@@ -467,33 +485,33 @@ article.victim .meta-icon {
 	content: "Deixe uma homenagem";
 }
 .single-victim .comment-respond label {
-    font-size: 0;
+	font-size: 0;
 }
 .single-victim .comment-respond label:before {
-    font-size: 1.6rem;
-    content: "Homenagem";
+	font-size: 1.6rem;
+	content: "Homenagem";
 }
 
 @media (min-width: 700px) {
 	.post-type-archive-victim .section-inner-memorial {
-    	display: flex;
-    	flex-wrap: wrap;
+		display: flex;
+		flex-wrap: wrap;
 	}
 	.post-type-archive-victim article.victim {
 		width: 20%;
-    	flex-basis: 20%;
+		flex-basis: 20%;
 	}
 }
 
 /*ACF Maps*/
 .acf-map {
-    width: 100%;
-    height: calc(100vh - 100px);
-    border: #ccc solid 1px;
-    margin: 0;
+	width: 100%;
+	height: calc(100vh - 100px);
+	border: #ccc solid 1px;
+	margin: 0;
 }
 .page-template-mapa .footer-nav-widgets-wrapper.header-footer-group {
-    margin-top: 0;
+	margin-top: 0;
 }
 .marker-title {
 	margin: 0 auto 2rem;
