@@ -436,6 +436,14 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 	background-position: bottom;
 	background-size: cover;
 }
+.wp-block-columns.memorial-parceiros {
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+.wp-block-columns.memorial-parceiros figure, .wp-block-columns.memorial-parceiros .wp-block-image {
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
 .section-inner-memorial {
 	margin-top: 4rem;
 }
