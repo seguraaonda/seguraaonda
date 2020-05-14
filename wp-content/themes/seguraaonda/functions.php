@@ -31,11 +31,14 @@ function seguraaonda_home_fb_image( $tags ) {
 	if ( is_home() || is_front_page() || is_archive() ) {
 
 	unset( $tags['og:image'] );
+	unset( $tags['og:image:width'] );
+	unset( $tags['og:image:height'] );
 
 	$fb_home_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
 
 	$tags['og:image'] = esc_url( $fb_home_img );
-
+	$tags['og:image:width'] = 1200;
+	$tags['og:image:height'] = 675;
 	}
 
 	return $tags;
