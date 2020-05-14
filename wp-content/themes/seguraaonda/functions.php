@@ -28,7 +28,7 @@ add_action( 'wp_enqueue_scripts', 'seguraaonda_enqueue_scripts' );
 //Set Facebook thumbnail
 function seguraaonda_home_fb_image( $tags ) {
 
-	if ( is_home() || is_front_page() ) {
+	if ( is_home() || is_front_page() || is_archive() ) {
 
 	unset( $tags['og:image'] );
 
