@@ -25,6 +25,35 @@ function seguraaonda_enqueue_scripts() {
 
 add_action( 'wp_enqueue_scripts', 'seguraaonda_enqueue_scripts' );
 
+//Set Facebook thumbnail
+function seguraaonda_home_fb_image( $tags ) {
+
+	if ( is_home() || is_front_page() ) {
+
+	unset( $tags['og:image'] );
+
+	$fb_home_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
+
+	$tags['og:image'] = esc_url( $fb_home_img );
+
+	}
+
+	return $tags;
+
+}
+
+add_filter( 'jetpack_open_graph_tags', "seguraaonda_home_fb_image" );
+
+function seguraaonda_jetpack_default_image() {
+
+	$fb_default_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
+
+	return $fb_default_img;
+
+}
+
+add_filter( 'jetpack_open_graph_image_default', "seguraaonda_jetpack_default_image" );
+
 //Register sidebar widget area
 function seguraaonda_sidebar_registration() {
 
