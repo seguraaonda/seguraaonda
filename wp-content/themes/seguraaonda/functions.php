@@ -3,42 +3,42 @@
 //Enqueue scripts
 function seguraaonda_enqueue_scripts() {
 
-    $parent_style = 'twentytwenty-style'; // This is 'twentyfifteen-style' for the Twenty Fifteen theme.
+	$parent_style = 'twentytwenty-style'; // This is 'twentyfifteen-style' for the Twenty Fifteen theme.
 
-    wp_enqueue_style( $parent_style, get_template_directory_uri() . '/style.css' );
-    wp_enqueue_style( $parent_style, get_template_directory_uri() . '/assets/css/editor-style-block.css' );
-    wp_enqueue_style( $parent_style, get_template_directory_uri() . '/assets/css/editor-style-classic.css' );
-    wp_enqueue_style( 'child-style',
-    	get_stylesheet_directory_uri() . '/style.css',
-    	array( $parent_style ),
-    	wp_get_theme()->get('Version')
-    );
+	wp_enqueue_style( $parent_style, get_template_directory_uri() . '/style.css' );
+	wp_enqueue_style( $parent_style, get_template_directory_uri() . '/assets/css/editor-style-block.css' );
+	wp_enqueue_style( $parent_style, get_template_directory_uri() . '/assets/css/editor-style-classic.css' );
+	wp_enqueue_style( 'child-style',
+		get_stylesheet_directory_uri() . '/style.css',
+		array( $parent_style ),
+		wp_get_theme()->get('Version')
+	);
 
 	$mapkeyurl = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCIOOogfsVQsOF3VSl6RH928JX8chhFwEg';
 	$dir_url = get_stylesheet_directory_uri() . '/assets/js/acf-map.js';
 
 	wp_enqueue_script( 'map_script', $dir_url, array('jquery'), '1.0', true );
-    wp_enqueue_script( 'googlemap', $mapkeyurl, true);
-    $translation_array = array( 'templateUrl' => get_stylesheet_directory_uri() );
-    wp_localize_script( 'map_script', 'object_name', $translation_array );
+	wp_enqueue_script( 'googlemap', $mapkeyurl, true);
+	$translation_array = array( 'templateUrl' => get_stylesheet_directory_uri() );
+	wp_localize_script( 'map_script', 'object_name', $translation_array );
 }
 
 add_action( 'wp_enqueue_scripts', 'seguraaonda_enqueue_scripts' );
 
-//Set Facebook thumbnail
+//Set Home & Archives Facebook thumbnail
 function seguraaonda_home_fb_image( $tags ) {
 
 	if ( is_home() || is_front_page() || is_archive() ) {
 
-	unset( $tags['og:image'] );
-	unset( $tags['og:image:width'] );
-	unset( $tags['og:image:height'] );
+		unset( $tags['og:image'] );
+		unset( $tags['og:image:width'] );
+		unset( $tags['og:image:height'] );
 
-	$fb_home_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
+		$fb_home_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
 
-	$tags['og:image'] = esc_url( $fb_home_img );
-	$tags['og:image:width'] = 1200;
-	$tags['og:image:height'] = 675;
+		$tags['og:image'] = esc_url( $fb_home_img );
+		$tags['og:image:width'] = 1200;
+		$tags['og:image:height'] = 675;
 	}
 
 	return $tags;
@@ -47,6 +47,7 @@ function seguraaonda_home_fb_image( $tags ) {
 
 add_filter( 'jetpack_open_graph_tags', "seguraaonda_home_fb_image" );
 
+//Set default fallback Facebook thumbnail
 function seguraaonda_jetpack_default_image( $image ) {
 
 	$fb_default_img = get_stylesheet_directory_uri() . '/assets/img/logo_segura_a_onda.png';
@@ -130,21 +131,21 @@ add_action( 'after_switch_theme', 'seguraaonda_rewrite_flush' );
 
 //Order victims by title
 function seguguraaonda_victim_order( $query ) {
-    if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( 'victim' ) ) {
-        $query->set( 'orderby', 'title' );
-        $query->set('order', 'ASC');
-        return;
-    }
+	if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( 'victim' ) ) {
+		$query->set( 'orderby', 'title' );
+		$query->set('order', 'ASC');
+		return;
+	}
 }
 add_action( 'pre_get_posts', 'seguguraaonda_victim_order', 1 );
 
 function seguraaonda_victim_archive_title( $title )
 {
-    if ( is_post_type_archive('victim') ) {
-        $title = 'Memorial';
-    }
- 
-    return $title;
+	if ( is_post_type_archive('victim') ) {
+		$title = 'Memorial';
+	}
+
+	return $title;
 }
 add_filter( 'pre_get_document_title', 'seguraaonda_victim_archive_title' );
 
@@ -239,8 +240,16 @@ add_action('bbp_theme_before_topic_form_tags','seguraaonda_topic_tags_helper');
 
 //Add logout link to user profile page
 function seguraaonda_user_profile_logout_link() {
-	if ( is_user_logged_in() ) {
-		return bbp_logout_link();
+	if ( bbp_is_single_user_profile() || bbp_is_user_home() || bbp_is_topics_created() || bbp_is_replies_created() || bbp_is_favorites() || bbp_is_subscriptions() ) {
+
+		$user_id = get_current_user_id();
+		$displayed_user_id = bbp_get_user_id();
+
+		if ($user_id == 0){
+			return;
+		} elseif ( $user_id == $displayed_user_id ) {
+			return bbp_logout_link();
+		}
 	}
 }
 add_action('bbp_template_after_user_details_menu_items', 'seguraaonda_user_profile_logout_link');
