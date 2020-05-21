@@ -485,6 +485,12 @@ article.victim .meta-icon {
 	display: inline-block;
 	vertical-align: middle;
 }
+.single-victim article.victim img {
+	max-width: 300px !important;
+}
+.single-victim article.victim h2.entry-title {
+	font-size: 4.2rem;
+}
 .single-victim .comment-reply-title {
 	font-size: 0;
 }

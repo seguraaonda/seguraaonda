@@ -19,7 +19,7 @@
 			<?php else : ?>
 				<img alt="" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/memorial.jpg" />
 			<?php endif; ?>
-			<?php the_title( '<h2 class="entry-title heading-size-4"><a href="' . esc_url( get_permalink() ) . '">', '</a></h2>' ); ?>
+			<?php the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '">', '</a></h2>' ); ?>
 			<div class="sao-victim-info">
 			<?php
 				if(get_field('data')) {
