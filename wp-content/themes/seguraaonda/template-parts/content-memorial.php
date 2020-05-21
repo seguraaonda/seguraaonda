@@ -29,7 +29,7 @@
 					echo '<p><strong>Idade:</strong> ' . get_field('idade') . '</p>';
 				}
 				if(get_field('genero')) {
-					echo '<p><strong>Genero:</strong> ' . get_field('genero') . '</p>';
+					echo '<p><strong>Gênero:</strong> ' . get_field('genero') . '</p>';
 				}
 				if(get_field('profissao')) {
 					echo '<p><strong>Profissão:</strong> ' . get_field('profissao') . '</p>';
