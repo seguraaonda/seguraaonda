@@ -13,14 +13,16 @@ function seguraaonda_enqueue_scripts() {
 		array( $parent_style ),
 		wp_get_theme()->get('Version')
 	);
+	if( is_page_template("mapa.php")) {
+		$mapkeyurl = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCIOOogfsVQsOF3VSl6RH928JX8chhFwEg';
+		$dir_url = get_stylesheet_directory_uri() . '/assets/js/acf-map.js';
 
-	$mapkeyurl = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCIOOogfsVQsOF3VSl6RH928JX8chhFwEg';
-	$dir_url = get_stylesheet_directory_uri() . '/assets/js/acf-map.js';
-
-	wp_enqueue_script( 'map_script', $dir_url, array('jquery'), '1.0', true );
-	wp_enqueue_script( 'googlemap', $mapkeyurl, true);
-	$translation_array = array( 'templateUrl' => get_stylesheet_directory_uri() );
-	wp_localize_script( 'map_script', 'object_name', $translation_array );
+		wp_enqueue_script( 'map_script', $dir_url, array('jquery'), '1.0', true );
+		wp_enqueue_script( 'googlemap', $mapkeyurl, true);
+		$translation_array = array( 'templateUrl' => get_stylesheet_directory_uri() );
+		wp_localize_script( 'map_script', 'object_name', $translation_array );
+	}
+	
 }
 
 add_action( 'wp_enqueue_scripts', 'seguraaonda_enqueue_scripts' );
