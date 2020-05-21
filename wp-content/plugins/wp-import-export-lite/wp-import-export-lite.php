@@ -3,7 +3,7 @@
 /*
   Plugin Name: WP Import Export Lite
   Description: The Advanced and powerful solution for importing and exporting data to WordPress. Import and Export to Posts, Pages, and Custom Post Types. Support for imports that run on a schedule, ability to update existing imports, and much more.
-  Version: 1.5.13
+  Version: 1.6.0
   Author: VJInfotech
   Author URI: http://www.vjinfotech.com
   Text Domain: wp-import-export-lite
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Plugin version
 if ( ! defined( 'WPIE_PLUGIN_VERSION' ) ) {
-        define( 'WPIE_PLUGIN_VERSION', '1.5.13' );
+        define( 'WPIE_PLUGIN_VERSION', '1.6.0' );
 }
 // Plugin version
 if ( ! defined( 'WPIE_DB_VERSION' ) ) {

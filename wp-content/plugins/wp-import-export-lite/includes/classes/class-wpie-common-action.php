@@ -8,19 +8,19 @@ class WPIE_Common_Actions {
 
         public function __construct() {
 
-                add_action( 'wp_ajax_wpie_save_user_cap', array ( $this, 'wpie_save_user_cap' ) );
+                add_action( 'wp_ajax_wpie_save_user_cap', array( $this, 'wpie_save_user_cap' ) );
 
-                add_action( 'wp_ajax_wpie_get_user_cap', array ( $this, 'wpie_get_user_cap' ) );
+                add_action( 'wp_ajax_wpie_get_user_cap', array( $this, 'wpie_get_user_cap' ) );
 
-                add_action( 'wp_ajax_wpie_delete_tempaltes', array ( $this, 'wpie_delete_tempaltes' ) );
+                add_action( 'wp_ajax_wpie_delete_tempaltes', array( $this, 'wpie_delete_tempaltes' ) );
 
-                add_action( 'wp_ajax_wpie_tempalte_import', array ( $this, 'wpie_tempalte_import' ) );
+                add_action( 'wp_ajax_wpie_tempalte_import', array( $this, 'wpie_tempalte_import' ) );
 
-                add_action( 'wp_ajax_wpie_get_tempaltes', array ( $this, 'wpie_get_tempalte_list' ) );
+                add_action( 'wp_ajax_wpie_get_tempaltes', array( $this, 'wpie_get_tempalte_list' ) );
 
-                add_action( 'wp_ajax_wpie_save_advance_option', array ( $this, 'wpie_save_advance_option' ) );
+                add_action( 'wp_ajax_wpie_save_advance_option', array( $this, 'wpie_save_advance_option' ) );
 
-                add_action( 'wp_ajax_wpie_update_process_status', array ( $this, 'update_process_status' ) );
+                add_action( 'wp_ajax_wpie_update_process_status', array( $this, 'update_process_status' ) );
 
     }
 
@@ -37,6 +37,8 @@ class WPIE_Common_Actions {
                 $cap_settings = isset( $_POST[ 'wpie_cap_settings' ] ) ? intval( wpie_sanitize_field( $_POST[ 'wpie_cap_settings' ] ) ) : 0;
 
                 $cap_ext = isset( $_POST[ 'wpie_cap_ext' ] ) ? intval( wpie_sanitize_field( $_POST[ 'wpie_cap_ext' ] ) ) : 0;
+
+                $add_shortcode = isset( $_POST[ 'wpie_cap_add_shortcode' ] ) ? intval( wpie_sanitize_field( $_POST[ 'wpie_cap_add_shortcode' ] ) ) : 0;
 
                 $wpie_user_role = isset( $_POST[ 'wpie_user_role' ] ) ? wpie_sanitize_field( $_POST[ 'wpie_user_role' ] ) : "";
 
@@ -90,11 +92,18 @@ class WPIE_Common_Actions {
                         } else {
                                 $role->remove_cap( 'wpie_extensions' );
                         }
+                        if ( $add_shortcode == 1 ) {
+                                if ( ! $role->has_cap( 'wpie_add_shortcode' ) ) {
+                                        $role->add_cap( 'wpie_add_shortcode' );
+                                }
+                        } else {
+                                $role->remove_cap( 'wpie_add_shortcode' );
+                        }
                 }
 
-                unset( $new_export, $manage_export, $new_import, $manage_import, $cap_settings, $cap_ext, $role );
+                unset( $new_export, $manage_export, $new_import, $manage_import, $cap_settings, $cap_ext, $role, $add_shortcode );
 
-                $return_value = array ();
+                $return_value = array();
 
                 $return_value[ 'status' ] = 'success';
 
@@ -113,7 +122,7 @@ class WPIE_Common_Actions {
 
                 $role = get_role( $wpie_user_role );
 
-                $cap = array ();
+                $cap = array();
 
                 if ( $role ) {
                         if ( $role->has_cap( 'wpie_new_export' ) ) {
@@ -134,9 +143,12 @@ class WPIE_Common_Actions {
                         if ( $role->has_cap( 'wpie_extensions' ) ) {
                                 $cap[] = 'wpie_extensions';
                         }
+                        if ( $role->has_cap( 'wpie_add_shortcode' ) ) {
+                                $cap[] = 'wpie_add_shortcode';
+                        }
                 }
 
-                $return_value = array ();
+                $return_value = array();
 
                 $return_value[ 'status' ] = 'success';
 
@@ -163,7 +175,7 @@ class WPIE_Common_Actions {
 
                                 $id = isset( $data->id ) ? $data->id : 0;
 
-                                $options = isset( $data->options ) ? maybe_unserialize( $data->options ) : array ();
+                                $options = isset( $data->options ) ? maybe_unserialize( $data->options ) : array();
 
                                 $name = isset( $options[ 'wpie_template_name' ] ) ? $options[ 'wpie_template_name' ] : "";
 
@@ -175,7 +187,7 @@ class WPIE_Common_Actions {
                                 unset( $id, $options, $name );
                         }
                 }
-                $return_value = array ();
+                $return_value = array();
 
                 $return_value[ 'status' ] = 'success';
 
@@ -234,11 +246,11 @@ class WPIE_Common_Actions {
                                 if ( $process_type == "schedule_import" ) {
 
                                         foreach ( $templates as $cron_id ) {
-                                                wp_clear_scheduled_hook( 'wpie_cron_schedule_import', array ( absint( $cron_id ) ) );
+                                                wp_clear_scheduled_hook( 'wpie_cron_schedule_import', array( absint( $cron_id ) ) );
                                         }
                                 } elseif ( $process_type == "schedule_export" ) {
                                         foreach ( $templates as $cron_id ) {
-                                                wp_clear_scheduled_hook( 'wpie_cron_schedule_export', array ( absint( $cron_id ) ) );
+                                                wp_clear_scheduled_hook( 'wpie_cron_schedule_export', array( absint( $cron_id ) ) );
                                         }
                                 }
 
@@ -252,7 +264,7 @@ class WPIE_Common_Actions {
 
                 unset( $templates );
 
-                $return_value = array ();
+                $return_value = array();
 
                 $return_value[ 'status' ] = 'success';
 
@@ -271,7 +283,7 @@ class WPIE_Common_Actions {
 
                 update_option( "wpie_delete_on_uninstall", $is_delete_data );
 
-                $return_value = array ();
+                $return_value = array();
 
                 $return_value[ 'status' ] = 'success';
 
@@ -286,7 +298,7 @@ class WPIE_Common_Actions {
 
         public function wpie_tempalte_import() {
 
-                $return_value = array ( "status" => 'error' );
+                $return_value = array( "status" => 'error' );
 
                 if ( $_FILES && file_exists( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) && is_uploaded_file( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) ) {
 
@@ -294,7 +306,7 @@ class WPIE_Common_Actions {
                                 require_once( ABSPATH . 'wp-admin/includes/file.php' );
                         }
 
-                        $movefile = wp_handle_upload( $_FILES[ 'wpie_template_file' ], array ( 'test_form' => false ) );
+                        $movefile = wp_handle_upload( $_FILES[ 'wpie_template_file' ], array( 'test_form' => false ) );
 
                         if ( $movefile && isset( $movefile[ 'file' ] ) && ! isset( $movefile[ 'error' ] ) ) {
 
@@ -310,9 +322,9 @@ class WPIE_Common_Actions {
 
                                                 global $wpdb;
 
-                                                $values = array ();
+                                                $values = array();
 
-                                                $place_holders = array ();
+                                                $place_holders = array();
 
                                                 $query = "INSERT INTO " . $wpdb->prefix . "wpie_template (opration, opration_type, options,unique_id,username) VALUES ";
 
@@ -375,7 +387,7 @@ class WPIE_Common_Actions {
 
                 global $wpdb;
 
-                $return_value = array ( "status" => "error" );
+                $return_value = array( "status" => "error" );
 
                 $wpie_import_id = isset( $_GET[ 'wpie_process_id' ] ) ? absint( wpie_sanitize_field( $_GET[ 'wpie_process_id' ] ) ) : 0;
 
@@ -406,12 +418,12 @@ class WPIE_Common_Actions {
 
                         if ( $new_satus != "" ) {
 
-                                $final_data = array (
+                                $final_data = array(
                                         'last_update_date' => current_time( 'mysql' ),
                                         'status'           => $new_satus,
                                 );
 
-                                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array ( 'id' => $wpie_import_id ) );
+                                $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array( 'id' => $wpie_import_id ) );
 
                                 unset( $final_data );
 

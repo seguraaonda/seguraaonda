@@ -9,24 +9,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class WPIE_Import_Base {
 
         protected $wpie_import_id = 0;
-        protected $wpie_import_option = array ();
-        protected $import_log = array ();
-        protected $process_log = array ();
-        protected $wpie_import_record = array ();
+        protected $wpie_import_option = array();
+        protected $import_log = array();
+        protected $process_log = array();
+        protected $wpie_import_record = array();
         protected $is_new_item = true;
         protected $item_id = 0;
         protected $item;
         protected $existing_item_id = 0;
-        protected $wpie_final_data = array ();
+        protected $wpie_final_data = array();
         protected $log_service = false;
         protected $backup_service = false;
         protected $import_type;
         protected $as_draft = false;
         protected $base_dir = false;
         protected $wpie_fileName = "wpie-import-data-";
-        protected $addons = array ();
+        protected $addons = array();
         protected $addon_error = false;
-        protected $addon_log = array ();
+        protected $addon_log = array();
+        protected $import_username = "";
 
         public function __construct() {
                 
@@ -90,7 +91,7 @@ abstract class WPIE_Import_Base {
 
         private function decode_special_char( $data ) {
 
-                return $this->map_deep( $data, array ( __CLASS__, 'str_replace' ) );
+                return $this->map_deep( $data, array( __CLASS__, 'str_replace' ) );
         }
 
         public static function str_replace( $subject ) {
@@ -133,11 +134,149 @@ abstract class WPIE_Import_Base {
         public function get_field( $field = "" ) {
 
                 if ( is_array( $field ) ) {
-                        $field = array_map( array ( $this, "get_field" ), $field );
+                        $field = array_map( array( $this, "get_field" ), $field );
                 } elseif ( is_array( $this->wpie_import_record ) && ! empty( $this->wpie_import_record ) ) {
-                        $field = str_replace( array_keys( $this->wpie_import_record ), array_values( $this->wpie_import_record ), $field );
+
+                        if ( $this->has_shortcode( $field ) ) {
+                                $data = $this->encode_shortcode_char( array_values( $this->wpie_import_record ) );
+                        } else {
+                                $data = array_values( $this->wpie_import_record );
+                        }
+                        $field = str_replace( array_keys( $this->wpie_import_record ), $data, $field );
+
+                        if ( $this->has_shortcode( $field ) ) {
+                                $field = $this->apply_shortcode( $field );
+                                $field = $this->decode_shortcode_char( $field );
+                        }
+                        unset( $data );
                 }
                 return $field;
+        }
+
+        private function decode_shortcode_char( $data = [] ) {
+
+                return str_replace( [ "wpie_square_bracket_open", "wpie_square_bracket_close", "wpie_double_quote", "wpie_single_quote" ], [ "[", "]", '"', "'" ], $data );
+        }
+
+        private function encode_shortcode_char( $data = [] ) {
+
+                return str_replace( [ "[", "]", '"', "'" ], [ "wpie_square_bracket_open", "wpie_square_bracket_close", "wpie_double_quote", "wpie_single_quote" ], $data );
+        }
+
+        private function apply_shortcode( $content = "" ) {
+
+                if ( empty( $content ) ) {
+                        return $content;
+                }
+
+                if ( is_array( $content ) ) {
+                        return array_map( [ $this, "apply_shortcode" ], $content );
+                }
+
+                if ( ! $this->has_shortcode( $content ) ) {
+                        return $content;
+                }
+
+                return $this->do_shortcode( wp_unslash( $content ) );
+        }
+
+        private function has_shortcode( $content = "" ) {
+
+                if ( strpos( strtolower( trim( $content ) ), "[wpie_function" ) === false ) {
+                        return false;
+                }
+                return true;
+        }
+
+        private function do_shortcode( $content = "", $ignore_html = false ) {
+
+                if ( ! current_user_can( 'wpie_add_shortcode' ) ) {
+                        return "";
+                }
+
+                // Find all registered tag names in $content.
+                preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $content, $matches );
+                $tagnames = array_intersect( [ 'wpie_function' ], $matches[ 1 ] );
+
+                if ( empty( $tagnames ) ) {
+                        return $content;
+                }
+
+                $content = \do_shortcodes_in_html_tags( $content, $ignore_html, $tagnames );
+
+                $pattern = \get_shortcode_regex( $tagnames );
+                $content = \preg_replace_callback( "/$pattern/", [ $this, 'do_shortcode_tag' ], $content );
+
+                // Always restore square braces so we don't break things like <!--[if IE ]>.
+                $content = \unescape_invalid_shortcodes( $content );
+
+                return $content;
+        }
+
+        /**
+         * Regular Expression callable for do_shortcode() for calling shortcode hook.
+         *
+         * @see get_shortcode_regex for details of the match array contents.
+         *
+         * @since 2.5.0
+         * @access private
+         *
+         * @global array $shortcode_tags
+         *
+         * @param array $m Regular expression match array
+         * @return string|false False on failure.
+         */
+        public function do_shortcode_tag( $m ) {
+
+                // Allow [[foo]] syntax for escaping a tag.
+                if ( '[' === $m[ 1 ] && ']' === $m[ 6 ] ) {
+                        return substr( $m[ 0 ], 1, -1 );
+                }
+
+                $attr = shortcode_parse_atts( $m[ 3 ] );
+
+                $content = isset( $m[ 5 ] ) ? $m[ 5 ] : null;
+
+                return $m[ 1 ] . $this->process_shortcode( $content, $attr ) . $m[ 6 ];
+        }
+
+        public function process_shortcode( $content = "", $attr = [] ) {
+
+                if ( empty( $attr ) ) {
+                        return "";
+                }
+
+                $custom_function = "";
+
+                if ( isset( $attr[ 'custom_function' ] ) ) {
+                        $custom_function = $attr[ 'custom_function' ];
+                        unset( $attr[ 'custom_function' ] );
+                }
+
+                if ( empty( $custom_function ) ) {
+                        foreach ( $attr as $key => $value ) {
+                                if ( strtotime( trim( $custom_function ) ) === "custom_function" ) {
+                                        $custom_function = $value;
+                                        unset( $attr[ $key ] );
+                                        break;
+                                }
+                        }
+                }
+
+                if ( empty( $custom_function ) || ! is_callable( $custom_function ) ) {
+                        return "";
+                }
+
+                $new_attr = [];
+                if ( ! empty( $attr ) ) {
+                        foreach ( $attr as $key => $value ) {
+                                $key = preg_replace( "/[^a-zA-Z0-9]+/", "", $this->decode_shortcode_char( $key ) );
+                                $value = $this->decode_shortcode_char( $value );
+                                $new_attr[ $key ] = $value;
+                        }
+                }
+
+                return call_user_func( $custom_function, $attr, $content );
         }
 
         protected function is_update_field( $field = "" ) {

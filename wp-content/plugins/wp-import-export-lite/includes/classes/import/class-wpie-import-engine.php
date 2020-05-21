@@ -28,6 +28,8 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 $this->wpie_import_option = isset( $template_data->options ) && trim( $template_data->options ) != "" ? maybe_unserialize( $template_data->options ) : array();
 
+                $this->import_username = isset( $template_data->username ) && trim( $template_data->username ) != "" ? $template_data->username : "";
+
                 $this->init_services();
 
                 $import_data = $this->get_records( $template_data );
@@ -218,7 +220,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 if ( isset( $this->process_log[ 'last_records_status' ] ) && $this->process_log[ 'last_records_status' ] == 'pending' && isset( $this->process_log[ 'last_records_id' ] ) ) {
 
-                        $_post = $wpdb->get_row( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 1", intval( $this->process_log[ 'last_records_id' ] ) ) );
+                        $_post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 1", intval( $this->process_log[ 'last_records_id' ] ) ) );
 
                         if ( $_post ) {
 

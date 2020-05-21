@@ -76,12 +76,25 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
 
                         if ( $wpie_user_id == 0 ) {
 
-                                $current_user = wp_get_current_user();
+                                if ( ! empty( $this->import_username ) ) {
 
-                                if ( isset( $current_user->ID ) ) {
-                                        $wpie_user_id = $current_user->ID;
+                                        $user = get_user_by( "login", $this->import_username );
+
+                                        if ( isset( $user->ID ) ) {
+                                                $wpie_user_id = $user->ID;
+                                        }
+                                        unset( $user );
                                 }
-                                unset( $current_user );
+
+                                if ( $wpie_user_id == 0 ) {
+
+                                        $current_user = wp_get_current_user();
+
+                                        if ( isset( $current_user->ID ) ) {
+                                                $wpie_user_id = $current_user->ID;
+                                        }
+                                        unset( $current_user );
+                                }
                         }
 
                         $this->wpie_final_data[ 'post_author' ] = $wpie_user_id;
@@ -264,9 +277,9 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                         $duplicate_id = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic_id' ) ) );
 
                         if ( $duplicate_id > 0 ) {
-                                $_post = $wpdb->get_row( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 1", $duplicate_id ) );
+                                $_post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 1", $duplicate_id ) );
 
-                                if ( $_post ) {
+                                if ( $_post && absint( $_post ) > 0 ) {
                                         $this->existing_item_id = absint( $duplicate_id );
                                 }
                                 unset( $_post );
@@ -282,7 +295,7 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
 
                         if ( ! empty( $wpie_field_data ) ) {
 
-                                $_post = $wpdb->get_row(
+                                $_post = $wpdb->get_var(
                                         $wpdb->prepare(
                                                 "SELECT ID FROM " . $wpdb->posts . "
                                 WHERE
@@ -294,9 +307,10 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                                         )
                                 );
 
-                                if ( $_post && isset( $_post->ID ) ) {
-                                        $this->existing_item_id = $_post->ID;
+                                if ( $_post && absint( $_post ) > 0 ) {
+                                        $this->existing_item_id = absint( $_post );
                                 }
+
                                 unset( $_post );
                         }
                         unset( $wpie_field, $wpie_field_data, $temp_field );
@@ -377,8 +391,10 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                                                 ",
                                                 $meta_key,
                                                 trim( $meta_key ),
+                                                wpie_sanitize_field( $meta_key ),
                                                 $meta_val,
                                                 trim( $meta_val ),
+                                                wpie_sanitize_field( $meta_val ),
                                                 preg_replace( '%[ \\t\\n]%', '', $meta_val )
                                         )
                                 );

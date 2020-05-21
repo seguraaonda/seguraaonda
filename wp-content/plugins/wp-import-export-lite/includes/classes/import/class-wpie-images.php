@@ -188,14 +188,13 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 $data = explode( "\n", $value );
 
                 if ( ( ! isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) ) {
-
-                        $meta = $data;
-                } else {
                         $delim = wpie_sanitize_field( $this->get_field_value( 'wpie_item_set_image_' . $field . '_delim' ) );
 
                         $meta = explode( $delim != "" ? $delim : ",", $value );
 
                         unset( $delim );
+                } else {
+                        $meta = $data;
                 }
                 unset( $value, $data );
 
@@ -321,13 +320,14 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                         $wp_filetype = wp_check_filetype( $filename, null );
 
+
                         $attachment = array(
                                 'post_mime_type' => $wp_filetype[ 'type' ],
                                 'post_parent'    => $this->item_id,
                                 'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
                                 'post_content'   => '',
                                 'post_status'    => 'inherit',
-                                'post_author'    => $this->get_user_id()
+                                'post_author'    => $this->get_post_user()
                         );
 
                         $attachment_id = wp_insert_attachment( $attachment, $upload_file[ 'file' ], $this->item_id );
@@ -351,6 +351,39 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 unset( $upload_file, $filename );
         }
 
+        private function get_post_user() {
+
+                $user_id = 0;
+                if ( ! empty( $this->item_id ) ) {
+                        $post = get_post( $this->item_id );
+                        if ( $post && isset( $post->post_author ) && ! empty( $post->post_author ) ) {
+                                $user_id = $post->post_author;
+                        }
+                        unset( $post );
+                }
+                if ( $user_id === 0 ) {
+                        if ( ! empty( $this->import_username ) ) {
+
+                                $user = get_user_by( "login", $this->import_username );
+
+                                if ( $user && isset( $user->ID ) ) {
+                                        $user_id = $user->ID;
+                                }
+                                unset( $user );
+                        }
+                }
+                if ( $user_id === 0 ) {
+
+                        $current_user = wp_get_current_user();
+
+                        if ( $current_user && isset( $current_user->ID ) ) {
+                                $user_id = $current_user->ID;
+                        }
+                        unset( $current_user );
+                }
+                return $user_id;
+        }
+
         private function wpie_get_image_from_url( $image_url = "" ) {
 
                 if ( empty( $image_url ) ) {
@@ -370,7 +403,12 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                         $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $attch->get_error_message();
                         return false;
                 }
+                $author_id = absint( $this->get_post_user() );
 
+                if ( $author_id > 0 ) {
+                        global $wpdb;
+                        $wpdb->update( $wpdb->posts, [ "post_author" => $author_id ], [ 'ID' => $attch ] );
+                }
                 return $attch;
         }
 

@@ -22,11 +22,19 @@ class WPIE_Upload_Validate {
 
         public function wpie_parse_upload_data( $template_data = null, $wpie_csv_delimiter = ",", $activeFile = false, $wpie_import_id = false ) {
 
+                if ( empty( $template_data ) ) {
+                        return false;
+                }
+                
                 global $wpdb;
 
-                $template_options = isset( $template_data->options ) ? maybe_unserialize( $template_data->options ) : array ();
+                if ( is_array( $template_data ) ) {
+                        $template_options = $template_data;
+                } else {
+                        $template_options = isset( $template_data->options ) ? maybe_unserialize( $template_data->options ) : array();
+                }
 
-                $importFile = isset( $template_options[ 'importFile' ] ) ? $template_options[ 'importFile' ] : array ();
+                $importFile = isset( $template_options[ 'importFile' ] ) ? $template_options[ 'importFile' ] : array();
 
                 if ( $activeFile === false ) {
                         $activeFile = isset( $_GET[ 'activeFile' ] ) ? wpie_sanitize_field( $_GET[ 'activeFile' ] ) : "";
@@ -35,7 +43,7 @@ class WPIE_Upload_Validate {
                         $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? intval( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
                 }
 
-                $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : array ();
+                $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : array();
 
                 $file_path = isset( $fileData[ 'fileDir' ] ) ? wpie_sanitize_field( $fileData[ 'fileDir' ] ) : "";
 
@@ -49,7 +57,7 @@ class WPIE_Upload_Validate {
                         $this->wpie_remove_old_files( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/" );
                 }
 
-                $wpdb->update( $wpdb->prefix . "wpie_template", array ( "options" => maybe_serialize( $template_options ) ), array ( 'id' => $wpie_import_id ) );
+                $wpdb->update( $wpdb->prefix . "wpie_template", array( "options" => maybe_serialize( $template_options ) ), array( 'id' => $wpie_import_id ) );
 
                 $file = WPIE_UPLOAD_IMPORT_DIR . "/" . $file_path . "/" . $file_name;
 
@@ -172,7 +180,7 @@ class WPIE_Upload_Validate {
 
                 if ( is_array( $cdir ) && ! empty( $cdir ) ) {
                         foreach ( $cdir as $key => $value ) {
-                                if ( ! in_array( $value, array ( ".", ".." ) ) ) {
+                                if ( ! in_array( $value, array( ".", ".." ) ) ) {
                                         if ( is_dir( $targetDir . '/' . $value ) ) {
                                                 $this->wpie_remove_old_files( $targetDir . '/' . $value );
                                         } else {

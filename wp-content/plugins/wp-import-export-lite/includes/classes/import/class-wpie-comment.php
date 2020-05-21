@@ -57,7 +57,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                                 $comment_date = current_time( 'mysql' );
                         }
 
-                        $this->wpie_final_data[ 'comment_date' ] = $comment_date;
+                        $this->wpie_final_data[ 'comment_date' ] = date( 'Y-m-d H:i:s', strtotime( $comment_date ) );
                 }
                 if ( $this->is_update_field( "content" ) ) {
                         $this->wpie_final_data[ 'comment_content' ] = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_comment_content' ) );
@@ -124,7 +124,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                 }
 
                 $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ),
-                        'process_log' => maybe_serialize( $this->process_log ) ), array(
+                        'process_log'      => maybe_serialize( $this->process_log ) ), array(
                         'id' => $this->wpie_import_id ) );
 
                 do_action( 'wpie_after_comment_import', $this->item_id, $this->wpie_final_data, $this->wpie_import_option );
@@ -141,15 +141,15 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
 
                 global $wpdb;
 
-                $wpie_duplicate_indicator = wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic', true ) );
+                $wpie_duplicate_indicator = strtolower( trim( wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic', true ) ) ) );
 
-                if ( $wpie_duplicate_indicator == "id" ) {
+                if ( $wpie_duplicate_indicator === "id" ) {
 
                         $duplicate_id = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic_id' ) ) );
 
                         if ( $duplicate_id > 0 ) {
 
-                                $comment = get_comment( 'id' );
+                                $comment = get_comment( $duplicate_id );
 
                                 if ( ! empty( $comment ) ) {
                                         $this->existing_item_id = $duplicate_id;
@@ -158,21 +158,21 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                                 unset( $comment );
                         }
                         unset( $duplicate_id );
-                } elseif ( $wpie_duplicate_indicator == "content" ) {
+                } elseif ( $wpie_duplicate_indicator === "content" ) {
 
                         $content = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_comment_content' ) );
 
                         if ( ! empty( $content ) ) {
 
-                                $comment_id = intval( $wpdb->get_var( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_content=%s ORDER BY `comment_ID` ASC limit 0,1", preg_replace( '%[ \\t\\n]%', '', $content ) ) ) );
+                                $comment_id = $wpdb->get_var( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_content IN (%s,%s) ORDER BY `comment_ID` ASC limit 0,1", $content, preg_replace( '%[ \\t\\n]%', '', $content ) ) );
 
-                                if ( ! empty( $comment_id ) && $comment_id > 0 ) {
-                                        $this->existing_item_id = $comment_id;
+                                if ( $comment_id && $comment_id > 0 ) {
+                                        $this->existing_item_id = absint( $comment_id );
                                 }
                                 unset( $comment_id );
                         }
                         unset( $content );
-                } elseif ( $wpie_duplicate_indicator == "cf" ) {
+                } elseif ( $wpie_duplicate_indicator === "cf" ) {
 
                         $meta_key = wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic_cf_key' ) );
 
@@ -181,13 +181,13 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         if ( ! empty( $meta_key ) ) {
 
                                 $args = array(
-                                        'number' => 1,
-                                        'offset' => 0,
-                                        'fields' => "ids",
-                                        'meta_key' => $meta_key,
+                                        'number'     => 1,
+                                        'offset'     => 0,
+                                        'fields'     => "ids",
+                                        'meta_key'   => $meta_key,
                                         'meta_value' => $meta_val,
-                                        'orderby' => 'comment_ID',
-                                        'order' => 'ASC '
+                                        'orderby'    => 'comment_ID',
+                                        'order'      => 'ASC '
                                 );
 
                                 $comments = get_comments( $args );
@@ -204,7 +204,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         unset( $meta_key, $meta_val );
                 }
 
-                unset( $taxonomy_type, $wpie_duplicate_indicator );
+                unset( $wpie_duplicate_indicator );
         }
 
         protected function search_post_item() {
@@ -220,17 +220,17 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         return;
                 }
 
-                $post_indicator = $this->get_field_value( 'wpie_item_search_post_based_on', true ) == "id" ? "id" : "title";
+                $post_indicator = strtolower( trim( $this->get_field_value( 'wpie_item_search_post_based_on', true ) ) ) === "id" ? "id" : "title";
 
-                if ( $post_indicator == "id" ) {
+                if ( $post_indicator === "id" ) {
 
                         $post_id = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_comment_post_id' ) ) );
 
                         if ( $post_id > 0 ) {
-                                $_post = $wpdb->get_row( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 0,1", $post_id ) );
+                                $_post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 0,1", $post_id ) );
 
-                                if ( $_post ) {
-                                        $this->post_id = absint( $post_id );
+                                if ( $_post && absint( $_post ) > 0 ) {
+                                        $this->post_id = absint( $_post );
                                 }
                                 unset( $_post );
                         }
@@ -241,11 +241,11 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         $title = $this->get_field_value( "wpie_item_comment_post_title" );
 
                         if ( ! empty( $title ) ) {
-                                $_post = $wpdb->get_row(
+                                $_post = $wpdb->get_var(
                                         $wpdb->prepare(
                                                 "SELECT ID FROM " . $wpdb->posts . "
                                 WHERE
-                                    post_type IN ('" . implode( $post_types, "','" ) . "')
+                                    post_type IN ('" . implode( "','", $post_types ) . "')
                                     AND ID != 0
                                     AND post_title = %s
                                 LIMIT 1
@@ -253,8 +253,9 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                                         )
                                 );
 
-                                if ( $_post && isset( $_post->ID ) ) {
-                                        $this->post_id = $_post->ID;
+
+                                if ( $_post && absint( $_post ) > 0 ) {
+                                        $this->post_id = absint( $_post );
                                 }
                                 unset( $_post );
                         }

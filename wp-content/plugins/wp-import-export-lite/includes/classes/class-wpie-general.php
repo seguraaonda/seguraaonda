@@ -8,48 +8,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WPIE_General {
 
-        private static $wpie_page = array ( 'wpie-new-export', 'wpie-new-import', 'wpie-extensions', 'wpie-settings', 'wpie-manage-import', 'wpie-manage-export' );
+        private static $wpie_page = array( 'wpie-new-export', 'wpie-new-import', 'wpie-extensions', 'wpie-settings', 'wpie-manage-import', 'wpie-manage-export' );
 
         public function __construct() {
 
                 if ( is_admin() ) {
 
-                        add_action( 'admin_menu', array ( __CLASS__, 'wpie_set_menu' ) );
+                        add_action( 'admin_menu', array( __CLASS__, 'wpie_set_menu' ) );
 
-                        add_action( 'init', array ( __CLASS__, 'wpie_db_check' ), 1 );
+                        add_action( 'init', array( __CLASS__, 'wpie_db_check' ), 1 );
 
-                        add_action( 'admin_head', array ( __CLASS__, 'wpie_hide_all_notice_to_admin_side' ), 10000 );
+                        add_action( 'admin_head', array( __CLASS__, 'wpie_hide_all_notice_to_admin_side' ), 10000 );
 
-                        add_filter( 'admin_footer_text', array ( __CLASS__, 'wpie_replace_footer_admin' ) );
+                        add_filter( 'admin_footer_text', array( __CLASS__, 'wpie_replace_footer_admin' ) );
 
-                        add_filter( 'update_footer', array ( __CLASS__, 'wpie_replace_footer_version' ), '1234' );
+                        add_filter( 'update_footer', array( __CLASS__, 'wpie_replace_footer_version' ), '1234' );
 
-                        add_action( 'admin_enqueue_scripts', array ( __CLASS__, 'wpie_set_admin_css' ), 10 );
+                        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wpie_set_admin_css' ), 10 );
 
-                        add_action( 'admin_enqueue_scripts', array ( __CLASS__, 'wpie_set_admin_js' ), 10 );
+                        add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wpie_set_admin_js' ), 10 );
 
-                        add_action( 'init', array ( $this, 'wpie_process_file_download' ), 10 );
+                        add_action( 'init', array( $this, 'wpie_process_file_download' ), 10 );
 
-                        add_action( 'admin_notices', array ( __CLASS__, 'wpie_admin_notices' ), 10099 );
+                        add_action( 'admin_notices', array( __CLASS__, 'wpie_admin_notices' ), 10099 );
 
-                        add_filter( 'mod_rewrite_rules', array ( __CLASS__, 'mod_rewrite_rules' ) );
+                        add_filter( 'mod_rewrite_rules', array( __CLASS__, 'mod_rewrite_rules' ) );
 
-                        add_action( 'admin_init', array ( __CLASS__, 'update_file_security' ) );
+                        add_action( 'admin_init', array( __CLASS__, 'update_file_security' ) );
 
-                        add_filter( 'robots_txt', array ( __CLASS__, 'update_robots_txt' ), 10, 2 );
+                        add_filter( 'robots_txt', array( __CLASS__, 'update_robots_txt' ), 10, 2 );
 
-                        add_action( 'wp_loaded', array ( __CLASS__, 'hide_notices' ) );
+                        add_action( 'wp_loaded', array( __CLASS__, 'hide_notices' ) );
 
-                        add_action( 'shutdown', array ( __CLASS__, 'flush_rewrite_rules' ) );
+                        add_action( 'shutdown', array( __CLASS__, 'flush_rewrite_rules' ) );
 
                         add_filter( 'plugin_row_meta', [ __CLASS__, 'plugin_row_meta' ], 10, 2 );
 
                         add_filter( 'plugin_action_links_' . plugin_basename( WPIE_PLUGIN_FILE ), [ __CLASS__, 'plugin_action_links' ] );
                 }
 
-                add_action( 'plugins_loaded', array ( __CLASS__, 'wpie_load_textdomain' ) );
+                add_action( 'plugins_loaded', array( __CLASS__, 'wpie_load_textdomain' ) );
 
-                add_filter( 'wpmu_drop_tables', array ( __CLASS__, 'wpmu_drop_tables' ) );
+                add_filter( 'wpmu_drop_tables', array( __CLASS__, 'wpmu_drop_tables' ) );
         }
 
         /**
@@ -71,7 +71,7 @@ class WPIE_General {
          * @param  array $tables List of tables that will be deleted by WP.
          * @return array
          */
-        public static function wpmu_drop_tables( $tables = array () ) {
+        public static function wpmu_drop_tables( $tables = array() ) {
 
                 global $wpdb;
 
@@ -119,7 +119,7 @@ class WPIE_General {
          * 
          * @return array
          */
-        public static function plugin_action_links( $links = array () ) {
+        public static function plugin_action_links( $links = array() ) {
 
                 $plugin_links = [
                         '<a href="' . admin_url( "admin.php?page=wpie-new-export" ) . '">' . esc_html__( 'Import', 'wp-import-export-lite' ) . '</a>',
@@ -135,7 +135,7 @@ class WPIE_General {
 
                         $current_data = $this->get_template_data_by_id( intval( wpie_sanitize_field( $_POST[ 'wpie_download_export_id' ] ) ) );
 
-                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array ();
+                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array();
 
                         $filename = isset( $options[ 'fileName' ] ) ? $options[ 'fileName' ] : "";
 
@@ -150,11 +150,11 @@ class WPIE_General {
 
                         $current_data = $this->get_template_data_by_id( intval( wpie_sanitize_field( $_POST[ 'wpie_download_import_id' ] ) ) );
 
-                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array ();
+                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array();
 
                         $activeFile = isset( $options[ 'activeFile' ] ) ? $options[ 'activeFile' ] : "";
 
-                        $importFile = isset( $options[ 'importFile' ] ) ? $options[ 'importFile' ] : array ();
+                        $importFile = isset( $options[ 'importFile' ] ) ? $options[ 'importFile' ] : array();
 
                         $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : "";
 
@@ -171,11 +171,11 @@ class WPIE_General {
 
                         $current_data = $this->get_template_data_by_id( intval( wpie_sanitize_field( $_POST[ 'wpie_download_import_log_id' ] ) ) );
 
-                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array ();
+                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array();
 
                         $activeFile = isset( $options[ 'activeFile' ] ) ? $options[ 'activeFile' ] : "";
 
-                        $importFile = isset( $options[ 'importFile' ] ) ? $options[ 'importFile' ] : array ();
+                        $importFile = isset( $options[ 'importFile' ] ) ? $options[ 'importFile' ] : array();
 
                         $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : "";
 
@@ -219,13 +219,13 @@ class WPIE_General {
 
                         $current_data = $this->get_template_data_by_id( intval( wpie_sanitize_field( $_POST[ 'wpie_download_file' ] ) ) );
 
-                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array ();
+                        $options = isset( $current_data->options ) ? maybe_unserialize( $current_data->options ) : array();
 
                         $activeFile = isset( $options[ 'activeFile' ] ) ? $options[ 'activeFile' ] : "";
 
                         $importFile = isset( $options[ 'importFile' ] ) ? $options[ 'importFile' ] : "";
 
-                        $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : array ();
+                        $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : array();
 
                         $file_name = $fileData[ 'fileName' ] ? $fileData[ 'fileName' ] : "";
 
@@ -285,17 +285,17 @@ class WPIE_General {
 
                 $page = isset( $_GET[ 'page' ] ) ? wpie_sanitize_field( $_GET[ 'page' ] ) : "";
 
-                wp_register_style( 'wpie-global-admin-css', WPIE_CSS_URL . '/wpie-global-admin.min.css', array (), WPIE_PLUGIN_VERSION );
+                wp_register_style( 'wpie-global-admin-css', WPIE_CSS_URL . '/wpie-global-admin.min.css', array(), WPIE_PLUGIN_VERSION );
 
                 wp_enqueue_style( 'wpie-global-admin-css' );
 
                 if ( ! empty( $page ) && in_array( $page, self::$wpie_page ) ) {
 
-                        wp_register_style( 'wpie-export-admin-css', WPIE_CSS_URL . '/wpie-export-admin.min.css', array (), WPIE_PLUGIN_VERSION );
+                        wp_register_style( 'wpie-export-admin-css', WPIE_CSS_URL . '/wpie-export-admin.min.css', array(), WPIE_PLUGIN_VERSION );
 
-                        wp_register_style( 'wpie-general-admin-css', WPIE_CSS_URL . '/wpie-general-admin.min.css', array (), WPIE_PLUGIN_VERSION );
+                        wp_register_style( 'wpie-general-admin-css', WPIE_CSS_URL . '/wpie-general-admin.min.css', array(), WPIE_PLUGIN_VERSION );
 
-                        wp_register_style( 'wpie-import-admin-css', WPIE_CSS_URL . '/wpie-import-admin.min.css', array (), WPIE_PLUGIN_VERSION );
+                        wp_register_style( 'wpie-import-admin-css', WPIE_CSS_URL . '/wpie-import-admin.min.css', array(), WPIE_PLUGIN_VERSION );
 
                         wp_enqueue_style( 'fontawesome-css', WPIE_CSS_URL . '/fontawesome-all.css' );
 
@@ -332,21 +332,21 @@ class WPIE_General {
 
                 if ( ! empty( $page ) && in_array( $page, self::$wpie_page ) ) {
 
-                        wp_register_script( 'wpie-export-admin-js', WPIE_JS_URL . '/wpie-export-admin.min.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_register_script( 'wpie-export-admin-js', WPIE_JS_URL . '/wpie-export-admin.min.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                        wp_register_script( 'wpie-general-admin-js', WPIE_JS_URL . '/wpie-general-admin.min.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_register_script( 'wpie-general-admin-js', WPIE_JS_URL . '/wpie-general-admin.min.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                        wp_register_script( 'wpie-import-admin-js', WPIE_JS_URL . '/wpie-import-admin.min.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_register_script( 'wpie-import-admin-js', WPIE_JS_URL . '/wpie-import-admin.min.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
                         wp_enqueue_script( 'jquery' );
 
-                        wp_enqueue_script( 'bootstrap-js', WPIE_JS_URL . '/bootstrap.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_enqueue_script( 'bootstrap-js', WPIE_JS_URL . '/bootstrap.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                        wp_enqueue_script( 'bootstrap-notify-js', WPIE_JS_URL . '/bootstrap-notify.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_enqueue_script( 'bootstrap-notify-js', WPIE_JS_URL . '/bootstrap-notify.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                        wp_enqueue_script( 'chosen-js', WPIE_JS_URL . '/chosen.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_enqueue_script( 'chosen-js', WPIE_JS_URL . '/chosen.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                        wp_enqueue_script( 'tipso-js', WPIE_JS_URL . '/tipso.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                        wp_enqueue_script( 'tipso-js', WPIE_JS_URL . '/tipso.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
                         if ( file_exists( WPIE_CLASSES_DIR . '/class-wpie-extensions.php' ) ) {
                                 require_once(WPIE_CLASSES_DIR . '/class-wpie-extensions.php');
@@ -362,7 +362,7 @@ class WPIE_General {
 
                                 wp_enqueue_script( 'wpie-export-admin-js' );
 
-                                $wpie_localize_script_data = array (
+                                $wpie_localize_script_data = array(
                                         'wpieAjaxURL'      => admin_url( 'admin-ajax.php' ),
                                         'wpieSiteURL'      => site_url(),
                                         'wpieUploadURL'    => WPIE_UPLOAD_URL,
@@ -377,18 +377,18 @@ class WPIE_General {
 
                                 unset( $wpie_localize_script_data );
 
-                                wp_enqueue_script( 'datatables-js', WPIE_JS_URL . '/datatables.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                                wp_enqueue_script( 'datatables-js', WPIE_JS_URL . '/datatables.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                                wp_enqueue_script( 'editable-js', WPIE_JS_URL . '/editable.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                                wp_enqueue_script( 'editable-js', WPIE_JS_URL . '/editable.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                                wp_enqueue_script( 'dataTables.bootstrap4-js', WPIE_JS_URL . '/dataTables.bootstrap4.js', array ( 'jquery', 'bootstrap-js' ), WPIE_PLUGIN_VERSION, true );
+                                wp_enqueue_script( 'dataTables.bootstrap4-js', WPIE_JS_URL . '/dataTables.bootstrap4.js', array( 'jquery', 'bootstrap-js' ), WPIE_PLUGIN_VERSION, true );
 
                                 wp_enqueue_script( 'jquery-ui-sortable' );
                         } elseif ( $page == 'wpie-new-import' ) {
 
                                 wp_enqueue_script( 'wpie-import-admin-js' );
 
-                                $wpie_localize_script_data = array (
+                                $wpie_localize_script_data = array(
                                         'wpieAjaxURL'      => admin_url( 'admin-ajax.php' ),
                                         'wpieSiteURL'      => site_url(),
                                         'wpieUploadURL'    => WPIE_UPLOAD_URL,
@@ -403,9 +403,9 @@ class WPIE_General {
 
                                 unset( $wpie_localize_script_data );
 
-                                wp_enqueue_script( 'datatables-js', WPIE_JS_URL . '/datatables.js', array ( 'jquery' ), WPIE_PLUGIN_VERSION, true );
+                                wp_enqueue_script( 'datatables-js', WPIE_JS_URL . '/datatables.js', array( 'jquery' ), WPIE_PLUGIN_VERSION, true );
 
-                                wp_enqueue_script( 'dataTables.bootstrap4-js', WPIE_JS_URL . '/dataTables.bootstrap4.js', array ( 'jquery', 'bootstrap-js' ), WPIE_PLUGIN_VERSION, true );
+                                wp_enqueue_script( 'dataTables.bootstrap4-js', WPIE_JS_URL . '/dataTables.bootstrap4.js', array( 'jquery', 'bootstrap-js' ), WPIE_PLUGIN_VERSION, true );
 
                                 wp_enqueue_script( 'plupload' );
 
@@ -414,7 +414,7 @@ class WPIE_General {
 
                                 wp_enqueue_script( 'wpie-general-admin-js' );
 
-                                $wpie_localize_script_data = array (
+                                $wpie_localize_script_data = array(
                                         'wpieAjaxURL'      => admin_url( 'admin-ajax.php' ),
                                         'wpieSiteURL'      => site_url(),
                                         'wpieUploadURL'    => WPIE_UPLOAD_URL,
@@ -514,19 +514,19 @@ class WPIE_General {
 
                 $menu_place = ( string ) self::get_dynamic_position( 28.81, 0.1 );
 
-                add_menu_page( __( 'WP Import Export Dashboard', 'wp-import-export-lite' ), __( 'WP Imp Exp', 'wp-import-export-lite' ), 'wpie_new_export', 'wpie-new-export', array ( __CLASS__, 'wpie_get_page' ), null, $menu_place );
+                add_menu_page( __( 'WP Import Export Dashboard', 'wp-import-export-lite' ), __( 'WP Imp Exp', 'wp-import-export-lite' ), 'wpie_new_export', 'wpie-new-export', array( __CLASS__, 'wpie_get_page' ), null, $menu_place );
 
-                add_submenu_page( 'wpie-new-export', __( 'New Export', 'wp-import-export-lite' ), __( 'New Export', 'wp-import-export-lite' ), 'wpie_new_export', 'wpie-new-export', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'New Export', 'wp-import-export-lite' ), __( 'New Export', 'wp-import-export-lite' ), 'wpie_new_export', 'wpie-new-export', array( __CLASS__, 'wpie_get_page' ) );
 
-                add_submenu_page( 'wpie-new-export', __( 'Manage Export', 'wp-import-export-lite' ), __( 'Manage Export', 'wp-import-export-lite' ), 'wpie_manage_export', 'wpie-manage-export', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'Manage Export', 'wp-import-export-lite' ), __( 'Manage Export', 'wp-import-export-lite' ), 'wpie_manage_export', 'wpie-manage-export', array( __CLASS__, 'wpie_get_page' ) );
 
-                add_submenu_page( 'wpie-new-export', __( 'New Import', 'wp-import-export-lite' ), __( 'New Import', 'wp-import-export-lite' ), 'wpie_new_import', 'wpie-new-import', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'New Import', 'wp-import-export-lite' ), __( 'New Import', 'wp-import-export-lite' ), 'wpie_new_import', 'wpie-new-import', array( __CLASS__, 'wpie_get_page' ) );
 
-                add_submenu_page( 'wpie-new-export', __( 'Manage Import', 'wp-import-export-lite' ), __( 'Manage Import', 'wp-import-export-lite' ), 'wpie_manage_import', 'wpie-manage-import', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'Manage Import', 'wp-import-export-lite' ), __( 'Manage Import', 'wp-import-export-lite' ), 'wpie_manage_import', 'wpie-manage-import', array( __CLASS__, 'wpie_get_page' ) );
 
-                add_submenu_page( 'wpie-new-export', __( 'Settings', 'wp-import-export-lite' ), __( 'Settings', 'wp-import-export-lite' ), 'wpie_settings', 'wpie-settings', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'Settings', 'wp-import-export-lite' ), __( 'Settings', 'wp-import-export-lite' ), 'wpie_settings', 'wpie-settings', array( __CLASS__, 'wpie_get_page' ) );
 
-                add_submenu_page( 'wpie-new-export', __( 'Extensions', 'wp-import-export-lite' ), __( 'Extensions', 'wp-import-export-lite' ), 'wpie_extensions', 'wpie-extensions', array ( __CLASS__, 'wpie_get_page' ) );
+                add_submenu_page( 'wpie-new-export', __( 'Extensions', 'wp-import-export-lite' ), __( 'Extensions', 'wp-import-export-lite' ), 'wpie_extensions', 'wpie-extensions', array( __CLASS__, 'wpie_get_page' ) );
 
                 unset( $menu_place );
         }
@@ -587,13 +587,14 @@ class WPIE_General {
         }
 
         private static function wpie_user_capabilities() {
-                return array (
+                return array(
                         'wpie_new_export'    => __( 'User can export new data', 'wp-import-export-lite' ),
                         'wpie_manage_export' => __( 'User can manage export data', 'wp-import-export-lite' ),
                         'wpie_new_import'    => __( 'User can import new data', 'wp-import-export-lite' ),
                         'wpie_manage_import' => __( 'User can manage import data', 'wp-import-export-lite' ),
                         'wpie_settings'      => __( 'User can manage Settings of import and export', 'wp-import-export-lite' ),
                         'wpie_extensions'    => __( 'User can manage Extensions of import and export', 'wp-import-export-lite' ),
+                        'wpie_add_shortcode' => __( 'User Add Shortcode in import field', 'wp-import-export-lite' ),
                 );
         }
 
@@ -697,8 +698,8 @@ class WPIE_General {
                         if ( intval( $notice ) != 1 ) {
                                 ?>
                                 <div class="wpie-message updated" >
-                                    <a class="wpie-message-close notice-dismiss" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wpie-hide-notice', "wpie_file_security" ), 'wpie_hide_notices_nonce', '_wpie_notice_nonce' ) ); ?>"><?php _e( 'Dismiss', 'wp-import-export-lite' ); ?></a>
-                                    <p><b><?php echo __( 'WP Import Export : ', 'wp-import-export-lite' ); ?></b> <?php _e( "If your <b>.htaccess</b> file were writable, we could do this automatically, but it isn’t. So you must either make it writable or manually update your .htaccess with the mod_rewrite rules found under <b>Settings >> Permalinks</b>. Until then, the exported and imported files are not protected from direct access.", 'wp-import-export-lite' ); ?></p>
+                                        <a class="wpie-message-close notice-dismiss" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wpie-hide-notice', "wpie_file_security" ), 'wpie_hide_notices_nonce', '_wpie_notice_nonce' ) ); ?>"><?php _e( 'Dismiss', 'wp-import-export-lite' ); ?></a>
+                                        <p><b><?php echo __( 'WP Import Export : ', 'wp-import-export-lite' ); ?></b> <?php _e( "If your <b>.htaccess</b> file were writable, we could do this automatically, but it isn’t. So you must either make it writable or manually update your .htaccess with the mod_rewrite rules found under <b>Settings >> Permalinks</b>. Until then, the exported and imported files are not protected from direct access.", 'wp-import-export-lite' ); ?></p>
                                 </div>
                                 <?php
                         }
@@ -762,7 +763,7 @@ class WPIE_General {
         }
 
         private static function wpie_load_msg() {
-                return array (
+                return array(
                         "yesText"                         => __( 'Yes', 'wp-import-export-lite' ),
                         "okText"                          => __( 'Ok', 'wp-import-export-lite' ),
                         "errorText"                       => __( 'Error', 'wp-import-export-lite' ),
