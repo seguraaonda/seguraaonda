@@ -492,10 +492,10 @@ article.victim .meta-icon {
 	font-size: 3.2rem;
 	content: "Deixe uma homenagem";
 }
-.single-victim .comment-respond label {
+.single-victim .comment-respond label[for="comment"] {
 	font-size: 0;
 }
-.single-victim .comment-respond label:before {
+.single-victim .comment-respond label[for="comment"]:before {
 	font-size: 1.6rem;
 	content: "Homenagem";
 }
