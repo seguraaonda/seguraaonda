@@ -518,11 +518,17 @@ article.victim .meta-icon {
 }
 
 /*ACF Maps*/
-.acf-map {
-	width: 100%;
+.map-sidebar {
+	width: 25%;
+	padding: 2rem;
+	float: left;
+}
+.map-main {
+	width: 75%;
 	height: calc(100vh - 100px);
 	border: #ccc solid 1px;
 	margin: 0;
+	float: left;
 }
 .page-template-mapa .footer-nav-widgets-wrapper.header-footer-group {
 	margin-top: 0;
