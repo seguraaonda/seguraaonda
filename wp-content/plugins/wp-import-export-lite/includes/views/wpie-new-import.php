@@ -73,9 +73,9 @@ if ( $import_id > 0 ) {
         <div class="wpie_content_header">
                 <div class="wpie_content_header_inner_wrapper">
                         <div class="wpie_content_header_title"><?php esc_html_e( 'New Import', "wp-import-export-lite" ); ?></div>
-            <a class="wpie_btn wpie_btn_primary ml-4" href="https://1.envato.market/1krom" target="_blank">
-                <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
-            </a>
+                        <a class="wpie_btn wpie_btn_primary ml-4" href="https://1.envato.market/1krom" target="_blank">
+                            <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
+                        </a>
                 </div>
         </div>
         <div class="wpie_content_wrapper">

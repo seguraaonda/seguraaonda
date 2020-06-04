@@ -370,6 +370,8 @@ class WPIE_General {
                                         'wpiePluginURL'    => WPIE_PLUGIN_URL,
                                         'wpieImageURL'     => WPIE_IMAGES_URL,
                                         'wpieLocalizeText' => self::wpie_load_msg(),
+                                        'wpieSiteUrl'      => home_url(),
+                                        'wpiePluginData'   => [],
                                         'wpieExtensions'   => $wpieExtData
                                 );
 
@@ -396,6 +398,8 @@ class WPIE_General {
                                         'wpiePluginURL'    => WPIE_PLUGIN_URL,
                                         'wpieImageURL'     => WPIE_IMAGES_URL,
                                         'wpieLocalizeText' => self::wpie_load_msg(),
+                                        'wpieSiteUrl'      => home_url(),
+                                        'wpiePluginData'   => [],
                                         'wpieExtensions'   => $wpieExtData
                                 );
 
@@ -845,6 +849,7 @@ class WPIE_General {
                         "wpieEmptyTemplate"               => __( "Please Select any template", 'wp-import-export-lite' ),
                         "wpieEmptyLayout"                 => __( "Please Select any Layout", 'wp-import-export-lite' ),
                         "processingReimport"              => __( "Processing Reimport", 'wp-import-export-lite' ),
+                        "wpieInvalidLicense"              => __( "Please Activate Plugin Purchase Code from WP Imp Exp => Settings", 'wp-import-export-lite' ),
                         "wpieProFeatureOnly"              => __( "Pro Feature Only", 'wp-import-export-lite' )
                 );
         }

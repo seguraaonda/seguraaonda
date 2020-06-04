@@ -337,7 +337,7 @@ class WPIE_Post extends \wpie\import\engine\WPIE_Import_Engine {
                                                 FROM {$wpdb->posts} as posts
                                                 INNER JOIN {$wpdb->postmeta} AS postmeta ON posts.ID = postmeta.post_id
                                                 WHERE posts.post_type IN ( '{$sql_post_type}' )
-                                                AND NOT IN ('trash','auto-draft' )
+                                                AND posts.post_status NOT IN ('trash','auto-draft' )
                                                 AND postmeta.meta_key = %s                                               
                                                 AND postmeta.meta_value = %s
                                                 ORDER BY posts.ID ASC

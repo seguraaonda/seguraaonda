@@ -21,16 +21,16 @@ if ( file_exists( WPIE_CLASSES_DIR . '/class-wpie-common-action.php' ) ) {
 
         unset( $cmm_act );
 }
-$delete_on_uninstall = get_option("wpie_delete_on_uninstall", 0);
+$delete_on_uninstall = get_option( "wpie_delete_on_uninstall", 0 );
 ?>
 
 <div class="wpie_main_container">
         <div class="wpie_content_header">
                 <div class="wpie_content_header_inner_wrapper">
                         <div class="wpie_content_header_title"><?php esc_html_e( 'Settings', 'wp-import-export-lite' ); ?></div>
-            <a class="wpie_btn wpie_btn_primary ml-4" href="https://1.envato.market/1krom" target="_blank">
-                <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
-            </a>
+                        <a class="wpie_btn wpie_btn_primary ml-4" href="https://1.envato.market/1krom" target="_blank">
+                            <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
+                        </a>
                 </div>
         </div>
         <div class="wpie_content_wrapper">
