@@ -83,17 +83,17 @@ get_header();
 
 	if( is_search() ) {
 
-		if( isset( $_POST['tagfilter'] ) )
+		if( isset( $_GET['tagfilter'] ) )
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'topic-tag',
 					'field' => 'id',
-					'terms' => $_POST['tagfilter']
+					'terms' => $_GET['tagfilter']
 				)
 			);
 
-		if( isset( $_POST['forumfilter'] ) )
-			$args['post_parent'] = $_POST['forumfilter'];
+		if( isset( $_GET['forumfilter'] ) )
+			$args['post_parent'] = $_GET['forumfilter'];
 
 
 		$map_query = new WP_Query ( array_merge( $args, $wp_query->query ) );
