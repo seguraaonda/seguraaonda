@@ -149,11 +149,11 @@ function seguraaonda_rewrite_flush() {
 }
 add_action( 'after_switch_theme', 'seguraaonda_rewrite_flush' );
 
-//Order victims by title
+//Order victims randomly
 function seguguraaonda_victim_order( $query ) {
 	if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( 'victim' ) ) {
 		$query->set( 'orderby', 'title' );
-		$query->set('order', 'ASC');
+		$query->set('order', 'rand');
 		return;
 	}
 }
