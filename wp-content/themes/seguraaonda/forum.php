@@ -9,49 +9,26 @@
  * @since 1.0.0
  */
 
+get_header();
+?>
 
+<main id="site-content" role="main">
 
-	if ( bbp_is_search() ) {
+	<?php
 
-		if(isset($_GET['search-type'])) {
+	if ( have_posts() ) {
 
-			$type = $_GET['search-type'];
+		while ( have_posts() ) {
+			the_post();
 
-			if($type == 'map') {
-
-				echo "mapa";
-			}
-
+			get_template_part( 'template-parts/content-forum' );
 		}
-
-	} else {
-
-		get_header();
-
-?>
-
-		<main id="site-content" role="main">
-
-			<?php
-
-			if ( have_posts() ) {
-
-				while ( have_posts() ) {
-					the_post();
-
-					get_template_part( 'template-parts/content-forum' );
-				}
-			}
-			?>
-
-
-		</main><!-- #site-content -->
-
-		<?php get_template_part( 'template-parts/footer-menus-widgets' ); ?>
-
-		<?php get_footer(); 
-
 	}
+	?>
 
 
-?>
+</main><!-- #site-content -->
+
+<?php get_template_part( 'template-parts/footer-menus-widgets' ); ?>
+
+<?php get_footer(); ?>
