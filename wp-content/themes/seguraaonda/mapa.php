@@ -41,7 +41,6 @@ get_header();
 						'post_type' => 'forum',
 						'post_status' => 'public',
 						'posts_per_page' => -1,
-						'post_parent' => 0,
 						'order' => 'ASC',
 						'orderby' => 'menu_order'
 					);
@@ -93,7 +92,14 @@ get_header();
 			);
 
 		if( isset( $_GET['forumfilter'] ) )
-			$args['post_parent'] = $_GET['forumfilter'];
+
+			$forumid = $_GET['forumfilter'];
+			$topics = get_pages( array( 'child_of' => $forumid, 'post_type' =>'topic'));
+
+			$args = array (
+				'post__in' => array ( $topics ),
+			);
+			
 
 
 		$map_query = new WP_Query ( array_merge( $args, $wp_query->query ) );
