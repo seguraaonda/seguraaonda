@@ -14,7 +14,7 @@ get_header();
 
 <main id="site-content" role="main">
 	<div class="map-sidebar">
-		<form role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+		<form role="search" method="GET" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 
 			<p><input type="text" value="" name="s" id="s" placeholder="pesquisar por..." /></p>
 
