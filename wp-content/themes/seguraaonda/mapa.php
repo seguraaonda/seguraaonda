@@ -14,7 +14,7 @@ get_header();
 
 <main id="site-content" role="main">
 	<div class="map-sidebar">
-		<form role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+		<form role="search" method="GET" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 
 			<p><input type="text" value="" name="s" id="s" placeholder="pesquisar por..." /></p>
 
@@ -83,17 +83,17 @@ get_header();
 
 	if( is_search() ) {
 
-		if( isset( $_POST['tagfilter'] ) )
+		if( isset( $_GET['tagfilter'] ) )
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'topic-tag',
 					'field' => 'id',
-					'terms' => $_POST['tagfilter']
+					'terms' => $_GET['tagfilter']
 				)
 			);
 
-		if( isset( $_POST['forumfilter'] ) )
-			$args['post_parent'] = $_POST['forumfilter'];
+		if( isset( $_GET['forumfilter'] ) )
+			$args['post_parent'] = $_GET['forumfilter'];
 
 
 		$map_query = new WP_Query ( array_merge( $args, $wp_query->query ) );
