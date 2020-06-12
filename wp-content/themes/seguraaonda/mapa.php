@@ -92,15 +92,7 @@ get_header();
 			);
 
 		if( isset( $_GET['forumfilter'] ) )
-
-			$forumid = $_GET['forumfilter'];
-			$topics = get_pages( array( 'child_of' => $forumid, 'post_type' =>'topic'));
-
-			$args = array (
-				'post__in' => array ( $topics ),
-			);
-			
-
+			$args['post_parent'] = $_GET['forumfilter'];
 
 		$map_query = new WP_Query ( array_merge( $args, $wp_query->query ) );
 
