@@ -54,8 +54,10 @@ $page = isset( $_GET[ 'page' ] ) ? wpie_sanitize_field( $_GET[ 'page' ] ) : "";
                                                             $temp = 0;
                                                             foreach ( $wpie_export_ext as $key => $extData ) {
 
-                                                                    $is_pro = isset( $extData[ "is_pro" ] ) ? $extData[ "is_pro" ] : false;
-
+                                                                    if ( isset( $extData[ "is_default" ] ) && $extData[ "is_default" ] == true ) {
+                                                                            continue;
+                                                                    }
+								     $is_pro = isset( $extData[ "is_pro" ] ) ? $extData[ "is_pro" ] : false;
                                                                     if ( $temp % 3 == 0 ) {
                                                                             ?>
                                                                         </tr>

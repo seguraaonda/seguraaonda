@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP Import Export Lite\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-31 02:56+0000\n"
+"POT-Creation-Date: 2020-06-11 13:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.4.1"
+"X-Loco-Version: 2.4.0; wp-5.4.2"
 
 #: includes/classes/import/fields/wpie-post.php:479
 msgid "(no parent)"
@@ -651,7 +651,7 @@ msgstr ""
 
 #: includes/classes/class-wpie-general.php:103
 #: includes/views/wpie-extension-info.php:61
-#: includes/views/wpie-extensions.php:162
+#: includes/views/wpie-extensions.php:164
 #: includes/views/wpie-manage-export.php:166
 #: includes/views/wpie-manage-import.php:204
 #: includes/views/wpie-new-export.php:323
@@ -740,16 +740,12 @@ msgid "Empty Data"
 msgstr ""
 
 #: includes/classes/import/class-wpie-images.php:418
-#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:71
+#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:132
 msgid "Empty Image URL"
 msgstr ""
 
 #: includes/views/wpie-new-import.php:65
 msgid "Empty Nonce"
-msgstr ""
-
-#: libraries/xml/class-wpie-xml2array.php:26
-msgid "Empty or invalid File name or XML data or both"
 msgstr ""
 
 #: includes/views/wpie-new-import.php:68
@@ -830,7 +826,7 @@ msgid "equals or less than"
 msgstr ""
 
 #: includes/views/wpie-extension-info.php:72
-#: includes/views/wpie-extensions.php:173
+#: includes/views/wpie-extensions.php:175
 #: includes/views/wpie-manage-export.php:173
 #: includes/views/wpie-manage-import.php:184
 #: includes/views/wpie-new-export.php:429
@@ -1278,7 +1274,7 @@ msgstr ""
 msgid "Import each record as"
 msgstr ""
 
-#: includes/views/wpie-extensions.php:99
+#: includes/views/wpie-extensions.php:101
 msgid "Import Extensions"
 msgstr ""
 
@@ -1394,8 +1390,8 @@ msgstr ""
 msgid "Internal Server Error [500]."
 msgstr ""
 
-#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:42
-#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:133
+#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:44
+#: includes/classes/import/extensions/url-upload/class-wpie-url-upload.php:194
 msgid "Invalid File Extension"
 msgstr ""
 
@@ -1641,7 +1637,7 @@ msgstr ""
 msgid "Nickname"
 msgstr ""
 
-#: includes/views/wpie-extensions.php:91 includes/views/wpie-extensions.php:149
+#: includes/views/wpie-extensions.php:93 includes/views/wpie-extensions.php:151
 msgid "No Extension installed. Please install extension for use all features."
 msgstr ""
 
@@ -1700,13 +1696,13 @@ msgstr ""
 msgid "of"
 msgstr ""
 
-#: includes/views/wpie-extensions.php:76 includes/views/wpie-extensions.php:134
+#: includes/views/wpie-extensions.php:78 includes/views/wpie-extensions.php:136
 msgid "OFF"
 msgstr ""
 
 #: includes/classes/class-wpie-general.php:772
 #: includes/views/wpie-extension-info.php:82
-#: includes/views/wpie-extensions.php:183
+#: includes/views/wpie-extensions.php:185
 #: includes/views/wpie-manage-export.php:183
 #: includes/views/wpie-manage-export.php:207
 #: includes/views/wpie-manage-import.php:194
@@ -1720,7 +1716,7 @@ msgstr ""
 msgid "older than"
 msgstr ""
 
-#: includes/views/wpie-extensions.php:75 includes/views/wpie-extensions.php:133
+#: includes/views/wpie-extensions.php:77 includes/views/wpie-extensions.php:135
 msgid "ON"
 msgstr ""
 
@@ -1877,6 +1873,10 @@ msgstr ""
 msgid "Please contact admin for allow shortcode in field. for more"
 msgstr ""
 
+#: includes/classes/export/class-wpie-export-actions.php:77
+msgid "Please enable PHP ZIP extension"
+msgstr ""
+
 #: includes/classes/class-wpie-general.php:789
 msgid "Please enter CSV delimiter"
 msgstr ""
@@ -1989,7 +1989,7 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: includes/views/wpie-extensions.php:82 includes/views/wpie-extensions.php:140
+#: includes/views/wpie-extensions.php:84 includes/views/wpie-extensions.php:142
 msgid "Pro Addon"
 msgstr ""
 
@@ -2405,7 +2405,7 @@ msgstr ""
 
 #: includes/classes/class-wpie-general.php:104
 #: includes/views/wpie-extension-info.php:59
-#: includes/views/wpie-extensions.php:160
+#: includes/views/wpie-extensions.php:162
 #: includes/views/wpie-manage-export.php:164
 #: includes/views/wpie-manage-import.php:202
 #: includes/views/wpie-new-export.php:321

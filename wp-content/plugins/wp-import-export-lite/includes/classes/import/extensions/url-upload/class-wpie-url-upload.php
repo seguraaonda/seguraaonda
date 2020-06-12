@@ -27,6 +27,8 @@ class WPIE_URL_Upload extends \wpie\import\upload\WPIE_Upload {
                         return new \WP_Error( 'wpie_import_error', __( 'Uploads folder is not writable', 'wp-import-export-lite' ) );
                 }
 
+                $file_url = $this->process_url( $file_url );
+
                 $file_data = $this->download_file( $file_url );
 
                 if ( is_wp_error( $file_data ) ) {
@@ -63,6 +65,65 @@ class WPIE_URL_Upload extends \wpie\import\upload\WPIE_Upload {
                 unset( $file_url, $filePath );
 
                 return parent::wpie_manage_import_file( $fileName, $newfiledir, $wpie_import_id );
+        }
+
+        private function process_url( $link = "", $format = 'csv' ) {
+
+                if ( empty( $link ) ) {
+                        return $link;
+                }
+
+                $link = str_replace( " ", "%20", $link );
+
+                preg_match( '/(?<=.com\/).*?(?=\/d)/', $link, $match );
+
+                if ( isset( $match[ 0 ] ) && ! empty( $match[ 0 ] ) ) {
+                        $type = $match[ 0 ];
+                } else {
+                        $type = null;
+                }
+
+                $parse = parse_url( $link );
+                $domain = isset( $parse[ 'host' ] ) ? $parse[ 'host' ] : '';
+                unset( $match, $parse );
+                
+                if ( preg_match( '/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $match ) ) {
+                        $domain = isset( $match[ 'domain' ] ) ? $match[ 'domain' ] : "";
+                }
+                unset( $match );
+
+                if ( ! empty( $domain ) ) {
+                        switch ( $domain ) {
+                                case 'dropbox.com':
+                                        if ( substr( $link, -4 ) == 'dl=0' ) {
+                                                $link = str_replace( 'dl=0', 'dl=1', $link );
+                                        }
+                                        break;
+                                case 'google.com':
+                                        if ( ! empty( $type ) ) {
+                                                switch ( $type ) {
+                                                        case 'file':
+                                                                $pattern = '/(?<=\/file\/d\/).*?(?=\/edit)/';
+                                                                preg_match( $pattern, $link, $match );
+                                                                $file_id = isset( $match[ 0 ] ) ? $match[ 0 ] : null;
+                                                                if ( ! empty( $file_id ) ) {
+                                                                        $link = 'https://drive.google.com/uc?export=download&id=' . $file_id;
+                                                                }
+                                                                break;
+                                                        case 'spreadsheets':
+                                                                $pattern = '/(?<=\/spreadsheets\/d\/).*?(?=\/edit)/';
+                                                                preg_match( $pattern, $link, $match );
+                                                                $file_id = isset( $match[ 0 ] ) ? $match[ 0 ] : null;
+                                                                if ( ! empty( $file_id ) ) {
+                                                                        $link = 'https://docs.google.com/spreadsheets/d/' . $file_id . '/export?format=' . $format;
+                                                                }
+                                                                break;
+                                                }
+                                        }
+                                        break;
+                        }
+                }
+                return $link;
         }
 
         private function download_file( $file_url = "" ) {

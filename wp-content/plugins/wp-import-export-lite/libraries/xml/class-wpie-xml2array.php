@@ -22,8 +22,6 @@ class XmlToArray {
                         $this->document->load( $fileName );
                 } elseif ( ! empty( $xml ) ) {
                         $this->document->loadXML( $xml );
-                } else {
-                        throw new \DOMException( __( 'Empty or invalid File name or XML data or both', 'wp-import-export-lite' ) );
                 }
         }
 

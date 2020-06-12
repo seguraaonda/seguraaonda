@@ -8,50 +8,50 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WPIE_Extension {
 
-        private $wpie_export_extensions = array ();
-        private $wpie_import_extensions = array ();
-        private $wpie_activated_extensions = array ();
+        private $wpie_export_extensions = array();
+        private $wpie_import_extensions = array();
+        private $wpie_activated_extensions = array();
 
         public function __construct() {
 
-                add_action( 'wp_ajax_wpie_ext_save_extensions', array ( $this, 'wpie_ext_save_extensions' ) );
+                add_action( 'wp_ajax_wpie_ext_save_extensions', array( $this, 'wpie_ext_save_extensions' ) );
 
-                add_action( 'wp_ajax_wpie_ext_save_extension_data', array ( $this, 'wpie_ext_save_extension_data' ) );
+                add_action( 'wp_ajax_wpie_ext_save_extension_data', array( $this, 'wpie_ext_save_extension_data' ) );
 
-                add_filter( 'wpie_get_export_remote_locations', array ( $this, 'wpie_get_export_remote_locations' ), 10, 1 );
+                add_filter( 'wpie_get_export_remote_locations', array( $this, 'wpie_get_export_remote_locations' ), 10, 1 );
         }
 
         public function wpie_get_export_extension() {
 
                 if ( empty( $this->wpie_export_extensions ) ) {
 
-                        $this->wpie_export_extensions = array (
-                                "wpie_acf_export"      => array (
+                        $this->wpie_export_extensions = array(
+                                "wpie_acf_export"      => array(
                                         "name"       => __( "Advanced Custom Fields", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Export Advanced Custom Fields from WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_bg_export"       => array (
+                                "wpie_bg_export"       => array(
                                         "name"         => __( "Background Export", 'wp-import-export-lite' ),
                                         "include_path" => WPIE_EXPORT_CLASSES_DIR . "/extensions/bg/wpie_bg.php",
                                         "short_desc"   => __( "Export in Background from WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_schedule_export" => array (
+                                "wpie_schedule_export" => array(
                                         "name"       => __( "Schedule Export", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Export automatically and periodically from WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_user_export"     => array (
+                                "wpie_user_export"     => array(
                                         "name"         => __( "User", 'wp-import-export-lite' ),
                                         "include_path" => WPIE_EXPORT_CLASSES_DIR . "/extensions/user/wpie_user.php",
                                         "short_desc"   => __( "Export Users & User's metadata from WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_wc_export"       => array (
+                                "wpie_wc_export"       => array(
                                         "name"       => __( "WooCommerce", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Export Products, Orders, Product Categories and coupons from WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_wpml_export"     => array (
+                                "wpie_wpml_export"     => array(
                                         "name"       => __( "WPML", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Export multilingual content from WordPress Site", 'wp-import-export-lite' )
@@ -66,68 +66,68 @@ class WPIE_Extension {
 
                 if ( empty( $this->wpie_import_extensions ) ) {
 
-                        $this->wpie_import_extensions = array (
-                                "wpie_import_local_upload"            => array (
+                        $this->wpie_import_extensions = array(
+                                "wpie_import_local_upload"            => array(
                                         "name"         => __( "Upload From Desktop", 'wp-import-export-lite' ),
                                         "is_default"   => true,
                                         "include_path" => WPIE_IMPORT_CLASSES_DIR . "/extensions/local-upload/wpie_local_upload.php",
                                 ),
-                                "wpie_import_existing_file_upload"    => array (
+                                "wpie_import_existing_file_upload"    => array(
                                         "name"         => __( "Use existing file", 'wp-import-export-lite' ),
                                         "is_default"   => true,
                                         "include_path" => WPIE_IMPORT_CLASSES_DIR . "/extensions/existing-file/wpie_existing_file.php",
                                 ),
-                                "wpie_acf_import"                     => array (
+                                "wpie_acf_import"                     => array(
                                         "name"       => __( "Advanced Custom Fields", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import Advanced Custom Fields to WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_bg_import"                      => array (
+                                "wpie_bg_import"                      => array(
                                         "name"         => __( "Background Import", 'wp-import-export-lite' ),
                                         "include_path" => WPIE_IMPORT_CLASSES_DIR . "/extensions/bg/wpie_bg.php",
                                         "short_desc"   => __( "Import in Background to WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_import_dropbox_file_upload"     => array (
+                                "wpie_import_dropbox_file_upload"     => array(
                                         "name"       => __( "Dropbox", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import File from Dropbox to WordPress Site", 'wp-import-export-lite' ),
                                 ),
-                                "wpie_import_ftp_file_upload"         => array (
+                                "wpie_import_ftp_file_upload"         => array(
                                         "name"       => __( "Upload From FTP/SFTP", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import File from FTP/SFTP to WordPress Site", 'wp-import-export-lite' ),
                                 ),
-                                "wpie_import_googledrive_file_upload" => array (
+                                "wpie_import_googledrive_file_upload" => array(
                                         "name"       => __( "Google Drive", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import File from Google Drive to WordPress Site", 'wp-import-export-lite' ),
                                 ),
-                                "wpie_import_onedrive_file_upload"    => array (
+                                "wpie_import_onedrive_file_upload"    => array(
                                         "name"       => __( "Microsoft Onedrive", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import File from Microsoft Onedrive to WordPress Site", 'wp-import-export-lite' ),
                                 ),
-                                "wpie_schedule_import"                => array (
+                                "wpie_schedule_import"                => array(
                                         "name"       => __( "Schedule Import", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import automatically & periodically to WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_import_url_file_upload"         => array (
+                                "wpie_import_url_file_upload"         => array(
                                         "name"         => __( "Upload From URL", 'wp-import-export-lite' ),
                                         "include_path" => WPIE_IMPORT_CLASSES_DIR . "/extensions/url-upload/wpie_url_upload.php",
                                         "short_desc"   => __( "Import File from URL to WordPress Site", 'wp-import-export-lite' ),
                                 ),
-                                "wpie_user_import"                    => array (
+                                "wpie_user_import"                    => array(
                                         "name"         => __( "User Import", 'wp-import-export-lite' ),
                                         "include_path" => WPIE_IMPORT_CLASSES_DIR . "/extensions/user/user.php",
                                         "short_desc"   => __( "Import Users & User's metadata to WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_wc_import"                      => array (
+                                "wpie_wc_import"                      => array(
                                         "name"       => __( "WooCommerce Import", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import Products, Orders, Product Categories and coupons to WordPress Site", 'wp-import-export-lite' )
                                 ),
-                                "wpie_wpml_import"                    => array (
+                                "wpie_wpml_import"                    => array(
                                         "name"       => __( "WPML", 'wp-import-export-lite' ),
                                         "is_pro"     => true,
                                         "short_desc" => __( "Import multilingual content to WordPress Site", 'wp-import-export-lite' )
@@ -140,7 +140,7 @@ class WPIE_Extension {
 
         public function wpie_ext_save_extensions() {
 
-                $return_value = array ();
+                $return_value = array();
 
                 $wpie_ext = isset( $_POST[ 'wpie_ext' ] ) ? wpie_sanitize_field( $_POST[ 'wpie_ext' ] ) : "";
 
@@ -165,7 +165,7 @@ class WPIE_Extension {
 
         public function wpie_ext_save_extension_data() {
 
-                $return_value = array ();
+                $return_value = array();
 
                 $wpie_ext = isset( $_POST[ 'wpie_ext' ] ) ? wpie_sanitize_field( $_POST[ 'wpie_ext' ] ) : "";
 
@@ -199,24 +199,25 @@ class WPIE_Extension {
 
                         $wpie_extensions = get_option( 'wpie_extensions' );
 
+                        $wpie_ext = $this->wpie_get_export_extension();
+
+                        $wpie_imp_ext = $this->wpie_get_import_extension();
+
+                        $wpie_ext = array_merge( $wpie_ext, $wpie_imp_ext );
+
                         if ( $wpie_extensions ) {
-                                $this->wpie_activated_extensions = maybe_unserialize( $wpie_extensions );
-                        } else {
-                                $wpie_ext = $this->wpie_get_export_extension();
 
-                                $wpie_imp_ext = $this->wpie_get_import_extension();
-
-                                $wpie_ext = array_merge( $wpie_ext, $wpie_imp_ext );
-
+                                $default_ext = [];
                                 if ( ! empty( $wpie_ext ) ) {
-
                                         foreach ( $wpie_ext as $key => $ext ) {
 
-                                                if ( isset( $ext[ 'is_pro' ] ) && $ext[ 'is_pro' ] === true ) {
-                                                        unset( $wpie_ext[ $key ] );
+                                                if ( isset( $ext[ 'is_default' ] ) && $ext[ 'is_default' ] == true ) {
+                                                        $default_ext[] = $key;
                                                 }
                                         }
                                 }
+                                $this->wpie_activated_extensions = array_unique( array_merge( $default_ext, maybe_unserialize( $wpie_extensions ) ) );
+                        } else {
 
                                 $this->wpie_activated_extensions = array_keys( $wpie_ext );
                         }
@@ -232,12 +233,12 @@ class WPIE_Extension {
                 $wpie_activated_ext = $this->wpie_get_activated_ext();
 
                 try {
-                        $wpie_ext = array ();
+                        $wpie_ext = array();
 
                         if ( is_array( $wpie_activated_ext ) && ! empty( $wpie_activated_ext ) ) {
                                 $data = $wpie_activated_ext;
                         } else {
-                                $data = array ();
+                                $data = array();
                         }
 
                         if ( $type == "all" || $type == "export" ) {
@@ -297,7 +298,7 @@ class WPIE_Extension {
                 return false;
         }
 
-        public function wpie_get_export_remote_locations( $remote_loc = array () ) {
+        public function wpie_get_export_remote_locations( $remote_loc = array() ) {
 
                 $wpie_export_ext = $this->wpie_get_export_extension();
 
@@ -318,7 +319,7 @@ class WPIE_Extension {
 
                                 $settings = maybe_unserialize( get_option( $option_name ) );
 
-                                $remote_loc[ $wpie_ext ] = array (
+                                $remote_loc[ $wpie_ext ] = array(
                                         "label" => isset( $wpie_export_ext[ $wpie_ext ] ) && isset( $wpie_export_ext[ $wpie_ext ][ 'name' ] ) ? $wpie_export_ext[ $wpie_ext ][ 'name' ] : "",
                                         "data"  => $settings
                                 );
