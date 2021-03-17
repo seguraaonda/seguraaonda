@@ -60,7 +60,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         $this->wpie_final_data[ 'comment_date' ] = date( 'Y-m-d H:i:s', strtotime( $comment_date ) );
                 }
                 if ( $this->is_update_field( "content" ) ) {
-                        $this->wpie_final_data[ 'comment_content' ] = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_comment_content' ) );
+                        $this->wpie_final_data[ 'comment_content' ] = wp_kses( html_entity_decode( $this->get_field_value( 'wpie_item_comment_content' ) ), "post" );
                 }
                 if ( $this->is_update_field( "karma" ) ) {
                         $this->wpie_final_data[ 'comment_karma' ] = wpie_sanitize_field( $this->get_field_value( 'wpie_item_comment_karma' ) );
@@ -75,7 +75,37 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         $this->wpie_final_data[ 'comment_type' ] = wpie_sanitize_field( $this->get_field_value( 'wpie_item_comment_type' ) );
                 }
                 if ( $this->is_update_field( "parent" ) ) {
-                        $this->wpie_final_data[ 'comment_parent' ] = wpie_sanitize_field( $this->get_field_value( 'wpie_item_comment_parent' ) );
+
+                        $parent_id = 0;
+
+                        $comment_parent = $this->get_field_value( 'wpie_item_comment_parent' );
+
+                        if ( ! empty( trim( $comment_parent ) ) ) {
+
+                                if ( is_numeric( $comment_parent ) && absint( $comment_parent ) > 0 ) {
+
+                                        $comment_id = $wpdb->get_var( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_ID = %d", ansint( $comment_parent ) ) );
+
+                                        if ( $comment_id && $comment_id > 0 ) {
+                                                $parent_id = absint( $comment_id );
+                                        }
+
+                                        unset( $comment_id );
+                                }
+
+                                if ( $parent_id === 0 ) {
+
+                                        $new_content = wp_kses( html_entity_decode( $comment_parent ), "post" );
+
+                                        $comment_id = $wpdb->get_var( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments WHERE comment_content IN (%s,%s) ORDER BY `comment_ID` ASC limit 0,1", $new_content, preg_replace( '%[ \\t\\n]%', '', $new_content ) ) );
+
+                                        if ( $comment_id && $comment_id > 0 ) {
+                                                $parent_id = absint( $comment_id );
+                                        }
+                                        unset( $comment_id, $new_content );
+                                }
+                        }
+                        $this->wpie_final_data[ 'comment_parent' ] = $parent_id;
                 }
 
                 $this->wpie_final_data = apply_filters( 'wpie_before_comment_import', $this->wpie_final_data, $this->wpie_import_option, $this->wpie_import_record );
@@ -106,14 +136,15 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
 
                         $this->process_log[ 'imported' ] ++;
 
-                        if ( $is_success == 0 ) {
+                        if ( is_wp_error( $is_success ) ) {
 
-                                $this->set_log( "<strong>" . __( 'ERROR', 'wp-import-export-lite' ) . '</strong> : ' . __( 'Fail to Update comment', 'wp-import-export-lite' ) );
+                                $this->set_log( "<strong>" . __( 'ERROR', 'wp-import-export-lite' ) . '</strong> : ' . $is_success->get_error_message() );
 
                                 $this->process_log[ 'skipped' ] ++;
 
                                 return true;
                         }
+
                         unset( $is_success );
 
                         $this->process_log[ 'updated' ] ++;
@@ -123,8 +154,8 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         $this->backup_service->create_backup( $this->item_id, true );
                 }
 
-                $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ),
-                        'process_log'      => maybe_serialize( $this->process_log ) ), array(
+                $wpdb->update( $wpdb->prefix . "wpie_template", array ( 'last_update_date' => current_time( 'mysql' ),
+                        'process_log'      => maybe_serialize( $this->process_log ) ), array (
                         'id' => $this->wpie_import_id ) );
 
                 do_action( 'wpie_after_comment_import', $this->item_id, $this->wpie_final_data, $this->wpie_import_option );
@@ -160,7 +191,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         unset( $duplicate_id );
                 } elseif ( $wpie_duplicate_indicator === "content" ) {
 
-                        $content = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_comment_content' ) );
+                        $content = wp_kses( html_entity_decode( $this->get_field_value( 'wpie_item_comment_content' ) ), "post" );
 
                         if ( ! empty( $content ) ) {
 
@@ -180,7 +211,7 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
 
                         if ( ! empty( $meta_key ) ) {
 
-                                $args = array(
+                                $args = array (
                                         'number'     => 1,
                                         'offset'     => 0,
                                         'fields'     => "ids",
@@ -211,6 +242,8 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
 
                 global $wpdb;
 
+                $this->post_id = 0;
+
                 $post_types = $this->get_field_value( 'wpie_comment_parent_include_post_types' );
 
                 if ( empty( $post_types ) ) {
@@ -220,49 +253,66 @@ class WPIE_Comment extends \wpie\import\engine\WPIE_Import_Engine {
                         return;
                 }
 
-                $post_indicator = strtolower( trim( $this->get_field_value( 'wpie_item_search_post_based_on', true ) ) ) === "id" ? "id" : "title";
+                $parent_post = $this->get_field_value( 'wpie_item_comment_parent_post' );
 
-                if ( $post_indicator === "id" ) {
+                if ( empty( $parent_post ) ) {
 
-                        $post_id = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_comment_post_id' ) ) );
+                        unset( $parent_post );
 
-                        if ( $post_id > 0 ) {
-                                $_post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d LIMIT 0,1", $post_id ) );
-
-                                if ( $_post && absint( $_post ) > 0 ) {
-                                        $this->post_id = absint( $_post );
-                                }
-                                unset( $_post );
-                        }
-                        unset( $post_id );
-                } else {
-
-
-                        $title = $this->get_field_value( "wpie_item_comment_post_title" );
-
-                        if ( ! empty( $title ) ) {
-                                $_post = $wpdb->get_var(
-                                        $wpdb->prepare(
-                                                "SELECT ID FROM " . $wpdb->posts . "
-                                WHERE
-                                    post_type IN ('" . implode( "','", $post_types ) . "')
-                                    AND ID != 0
-                                    AND post_title = %s
-                                LIMIT 1
-                                ", $title
-                                        )
-                                );
-
-
-                                if ( $_post && absint( $_post ) > 0 ) {
-                                        $this->post_id = absint( $_post );
-                                }
-                                unset( $_post );
-                        }
-
-                        unset( $title );
+                        return;
                 }
-                unset( $post_indicator );
+
+                if ( is_numeric( $parent_post ) && absint( $parent_post ) > 0 ) {
+
+                        $_post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID = %d AND post_type IN ('" . implode( "','", $post_types ) . "') LIMIT 0,1", absint( $parent_post ) ) );
+
+                        if ( $_post && absint( $_post ) > 0 ) {
+                                $this->post_id = absint( $_post );
+                        }
+                        unset( $_post );
+                }
+
+                if ( $this->post_id === 0 ) {
+
+                        $_post = $wpdb->get_var(
+                                $wpdb->prepare(
+                                        "SELECT ID FROM " . $wpdb->posts . "
+                                        WHERE
+                                            post_type IN ('" . implode( "','", $post_types ) . "')
+                                            AND ID != 0
+                                            AND post_title = %s
+                                        LIMIT 0,1
+                                        ", wpie_sanitize_field( $parent_post )
+                                )
+                        );
+
+                        if ( $_post && absint( $_post ) > 0 ) {
+                                $this->post_id = absint( $_post );
+                        }
+                        unset( $_post );
+                }
+                if ( $this->post_id === 0 ) {
+
+                        $_post = $wpdb->get_var(
+                                $wpdb->prepare(
+                                        "SELECT ID FROM " . $wpdb->posts . "
+                                        WHERE
+                                            post_type IN ('" . implode( "','", $post_types ) . "')
+                                            AND ID != 0
+                                            AND post_name = %s
+                                        LIMIT 0,1
+                                        ", wpie_sanitize_field( $parent_post )
+                                )
+                        );
+
+
+                        if ( $_post && absint( $_post ) > 0 ) {
+                                $this->post_id = absint( $_post );
+                        }
+                        unset( $_post );
+                }
+
+                unset( $parent_post, $post_types );
         }
 
         public function __destruct() {

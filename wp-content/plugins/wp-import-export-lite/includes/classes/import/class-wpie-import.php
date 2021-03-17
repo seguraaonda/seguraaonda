@@ -5,201 +5,230 @@ namespace wpie\import;
 use wpie\import\upload\validate\WPIE_Upload_Validate;
 use wpie\import\chunk\WPIE_Chunk;
 use wpie\import\upload\WPIE_Upload;
+use wpie\import\Compatibility\Manager as AddOns;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-class WPIE_Import {
+class WPIE_Import
+{
 
-        public function __construct() {
+        public function __construct()
+        {
                 
         }
 
-        public function wpie_get_import_type() {
+        private function get_deafult_import_type()
+        {
 
-                global $wp_version;
-
-                $custom_export_type = get_post_types( array( '_builtin' => true ), 'objects' ) + get_post_types( array( '_builtin' => false, 'show_ui' => true ), 'objects' ) + get_post_types( array( '_builtin' => false, 'show_ui' => false ), 'objects' );
-
-                foreach ( $custom_export_type as $key => $ct ) {
-                        if ( in_array( $key, array( 'attachment', 'revision', 'nav_menu_item', 'import_users', 'shop_webhook', 'acf-field', 'acf-field-group' ) ) )
-                                unset( $custom_export_type[ $key ] );
-                }
-
-                $custom_export_type = $this->wpie_manage_woo_data( $custom_export_type );
-
-                $custom_export_type = apply_filters( 'wpie_custom_import_types', $custom_export_type );
-
-                $export_type_result = array();
-
-                foreach ( $custom_export_type as $key => $data ) {
-
-                        $export_type_result[ $key ] = $data;
-
-                        if ( ! empty( $custom_export_type[ 'page' ] ) && $key == 'page' || empty( $custom_export_type[ 'page' ] ) && $key == 'post' ) {
-
-                                $export_type_result[ 'taxonomies' ] = new \stdClass();
-                                $export_type_result[ 'taxonomies' ]->labels = new \stdClass();
-                                $export_type_result[ 'taxonomies' ]->labels->name = __( 'Taxonomies', 'wp-import-export-lite' );
-
-                                $export_type_result[ 'comments' ] = new \stdClass();
-                                $export_type_result[ 'comments' ]->labels = new \stdClass();
-                                $export_type_result[ 'comments' ]->labels->name = __( 'Comments', 'wp-import-export-lite' );
-
-                                $export_type_result[ 'users' ] = new \stdClass();
-                                $export_type_result[ 'users' ]->labels = new \stdClass();
-                                $export_type_result[ 'users' ]->labels->name = __( 'Users', 'wp-import-export-lite' );
-                                break;
-                        }
-                }
-
-                $order = array( 'shop_order', 'shop_coupon', 'shop_customer', 'product' );
-
-                foreach ( $order as $data ) {
-
-                        if ( ! empty( $custom_export_type[ $data ] ) ) {
-                                $export_type_result[ $data ] = $custom_export_type[ $data ];
-                        }
-                }
-
-                uasort( $custom_export_type, array( $this, "wpie_set_import_custom_types" ) );
-
-                foreach ( $custom_export_type as $key => $data ) {
-
-                        if ( empty( $export_type_result[ $key ] ) ) {
-
-                                $export_type_result[ $key ] = $data;
-                        }
-                }
-
-                unset( $custom_export_type, $order );
-
-                return apply_filters( 'wpie_import_type', $export_type_result );
+                return [
+                        "post" => __( 'Post', 'wp-import-export-lite' ),
+                        "page" => __( 'Page', 'wp-import-export-lite' ),
+                        "product" => __( 'WooCommerce Products', 'wp-import-export-lite' ),
+                        "taxonomies" => __( 'Taxonomies | Categories | Tags', 'wp-import-export-lite' ),
+                        "users" => __( 'Users', 'wp-import-export-lite' ),
+                        "comments" => __( 'Comments', 'wp-import-export-lite' ),
+                        "product_reviews" => __( 'Product Reviews', 'wp-import-export-lite' ),
+                        "product_attributes" => __( 'Product Attributes', 'wp-import-export-lite' ),
+                        "shop_order" => __( 'WooCommerce Orders', 'wp-import-export-lite' ),
+                        "shop_coupon" => __( 'WooCommerce Coupons', 'wp-import-export-lite' ),
+                        "shop_customer" => __( 'WooCommerce Customers', 'wp-import-export-lite' ),
+                ];
         }
 
-        public function wpie_set_import_custom_types( $key = null, $data = null ) {
-                return strcmp( $key->labels->name, $data->labels->name );
-        }
+        public function wpie_get_import_type()
+        {
 
-        private function wpie_manage_woo_data( $custom_data_types = array() ) {
+                $import_type = $this->get_deafult_import_type();
 
-                if ( class_exists( 'WooCommerce' ) ) {
+                $custom_import_type = get_post_types( [ '_builtin' => true ], 'objects' ) + get_post_types( [ '_builtin' => false, 'show_ui' => true ], 'objects' ) + get_post_types( [ '_builtin' => false, 'show_ui' => false ], 'objects' );
 
-                        if ( ! empty( $custom_data_types[ 'product' ] ) ) {
-                                $custom_data_types[ 'product' ]->labels->name = __( 'WooCommerce Products', 'wp-import-export-lite' );
+                if( empty( $custom_import_type ) )
+                {
+                        return $import_type;
+                }
+
+                $hidden_posts = [
+                        'attachment',
+                        'revision',
+                        'nav_menu_item',
+                        'shop_webhook',
+                        'import_users',
+                        'wp-types-group',
+                        'wp-types-user-group',
+                        'wp-types-term-group',
+                        'acf-field',
+                        'acf-field-group',
+                        'custom_css',
+                        'customize_changeset',
+                        'oembed_cache',
+                        'wp_block',
+                        'user_request',
+                        'scheduled-action',
+                        'product_variation',
+                        'shop_order_refund'
+                ];
+
+                foreach( $custom_import_type as $key => $data )
+                {
+
+                        if( in_array( $key, $hidden_posts ) )
+                        {
+                                continue;
                         }
-                        if ( ! empty( $custom_data_types[ 'shop_order' ] ) ) {
-                                $custom_data_types[ 'shop_order' ]->labels->name = __( 'WooCommerce Orders', 'wp-import-export-lite' );
-                        }
-                        if ( ! empty( $custom_data_types[ 'shop_coupon' ] ) ) {
-                                $custom_data_types[ 'shop_coupon' ]->labels->name = __( 'WooCommerce Coupons', 'wp-import-export-lite' );
-                        }
-                        if ( ! empty( $custom_data_types[ 'product_variation' ] ) ) {
-                                unset( $custom_data_types[ 'product_variation' ] );
-                        }
-                        if ( ! empty( $custom_data_types[ 'shop_order_refund' ] ) ) {
-                                unset( $custom_data_types[ 'shop_order_refund' ] );
+
+                        if( isset( $import_type[ $key ] ) )
+                        {
+                                continue;
                         }
 
-                        $order = array( 'shop_order', 'shop_coupon', 'shop_customer', 'product' );
+                        $label = isset( $data->labels ) && isset( $data->labels->singular_name ) ? $data->labels->singular_name : "";
 
-                        $ordered_custom_types = array();
+                        if( trim( $label ) === "" )
+                        {
 
-                        foreach ( $order as $type ) {
+                                $label = isset( $data->labels ) && isset( $data->labels->name ) ? $data->labels->name : "";
 
-                                if ( isset( $ordered_custom_types[ $type ] ) )
+                                if( trim( $label ) === "" )
+                                {
                                         continue;
-
-                                if ( $type == 'shop_customer' ) {
-                                        $ordered_custom_types[ 'shop_customer' ] = new \stdClass();
-                                        $ordered_custom_types[ 'shop_customer' ]->labels = new \stdClass();
-                                        $ordered_custom_types[ 'shop_customer' ]->labels->name = __( 'WooCommerce Customers', 'wp-import-export-lite' );
-                                } else {
-
-                                        foreach ( $custom_data_types as $key => $custom_type ) {
-
-                                                if ( isset( $ordered_custom_types[ $key ] ) ) {
-                                                        continue;
-                                                }
-                                                if ( in_array( $key, $order ) ) {
-                                                        if ( $key == $type ) {
-                                                                $ordered_custom_types[ $key ] = $custom_type;
-                                                        }
-                                                } else {
-                                                        $ordered_custom_types[ $key ] = $custom_type;
-                                                }
-                                        }
                                 }
                         }
 
-                        unset( $order, $custom_data_types );
-
-                        return $ordered_custom_types;
+                        $import_type[ $key ] = $label;
                 }
-                return $custom_data_types;
+
+                unset( $custom_import_type );
+
+                return $import_type;
         }
 
-        public function wpie_get_all_taxonomies( $exclude_taxonomies = array(), $object_type = array(), $field = 'name' ) {
+        public function get_attribute_list()
+        {
 
-                $taxonomies = get_taxonomies( FALSE, 'objects' );
+                global $wpdb;
+
+                return $wpdb->get_results( "SELECT attribute_name,attribute_label FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name != ''  ORDER BY attribute_name ASC;" );
+        }
+
+        public function wpie_get_taxonomies()
+        {
+
+                $taxonomies = get_taxonomies( false, 'objects' );
+
+                $data = [
+                        "category" => __( 'Post Categories', 'wp-import-export-lite' ),
+                        "product_cat" => __( 'Product Categories', 'wp-import-export-lite' ),
+                        "post_tag" => __( 'Post Tags', 'wp-import-export-lite' ),
+                        "product_tag" => __( 'Product Tags', 'wp-import-export-lite' ),
+                ];
+
+                if( !empty( $taxonomies ) )
+                {
+
+                        foreach( $taxonomies as $key => $taxonomy )
+                        {
+
+                                if( in_array( $key, [ 'nav_menu', 'link_category' ] ) || isset( $data[ $key ] ) || (isset( $taxonomy->show_in_nav_menus ) && $taxonomy->show_in_nav_menus === false) )
+                                {
+                                        continue;
+                                }
+
+                                $data[ $key ] = ucwords( str_replace( '_', ' ', $key ) );
+                        }
+                }
+
+                unset( $taxonomies );
+
+                return $data;
+        }
+
+        public function wpie_get_all_taxonomies( $exclude_taxonomies = array(), $object_type = array(), $field = 'name' )
+        {
+
+                $taxonomies = get_taxonomies( false, 'objects' );
 
                 $ignore_taxonomies = array( 'nav_menu', 'link_category' );
 
-                if ( ! empty( $exclude_taxonomies ) ) {
+                if( !empty( $exclude_taxonomies ) )
+                {
                         $ignore_taxonomies = array_merge( $ignore_taxonomies, $exclude_taxonomies );
                 }
 
                 $result = array();
 
-                if ( ! empty( $taxonomies ) ) {
+                if( !empty( $taxonomies ) )
+                {
 
-                        foreach ( $taxonomies as $_key => $taxonomy ) {
+                        foreach( $taxonomies as $_key => $taxonomy )
+                        {
 
-                                if ( in_array( $_key, $ignore_taxonomies ) || $taxonomy->show_in_nav_menus === false ) {
+                                if( in_array( $_key, $ignore_taxonomies ) || $taxonomy->show_in_nav_menus === false )
+                                {
                                         continue;
                                 }
 
-                                if ( ! empty( $object_type ) ) {
+                                if( !empty( $object_type ) )
+                                {
 
                                         $temp = 0;
 
-                                        if ( is_array( $taxonomy->object_type ) ) {
-                                                foreach ( $taxonomy->object_type as $value ) {
-                                                        if ( in_array( $value, $object_type ) ) {
-                                                                $temp ++;
+                                        if( is_array( $taxonomy->object_type ) )
+                                        {
+                                                foreach( $taxonomy->object_type as $value )
+                                                {
+                                                        if( in_array( $value, $object_type ) )
+                                                        {
+                                                                $temp++;
                                                                 break;
                                                         }
                                                 }
                                         }
-                                        if ( $temp === 0 ) {
+                                        if( $temp === 0 )
+                                        {
                                                 continue;
                                         }
                                         unset( $temp );
                                 }
 
-                                if ( $field == 'name' ) {
-                                        if ( ! empty( $taxonomy->labels->name ) && strpos( $taxonomy->labels->name, "_" ) === false ) {
+                                if( $field == 'name' )
+                                {
+                                        if( !empty( $taxonomy->labels->name ) && strpos( $taxonomy->labels->name, "_" ) === false )
+                                        {
                                                 $result[ $_key ] = $taxonomy->labels->name;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 $result[ $_key ] = empty( $taxonomy->labels->singular_name ) ? $taxonomy->name : $taxonomy->labels->singular_name;
                                         }
-                                } elseif ( $field == 'keytitle' ) {
-                                        if ( $_key === "product_cat" ) {
+                                }
+                                elseif( $field == 'keytitle' )
+                                {
+                                        if( $_key === "product_cat" )
+                                        {
                                                 $_label = "Product Category";
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 $_label = ucwords( str_replace( '_', ' ', $_key ) );
                                         }
                                         $result[ $_key ] = $_label;
-                                } elseif ( $field == 'all' ) {
+                                }
+                                elseif( $field == 'all' )
+                                {
                                         $result[ $_key ] = $taxonomy;
                                 }
                         }
                 }
 
-                if ( $field != 'all' ) {
+                if( $field != 'all' )
+                {
                         asort( $result, SORT_FLAG_CASE | SORT_STRING );
-                } else {
+                }
+                else
+                {
                         asort( $result );
                 }
 
@@ -208,7 +237,8 @@ class WPIE_Import {
                 return $result;
         }
 
-        public function wpie_generate_template( $options = array(), $opration = 'import', $status = 'processing', $unique_id = "", $import_id = 0 ) {
+        public function wpie_generate_template( $options = array(), $opration = 'import', $status = 'processing', $unique_id = "", $import_id = 0 )
+        {
 
                 global $wpdb;
 
@@ -234,13 +264,16 @@ class WPIE_Import {
 
                 $is_update = false;
 
-                if ( absint( $import_id ) > 0 ) {
+                if( absint( $import_id ) > 0 )
+                {
                         $is_update = $wpdb->update( $wpdb->prefix . "wpie_template", $new_values, [ "id" => absint( $import_id ) ] );
                 }
 
-                if ( $is_update === false || absint( $is_update ) === 0 ) {
+                if( $is_update === false || absint( $is_update ) === 0 )
+                {
 
-                        if ( empty( $unique_id ) ) {
+                        if( empty( $unique_id ) )
+                        {
                                 $unique_id = uniqid();
                         }
 
@@ -250,7 +283,8 @@ class WPIE_Import {
 
                         $current_user = wp_get_current_user();
 
-                        if ( $current_user && isset( $current_user->user_login ) ) {
+                        if( $current_user && isset( $current_user->user_login ) )
+                        {
                                 $new_values[ 'username' ] = $current_user->user_login;
                         }
 
@@ -265,15 +299,18 @@ class WPIE_Import {
                 return $import_id;
         }
 
-        public function get_template_by_id( $wpie_import_id = 0 ) {
+        public function get_template_by_id( $wpie_import_id = 0 )
+        {
 
-                if ( intval( $wpie_import_id ) > 0 ) {
+                if( intval( $wpie_import_id ) > 0 )
+                {
 
                         global $wpdb;
 
                         $results = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "wpie_template where `id` = %d limit 0,1", intval( $wpie_import_id ) ) );
 
-                        if ( ! empty( $results ) ) {
+                        if( !empty( $results ) )
+                        {
                                 return $results;
                         }
                 }
@@ -281,9 +318,11 @@ class WPIE_Import {
                 return false;
         }
 
-        public function get_template_by_ref( $ref = "" ) {
+        public function get_template_by_ref( $ref = "" )
+        {
 
-                if ( ! empty( $ref ) ) {
+                if( !empty( $ref ) )
+                {
 
                         global $wpdb;
 
@@ -293,19 +332,23 @@ class WPIE_Import {
                 return false;
         }
 
-        protected function wpie_parse_upload_file() {
+        protected function wpie_parse_upload_file()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? intval( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id != 0 ) {
+                if( $wpie_import_id != 0 )
+                {
 
                         $template_data = $this->get_template_by_id( $wpie_import_id );
 
-                        if ( $template_data ) {
+                        if( $template_data )
+                        {
 
-                                if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php' ) ) {
+                                if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php' ) )
+                                {
                                         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php');
                                 }
 
@@ -313,20 +356,53 @@ class WPIE_Import {
 
                                 $wpie_csv_delimiter = isset( $_GET[ "wpie_csv_delimiter" ] ) ? wpie_sanitize_field( $_GET[ "wpie_csv_delimiter" ] ) : ",";
 
-                                $data = $data_parser->wpie_parse_upload_data( $template_data, $wpie_csv_delimiter );
+                                $is_first_row_title = isset( $_GET[ "wpie_file_first_row_is_title" ] ) ? wpie_sanitize_field( $_GET[ "wpie_file_first_row_is_title" ] ) : 1;
 
-                                if ( is_wp_error( $data ) ) {
+                                $data = $data_parser->wpie_parse_upload_data( $template_data, $wpie_csv_delimiter, $is_first_row_title );
+
+                                if( is_wp_error( $data ) )
+                                {
                                         $return_value[ 'message' ] = $data->get_error_message();
-                                } else {
+                                }
+                                else
+                                {
+
+                                        $template_options = isset( $template_data->options ) ? maybe_unserialize( $template_data->options ) : [];
+
+                                        $importFile = isset( $template_options[ 'importFile' ] ) ? $template_options[ 'importFile' ] : [];
+
+                                        $activeFile = isset( $_GET[ 'activeFile' ] ) ? wpie_sanitize_field( $_GET[ 'activeFile' ] ) : "";
+
+                                        $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : [];
+
+                                        $file_path = isset( $fileData[ 'fileDir' ] ) ? wpie_sanitize_field( $fileData[ 'fileDir' ] ) : "";
+
+                                        $file_name = isset( $fileData[ 'fileName' ] ) ? wpie_sanitize_field( $fileData[ 'fileName' ] ) : "";
+
+                                        $file = WPIE_UPLOAD_IMPORT_DIR . "/" . $file_path . "/" . $file_name;
+
+                                        if( is_readable( $file ) )
+                                        {
+                                                $return_value[ 'file_name' ] = $file_name;
+                                                $return_value[ 'file_size' ] = filesize( $file );
+                                        }
+                                        if( is_array( $data ) && isset( $data[ 'delimiter' ] ) )
+                                        {
+                                                $return_value[ 'delimiter' ] = $data[ 'delimiter' ];
+                                        }
                                         $return_value[ 'status' ] = "success";
                                         $return_value[ 'message' ] = __( 'File is Valid', 'wp-import-export-lite' );
                                 }
                                 unset( $data_parser, $wpie_csv_delimiter, $data );
-                        } else {
+                        }
+                        else
+                        {
                                 $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                         }
                         unset( $template_data );
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Data Not Found', 'wp-import-export-lite' );
                 }
 
@@ -337,7 +413,8 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_get_filtered_records() {
+        protected function wpie_import_get_filtered_records()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
@@ -345,13 +422,15 @@ class WPIE_Import {
 
                 $template_data = $this->get_template_by_id( $wpie_import_id );
 
-                if ( $template_data ) {
+                if( $template_data )
+                {
 
                         $template_options = maybe_unserialize( $template_data->options );
 
                         $new_template_data = array_merge( $template_options, $_POST );
 
-                        if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-record.php' ) ) {
+                        if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-record.php' ) )
+                        {
                                 require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-record.php');
                         }
 
@@ -359,13 +438,17 @@ class WPIE_Import {
 
                         $parse_data = $records->auto_fetch_records_by_template( $new_template_data );
 
-                        if ( is_wp_error( $parse_data ) ) {
+                        if( is_wp_error( $parse_data ) )
+                        {
                                 $return_value[ 'message' ] = $parse_data->get_error_message();
-                        } else {
+                        }
+                        else
+                        {
 
                                 $return_value = $parse_data;
 
-                                if ( isset( $parse_data[ 'count' ] ) && absint( $parse_data[ 'count' ] ) > 0 ) {
+                                if( isset( $parse_data[ 'count' ] ) && absint( $parse_data[ 'count' ] ) > 0 )
+                                {
 
                                         global $wpdb;
 
@@ -376,7 +459,9 @@ class WPIE_Import {
                         }
 
                         unset( $records, $parse_data );
-                } else {
+                }
+                else
+                {
 
                         $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                 }
@@ -387,27 +472,35 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_get_import_fields() {
+        protected function wpie_get_import_fields()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $type = isset( $_GET[ "type" ] ) ? wpie_sanitize_field( $_GET[ "type" ] ) : "";
 
-                if ( ! empty( $type ) ) {
+                if( !empty( $type ) )
+                {
 
                         $fileName = "";
 
-                        if ( $type == "taxonomies" ) {
+                        if( $type == "taxonomies" )
+                        {
                                 $fileName = WPIE_IMPORT_CLASSES_DIR . '/fields/wpie-taxonomy.php';
-                        } elseif ( $type == "comments" ) {
+                        }
+                        elseif( $type == "comments" || $type == "product_reviews" )
+                        {
                                 $fileName = WPIE_IMPORT_CLASSES_DIR . '/fields/wpie-comments.php';
-                        } else {
+                        }
+                        else
+                        {
                                 $fileName = WPIE_IMPORT_CLASSES_DIR . '/fields/wpie-post.php';
                         }
 
                         $fileName = apply_filters( 'wpie_import_mapping_fields_file', $fileName, $type );
 
-                        if ( file_exists( $fileName ) ) {
+                        if( file_exists( $fileName ) )
+                        {
                                 require_once($fileName);
                         }
 
@@ -417,8 +510,10 @@ class WPIE_Import {
 
                         $field_data = "";
 
-                        if ( ! empty( $fields ) ) {
-                                foreach ( $fields as $section ) {
+                        if( !empty( $fields ) )
+                        {
+                                foreach( $fields as $section )
+                                {
                                         $field_data .= balanceTags( $section );
                                 }
                         }
@@ -432,7 +527,9 @@ class WPIE_Import {
                         unset( $fileName, $fields, $field_data );
 
                         $return_value[ 'status' ] = 'success';
-                } else {
+                }
+                else
+                {
 
                         $return_value[ 'message' ] = __( 'Import Type is undefind', 'wp-import-export-lite' );
                 }
@@ -444,11 +541,13 @@ class WPIE_Import {
                 die();
         }
 
-        public function wpie_finalyze_template_data( $opration = "import" ) {
+        public function wpie_finalyze_template_data( $opration = "import" )
+        {
 
                 $wpie_import_id = isset( $_POST[ "wpie_import_id" ] ) ? absint( wpie_sanitize_field( $_POST[ "wpie_import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id > 0 ) {
+                if( $wpie_import_id > 0 )
+                {
 
                         global $wpdb;
 
@@ -456,10 +555,13 @@ class WPIE_Import {
 
                         $template_data = $this->get_template_by_id( $wpie_import_id );
 
-                        if ( $template_data ) {
+                        if( $template_data )
+                        {
 
                                 $template_options = maybe_unserialize( $template_data->options );
-                        } else {
+                        }
+                        else
+                        {
                                 $template_options = array();
                         }
 
@@ -473,15 +575,19 @@ class WPIE_Import {
 
                         $bg = isset( $_POST[ 'bg' ] ) ? absint( wpie_sanitize_field( $_POST[ 'bg' ] ) ) : 0;
 
-                        if ( $bg == 1 ) {
+                        if( $bg == 1 )
+                        {
                                 $new_values[ 'status' ] = "background";
-                        } else {
+                        }
+                        else
+                        {
                                 $new_values[ 'status' ] = "processing";
                         }
 
                         $wpdb->update( $wpdb->prefix . "wpie_template", $new_values, array( 'id' => $wpie_import_id ) );
 
-                        if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php' ) ) {
+                        if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php' ) )
+                        {
                                 require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php');
                         }
 
@@ -497,15 +603,19 @@ class WPIE_Import {
                 unset( $wpie_import_id );
         }
 
-        protected function wpie_import_save_data() {
+        protected function wpie_import_save_data()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $result = $this->wpie_finalyze_template_data();
 
-                if ( is_wp_error( $result ) ) {
+                if( is_wp_error( $result ) )
+                {
                         $return_value[ 'message' ] = $result->get_error_message();
-                } else {
+                }
+                else
+                {
 
                         $return_value[ 'status' ] = 'success';
                 }
@@ -515,20 +625,25 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_data() {
+        protected function wpie_import_data()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? intval( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id != 0 ) {
+                if( $wpie_import_id != 0 )
+                {
 
                         $import_process = $this->wpie_import_process_data( $wpie_import_id );
 
-                        if ( is_wp_error( $import_process ) ) {
+                        if( is_wp_error( $import_process ) )
+                        {
 
                                 $return_value[ 'message' ] = $import_process->get_error_message();
-                        } else {
+                        }
+                        else
+                        {
 
                                 $return_value[ 'status' ] = 'success';
 
@@ -558,11 +673,14 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_process_data( $wpie_import_id = 0 ) {
+        protected function wpie_import_process_data( $wpie_import_id = 0 )
+        {
+
 
                 $template_data = $this->get_template_by_id( $wpie_import_id );
 
-                if ( ! $template_data ) {
+                if( !$template_data )
+                {
                         return new \WP_Error( 'wpie_import_error', __( 'Template Not Found', 'wp-import-export-lite' ) );
                 }
 
@@ -572,27 +690,37 @@ class WPIE_Import {
 
                 $wpie_import_type = (isset( $template_data->opration_type ) && trim( $template_data->opration_type ) != "") ? $template_data->opration_type : "post";
 
+                $this->add_compatibility( $template_data );
+
                 $import_engine = "";
 
-                if ( $wpie_import_type == "taxonomies" ) {
+                if( $wpie_import_type == "taxonomies" )
+                {
 
-                        if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-taxonomy.php' ) ) {
+                        if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-taxonomy.php' ) )
+                        {
 
                                 require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-taxonomy.php');
 
                                 $import_engine = 'wpie\import\taxonomy\WPIE_Taxonomy';
                         }
-                } elseif ( $wpie_import_type == "comments" ) {
+                }
+                elseif( $wpie_import_type == "comments" || $wpie_import_type == "product_reviews" )
+                {
 
-                        if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-comment.php' ) ) {
+                        if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-comment.php' ) )
+                        {
 
                                 require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-comment.php');
                         }
 
                         $import_engine = 'wpie\import\comment\WPIE_Comment';
-                } else {
+                }
+                else
+                {
 
-                        if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-post.php' ) ) {
+                        if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-post.php' ) )
+                        {
 
                                 require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-post.php');
 
@@ -604,11 +732,13 @@ class WPIE_Import {
 
                 $import_process = array();
 
-                if ( class_exists( $import_engine ) ) {
+                if( class_exists( $import_engine ) )
+                {
 
                         $import_data = new $import_engine();
 
-                        if ( method_exists( $import_data, "wpie_import_data" ) ) {
+                        if( method_exists( $import_data, "wpie_import_data" ) )
+                        {
 
                                 $import_process = $import_data->wpie_import_data( $template_data );
                         }
@@ -618,7 +748,7 @@ class WPIE_Import {
 
                 $final_data = array(
                         'last_update_date' => current_time( 'mysql' ),
-                        'process_lock'     => 0
+                        'process_lock' => 0
                 );
 
                 $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array( 'id' => $wpie_import_id ) );
@@ -628,7 +758,20 @@ class WPIE_Import {
                 return $import_process;
         }
 
-        protected function wpie_get_template_list() {
+        private function add_compatibility( $template_data )
+        {
+
+                if( is_readable( WPIE_IMPORT_CLASSES_DIR . '/compatibility/manager.php' ) )
+                {
+
+                        require_once(WPIE_IMPORT_CLASSES_DIR . '/compatibility/manager.php');
+
+                        new AddOns( $template_data );
+                }
+        }
+
+        protected function wpie_get_template_list()
+        {
 
                 global $wpdb;
 
@@ -638,11 +781,13 @@ class WPIE_Import {
 
                 $data = array();
 
-                if ( ! empty( $results ) ) {
+                if( !empty( $results ) )
+                {
 
                         $count = 0;
 
-                        foreach ( $results as $template ) {
+                        foreach( $results as $template )
+                        {
 
                                 $data[ $count ][ 'id' ] = isset( $template->id ) ? $template->id : 0;
 
@@ -650,7 +795,7 @@ class WPIE_Import {
 
                                 $data[ $count ][ 'name' ] = isset( $options[ 'wpie_template_name' ] ) ? $options[ 'wpie_template_name' ] : "";
 
-                                $count ++;
+                                $count++;
 
                                 unset( $options );
                         }
@@ -672,7 +817,8 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_save_template_data() {
+        protected function wpie_import_save_template_data()
+        {
 
                 $return_value = array();
 
@@ -680,11 +826,13 @@ class WPIE_Import {
 
                 $template_id = isset( $_POST[ 'template_id' ] ) ? absint( wpie_sanitize_field( $_POST[ 'template_id' ] ) ) : 0;
 
-                if ( $template_id > 0 ) {
+                if( $template_id > 0 )
+                {
 
                         $options = $wpdb->get_var( $wpdb->prepare( "SELECT `options` FROM " . $wpdb->prefix . "wpie_template where `id`=%d", $template_id ) );
 
-                        if ( ! is_null( $options ) ) {
+                        if( !is_null( $options ) )
+                        {
 
                                 $options = maybe_unserialize( $options );
 
@@ -712,19 +860,23 @@ class WPIE_Import {
 
                 $is_exist = false;
 
-                if ( ! empty( $template_name ) ) {
+                if( !empty( $template_name ) )
+                {
 
                         $results = $wpdb->get_results( "SELECT `id`,`options` FROM " . $wpdb->prefix . "wpie_template where `opration`='import_template'" );
 
-                        if ( ! empty( $results ) ) {
+                        if( !empty( $results ) )
+                        {
 
-                                foreach ( $results as $template ) {
+                                foreach( $results as $template )
+                                {
 
                                         $options = isset( $template->options ) ? maybe_unserialize( $template->options ) : array();
 
                                         $temp_name = isset( $options[ 'wpie_template_name' ] ) ? $options[ 'wpie_template_name' ] : "";
 
-                                        if ( ! empty( $temp_name ) && $temp_name == $template_name ) {
+                                        if( !empty( $temp_name ) && $temp_name == $template_name )
+                                        {
                                                 $is_exist = true;
                                                 break;
                                         }
@@ -735,7 +887,8 @@ class WPIE_Import {
                         unset( $results );
                 }
 
-                if ( $is_exist === false ) {
+                if( $is_exist === false )
+                {
 
                         $template_id = $this->wpie_generate_template( $_POST, "import_template", "completed" );
 
@@ -746,7 +899,9 @@ class WPIE_Import {
                         unset( $template_id );
 
                         $return_value[ 'message' ] = __( 'Template Successfully Saved', 'wp-import-export-lite' );
-                } else {
+                }
+                else
+                {
                         $return_value[ 'status' ] = 'error';
 
                         $return_value[ 'message' ] = __( 'Template Name Already Exists', 'wp-import-export-lite' );
@@ -757,13 +912,15 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_get_template_info() {
+        protected function wpie_import_get_template_info()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $template_id = isset( $_GET[ "wpie_template_id" ] ) ? absint( wpie_sanitize_field( $_GET[ "wpie_template_id" ] ) ) : 0;
 
-                if ( $template_id > 0 ) {
+                if( $template_id > 0 )
+                {
 
                         $template_data = $this->get_template_by_id( $template_id );
 
@@ -783,19 +940,23 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_update_csv_delimiter() {
+        protected function wpie_import_update_csv_delimiter()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? intval( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id != 0 ) {
+                if( $wpie_import_id != 0 )
+                {
 
                         $template_data = $this->get_template_by_id( $wpie_import_id );
 
-                        if ( $template_data ) {
+                        if( $template_data )
+                        {
 
-                                if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php' ) ) {
+                                if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php' ) )
+                                {
                                         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload-validate.php');
                                 }
 
@@ -803,19 +964,26 @@ class WPIE_Import {
 
                                 $data = $data_validate->wpie_parse_upload_data( $template_data );
 
-                                if ( is_wp_error( $data ) ) {
+                                if( is_wp_error( $data ) )
+                                {
                                         $return_value[ 'message' ] = $data->get_error_message();
-                                } else {
+                                }
+                                else
+                                {
                                         $return_value[ 'status' ] = "success";
                                         $return_value[ 'message' ] = __( 'File is Valid', 'wp-import-export-lite' );
                                 }
                                 unset( $data_validate, $data );
-                        } else {
+                        }
+                        else
+                        {
                                 $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                         }
 
                         unset( $template_data );
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Data Not Found', 'wp-import-export-lite' );
                 }
 
@@ -826,28 +994,32 @@ class WPIE_Import {
                 die();
         }
 
-        protected function wpie_import_update_process_status() {
+        protected function wpie_import_update_process_status()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? absint( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id != 0 ) {
+                if( $wpie_import_id != 0 )
+                {
 
                         $wpie_status = isset( $_GET[ "status" ] ) ? wpie_sanitize_field( $_GET[ "status" ] ) : "";
 
                         $status = "";
 
-                        if ( $wpie_status == "bg" ) {
+                        if( $wpie_status == "bg" )
+                        {
                                 $status = "background";
                         }
 
-                        if ( $status != "" ) {
+                        if( $status != "" )
+                        {
 
                                 $final_data = array(
                                         'last_update_date' => current_time( 'mysql' ),
-                                        'process_lock'     => 0,
-                                        'status'           => $status
+                                        'process_lock' => 0,
+                                        'status' => $status
                                 );
 
                                 global $wpdb;
@@ -860,7 +1032,9 @@ class WPIE_Import {
                         unset( $wpie_status, $status );
 
                         $return_value[ 'status' ] = "success";
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                 }
 
@@ -871,17 +1045,20 @@ class WPIE_Import {
                 die();
         }
 
-        protected function get_config_file() {
+        protected function get_config_file()
+        {
 
                 $return_value = array( 'status' => 'error' );
 
                 $wpie_import_id = isset( $_GET[ "import_id" ] ) ? absint( wpie_sanitize_field( $_GET[ "import_id" ] ) ) : 0;
 
-                if ( $wpie_import_id != 0 ) {
+                if( $wpie_import_id != 0 )
+                {
 
                         $template = $this->get_template_by_id( $wpie_import_id );
 
-                        if ( $template !== false ) {
+                        if( $template !== false )
+                        {
 
                                 $option = isset( $template->options ) ? maybe_unserialize( $template->options ) : array();
 
@@ -895,7 +1072,8 @@ class WPIE_Import {
 
                                 $configFile = WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/config/config.json";
 
-                                if ( file_exists( $configFile ) ) {
+                                if( file_exists( $configFile ) )
+                                {
 
                                         $return_value[ 'config' ] = json_decode( file_get_contents( $configFile ) );
                                 }
@@ -906,7 +1084,9 @@ class WPIE_Import {
                         unset( $template );
 
                         $return_value[ 'status' ] = "success";
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                 }
 
@@ -917,13 +1097,15 @@ class WPIE_Import {
                 die();
         }
 
-        protected function process_reimport_data() {
+        protected function process_reimport_data()
+        {
 
                 $return_value = array( "status" => "error" );
 
                 $import_id = isset( $_GET[ 'import_id' ] ) ? absint( $_GET[ 'import_id' ] ) : 0;
 
-                if ( $import_id > 0 ) {
+                if( $import_id > 0 )
+                {
 
                         $ref_id = isset( $_GET[ 'ref_id' ] ) ? $_GET[ 'ref_id' ] : "";
 
@@ -931,7 +1113,8 @@ class WPIE_Import {
 
                         $validate_nonce = wp_verify_nonce( $nonce, $import_id . $ref_id );
 
-                        if ( $validate_nonce === 1 || $validate_nonce === 2 ) {
+                        if( $validate_nonce === 1 || $validate_nonce === 2 )
+                        {
 
                                 $ref_template = $this->get_template_by_ref( $ref_id );
 
@@ -941,11 +1124,13 @@ class WPIE_Import {
 
                                 $is_completed = false;
 
-                                if ( ! empty( $ref_template ) ) {
+                                if( !empty( $ref_template ) )
+                                {
 
                                         $ref_status = isset( $ref_template->status ) ? $ref_template->status : "";
 
-                                        if ( $ref_status !== "completed" ) {
+                                        if( $ref_status !== "completed" )
+                                        {
                                                 $new_import_id = isset( $ref_template->id ) ? $ref_template->id : 0;
 
                                                 $ref_option = isset( $ref_template->options ) ? maybe_unserialize( $ref_template->options ) : array();
@@ -961,15 +1146,19 @@ class WPIE_Import {
                                                 $this->remove_dir( WPIE_UPLOAD_IMPORT_DIR . "/" . $ref_base_dir . "/" );
 
                                                 unset( $ref_option, $ref_activeFile, $ref_importFile, $ref_fileData );
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 $is_completed = true;
                                         }
                                 }
 
-                                if ( $is_completed === false ) {
+                                if( $is_completed === false )
+                                {
                                         $template = $this->get_template_by_id( $import_id );
 
-                                        if ( $template !== false ) {
+                                        if( $template !== false )
+                                        {
 
                                                 $option = isset( $template->options ) ? maybe_unserialize( $template->options ) : array();
 
@@ -981,7 +1170,8 @@ class WPIE_Import {
 
                                                 $baseDir = $fileData[ 'baseDir' ] ? $fileData[ 'baseDir' ] : "";
 
-                                                if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php' ) ) {
+                                                if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php' ) )
+                                                {
                                                         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php');
                                                 }
 
@@ -995,15 +1185,18 @@ class WPIE_Import {
 
                                                 $fileList = [];
 
-                                                if ( ! empty( $importFile ) ) {
+                                                if( !empty( $importFile ) )
+                                                {
 
-                                                        foreach ( $importFile as $key => $value ) {
+                                                        foreach( $importFile as $key => $value )
+                                                        {
 
-                                                                if ( is_array( $value ) ) {
+                                                                if( is_array( $value ) )
+                                                                {
 
                                                                         $base_dir = isset( $value[ 'baseDir' ] ) ? $value[ 'baseDir' ] : "";
 
-                                                                        $fileDir = isset( $value[ 'fileDir' ] ) && ! empty( $value[ 'fileDir' ] ) ? str_replace( $base_dir, $new_dir_name, $value[ 'fileDir' ] ) : "";
+                                                                        $fileDir = isset( $value[ 'fileDir' ] ) && !empty( $value[ 'fileDir' ] ) ? str_replace( $base_dir, $new_dir_name, $value[ 'fileDir' ] ) : "";
 
                                                                         $value[ 'baseDir' ] = $new_dir_name;
 
@@ -1012,7 +1205,7 @@ class WPIE_Import {
                                                                         $file_data[ $key ] = $value;
 
                                                                         $fileList[] = array(
-                                                                                'fileKey'  => $key,
+                                                                                'fileKey' => $key,
                                                                                 'fileName' => isset( $value[ 'fileName' ] ) ? $value[ 'fileName' ] : ""
                                                                         );
                                                                 }
@@ -1028,11 +1221,13 @@ class WPIE_Import {
 
                                                 $originalName = $fileData[ 'originalName' ] ? $fileData[ 'originalName' ] : "";
 
-                                                if ( is_readable( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/log" ) ) {
+                                                if( is_readable( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/log" ) )
+                                                {
                                                         $this->remove_dir( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/log/" );
                                                         wp_mkdir_p( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/log" );
                                                 }
-                                                if ( is_readable( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/chunk" ) ) {
+                                                if( is_readable( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/chunk" ) )
+                                                {
                                                         $this->remove_dir( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/chunks/" );
                                                         wp_mkdir_p( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/chunks" );
                                                 }
@@ -1048,16 +1243,24 @@ class WPIE_Import {
                                                 $return_value[ 'file_count' ] = count( $fileList );
 
                                                 $return_value[ 'status' ] = "success";
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 $return_value[ 'message' ] = __( 'Template Not Found', 'wp-import-export-lite' );
                                         }
-                                } else {
+                                }
+                                else
+                                {
                                         $return_value[ "message" ] = esc_html__( 'Reimport for given link is completed. please generate new links for reimport from manage import', "wp-import-export-lite" );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $return_value[ "message" ] = esc_html__( 'Invalid Nonce. Go to Manage Import for new valid Reimport links', "wp-import-export-lite" );
                         }
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Template not found', 'wp-import-export-lite' );
                 }
 
@@ -1066,27 +1269,35 @@ class WPIE_Import {
                 die();
         }
 
-        private function custom_copy( $src = "", $dst = "" ) {
+        private function custom_copy( $src = "", $dst = "" )
+        {
 
-                if ( is_dir( $src ) ) {
+                if( is_dir( $src ) )
+                {
                         // open the source directory 
                         $dir = opendir( $src );
 
                         // Make the destination directory if not exist 
-                        if ( ! is_dir( $dst ) ) {
+                        if( !is_dir( $dst ) )
+                        {
                                 wp_mkdir_p( $dst );
                         }
 
                         // Loop through the files in source directory 
-                        while ( $file = readdir( $dir ) ) {
+                        while( $file = readdir( $dir ) )
+                        {
 
-                                if ( ( $file != '.' ) && ( $file != '..' ) ) {
-                                        if ( is_dir( $src . '/' . $file ) ) {
+                                if( ( $file != '.' ) && ( $file != '..' ) )
+                                {
+                                        if( is_dir( $src . '/' . $file ) )
+                                        {
 
                                                 // Recursively calling custom copy function 
                                                 // for sub directory  
                                                 $this->custom_copy( $src . '/' . $file, $dst . '/' . $file );
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 copy( $src . '/' . $file, $dst . '/' . $file );
                                         }
                                 }
@@ -1096,18 +1307,26 @@ class WPIE_Import {
                 }
         }
 
-        private function remove_dir( $targetDir = "" ) {
+        private function remove_dir( $targetDir = "" )
+        {
 
-                if ( is_dir( $targetDir ) ) {
+                if( is_dir( $targetDir ) )
+                {
 
                         $cdir = scandir( $targetDir );
 
-                        if ( is_array( $cdir ) && ! empty( $cdir ) ) {
-                                foreach ( $cdir as $key => $value ) {
-                                        if ( ! in_array( $value, array( ".", ".." ) ) ) {
-                                                if ( is_dir( $targetDir . '/' . $value ) ) {
+                        if( is_array( $cdir ) && !empty( $cdir ) )
+                        {
+                                foreach( $cdir as $key => $value )
+                                {
+                                        if( !in_array( $value, array( ".", ".." ) ) )
+                                        {
+                                                if( is_dir( $targetDir . '/' . $value ) )
+                                                {
                                                         $this->remove_dir( $targetDir . '/' . $value );
-                                                } else {
+                                                }
+                                                else
+                                                {
                                                         unlink( $targetDir . '/' . $value );
                                                 }
                                         }
@@ -1120,8 +1339,10 @@ class WPIE_Import {
                 }
         }
 
-        public function __destruct() {
-                foreach ( $this as $key => $value ) {
+        public function __destruct()
+        {
+                foreach( $this as $key => $value )
+                {
                         unset( $this->$key );
                 }
         }

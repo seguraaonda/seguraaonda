@@ -15,6 +15,15 @@ if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import-engine.php' ) ) 
 class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
 
         protected $import_type = "user";
+        private $login_user_id = false;
+
+        private function get_login_user_id() {
+
+                if ( $this->login_user_id === false ) {
+                        $this->login_user_id = \get_current_user_id();
+                }
+                return $this->login_user_id;
+        }
 
         public function process_import_data() {
 
@@ -83,11 +92,28 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
 
                 $this->wpie_final_data = apply_filters( 'wpie_before_user_import', $this->wpie_final_data, $this->wpie_import_option );
 
+                $send_notifications = wpie_sanitize_field( $this->get_field_value( 'wpie_item_send_email_notifications' ) );
+
+                if ( empty( $send_notifications ) || absint( $send_notifications ) !== 1 ) {
+
+                        $this->remove_email_notifications();
+                }
+
                 if ( $this->is_new_item ) {
 
                         $this->item_id = wp_insert_user( $this->wpie_final_data );
                 } else {
 
+                        if ( $this->get_login_user_id() === $this->existing_item_id ) {
+
+                                $this->set_log( '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . __( "Can't update current Login user", 'wp-import-export-lite' ) );
+
+                                $this->process_log[ 'skipped' ] ++;
+
+                                $this->process_log[ 'imported' ] ++;
+
+                                return true;
+                        }
                         $this->wpie_final_data[ 'ID' ] = $this->existing_item_id;
 
                         $this->item_id = wp_update_user( $this->wpie_final_data );
@@ -124,8 +150,8 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
 
                 $this->process_log[ 'last_activity' ] = date( 'Y-m-d H:i:s' );
 
-                $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ),
-                        'process_log' => maybe_serialize( $this->process_log ) ), array(
+                $wpdb->update( $wpdb->prefix . "wpie_template", array ( 'last_update_date' => current_time( 'mysql' ),
+                        'process_log'      => maybe_serialize( $this->process_log ) ), array (
                         'id' => $this->wpie_import_id ) );
 
                 if ( $is_hashed_wp_password ) {
@@ -139,7 +165,13 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
                         ) );
                 }
 
-                unset( $is_hashed_wp_password );
+                if ( empty( $send_notifications ) || absint( $send_notifications ) !== 1 ) {
+                        $this->add_email_notifications();
+                } elseif ( $this->is_new_item ) {
+                        \wp_new_user_notification( $this->item_id, null, 'both' );
+                }
+
+                unset( $send_notifications );
 
                 do_action( 'wpie_after_user_import', $this->item_id, $this->wpie_final_data, $this->wpie_import_option );
 
@@ -149,6 +181,31 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
                 }
 
                 return $this->item_id;
+        }
+
+        public function do_not_send_notification( $is_notify, $user, $userdata ) {
+
+                return false;
+        }
+
+        private function remove_email_notifications() {
+
+                remove_filter( 'after_password_reset', 'wp_password_change_notification' );
+                remove_filter( 'register_new_user', 'wp_send_new_user_notifications' );
+                remove_filter( 'edit_user_created_user', 'wp_send_new_user_notifications' );
+
+                add_filter( 'send_password_change_email', [ $this, 'do_not_send_notification' ], 99999, 3 );
+                add_filter( 'send_email_change_email', [ $this, 'do_not_send_notification' ], 99999, 3 );
+        }
+
+        private function add_email_notifications() {
+
+                remove_filter( 'send_password_change_email', [ $this, 'do_not_send_notification' ] );
+                remove_filter( 'send_email_change_email', [ $this, 'do_not_send_notification' ] );
+
+                add_action( 'after_password_reset', 'wp_password_change_notification' );
+                add_action( 'register_new_user', 'wp_send_new_user_notifications' );
+                add_action( 'edit_user_created_user', 'wp_send_new_user_notifications', 10, 2 );
         }
 
         protected function search_duplicate_item() {
@@ -202,11 +259,11 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
 
                         $meta_val = wpie_sanitize_field( $this->get_field_value( 'wpie_existing_item_search_logic_cf_value' ) );
 
-                        $user_query = array(
-                                'meta_query' => array(
-                                        0 => array(
-                                                'key' => $meta_key,
-                                                'value' => $meta_val,
+                        $user_query = array (
+                                'meta_query' => array (
+                                        0 => array (
+                                                'key'     => $meta_key,
+                                                'value'   => $meta_val,
                                                 'compare' => '='
                                         )
                                 )
@@ -222,7 +279,7 @@ class WPIE_User_Import extends \wpie\import\engine\WPIE_Import_Engine {
                                         break;
                                 }
                         } else {
-                                $user_data_found = $wpdb->get_results( $wpdb->prepare( "SELECT SQL_CALC_FOUND_ROWS " . $wpdb->users . ".ID FROM " . $wpdb->users . " INNER JOIN " . $wpdb->usermeta . " ON (" . $wpdb->users . ".ID = " . $wpdb->usermeta . ".user_id) WHERE 1=1 AND ( (" . $wpdb->usermeta . ".meta_key = '%s' AND " . $wpdb->usermeta . ".meta_value = '%s') ) GROUP BY " . $wpdb->users . ".ID ORDER BY " . $wpdb->users . ".ID ASC LIMIT 0, 1", $meta_key, $meta_val ) );
+                                $user_data_found = $wpdb->get_results( $wpdb->prepare( "SELECT SQL_CALC_FOUND_ROWS " . $wpdb->users . ".ID FROM " . $wpdb->users . " INNER JOIN " . $wpdb->usermeta . " ON (" . $wpdb->users . ".ID = " . $wpdb->usermeta . ".user_id) WHERE 1=1 AND ( (" . $wpdb->usermeta . ".meta_key = %s AND " . $wpdb->usermeta . ".meta_value = %s) ) GROUP BY " . $wpdb->users . ".ID ORDER BY " . $wpdb->users . ".ID ASC LIMIT 0, 1", $meta_key, $meta_val ) );
 
                                 if ( ! empty( $user_data_found ) ) {
                                         foreach ( $user_data_found as $user ) {

@@ -2,31 +2,41 @@
 
 namespace wpie\import\bg;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php' ) ) {
+if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php' ) )
+{
 
         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php');
 }
 
-class WPIE_BG_Import extends \wpie\import\WPIE_Import {
+class WPIE_BG_Import extends \wpie\import\WPIE_Import
+{
 
-        public function __construct() {
+        private $process_lock = false;
+
+        public function __construct()
+        {
 
                 add_action( 'init', array( $this, 'wpie_bg_import' ), 100 );
+
+                add_action( 'shutdown', array( $this, 'unlock_process' ) );
 
                 add_action( 'init', array( $this, 'wpie_bg_unlock_import' ), 200 );
 
                 add_filter( 'wpie_add_import_extension_process_btn_files', array( $this, 'wpie_add_bg_process_btn' ), 10, 1 );
         }
 
-        public function wpie_add_bg_process_btn( $files = array() ) {
+        public function wpie_add_bg_process_btn( $files = array() )
+        {
 
                 $fileName = WPIE_IMPORT_CLASSES_DIR . '/extensions/bg/wpie_bg_btn.php';
 
-                if ( ! in_array( $fileName, $files ) ) {
+                if( !in_array( $fileName, $files ) )
+                {
 
                         $files[] = $fileName;
                 }
@@ -34,7 +44,8 @@ class WPIE_BG_Import extends \wpie\import\WPIE_Import {
                 return $files;
         }
 
-        public function wpie_bg_unlock_import() {
+        public function wpie_bg_unlock_import()
+        {
 
                 global $wpdb;
 
@@ -45,17 +56,94 @@ class WPIE_BG_Import extends \wpie\import\WPIE_Import {
                 unset( $current_time );
         }
 
-        public function wpie_bg_import() {
+        public function wpie_bg_import()
+        {
+                $wpie_bg_and_cron_processing = get_option( "wpie_bg_and_cron_processing" );
+
+                $cron_method = "";
+
+                if( $wpie_bg_and_cron_processing && !empty( $wpie_bg_and_cron_processing ) )
+                {
+                        $wpie_bg_and_cron_processing = maybe_unserialize( $wpie_bg_and_cron_processing );
+
+                        $cron_method = isset( $wpie_bg_and_cron_processing[ 'method' ] ) ? $wpie_bg_and_cron_processing[ 'method' ] : "";
+
+                        if( $cron_method === "external" )
+                        {
+                                $user_token = isset( $_GET[ 'wpie_cron_token' ] ) ? wpie_sanitize_field( $_GET[ 'wpie_cron_token' ] ) : "";
+
+                                if( empty( $user_token ) )
+                                {
+                                        return;
+                                }
+
+                                $is_processing = get_option( "wpie_bg_and_cron_processing_lock", 0 );
+
+                                if( intval( $is_processing ) === 1 )
+                                {
+                                        die();
+                                }
+
+                                $site_token = isset( $wpie_bg_and_cron_processing[ 'token' ] ) ? $wpie_bg_and_cron_processing[ 'token' ] : "";
+
+                                if( intval( $site_token ) === intval( $user_token ) )
+                                {
+                                        $id = $this->get_bg_template_id();
+
+                                        if( $id && absint( $id ) > 0 )
+                                        {
+                                                $this->process_lock = true;
+
+                                                update_option( "wpie_bg_and_cron_processing_lock", 1 );
+
+                                                parent::wpie_import_process_data( $id );
+
+                                                update_option( "wpie_bg_and_cron_processing_lock", 0 );
+
+                                                die();
+                                        }
+                                        unset( $id );
+                                }
+
+                                return;
+                        }
+                }
+
+                if( $cron_method !== "external" )
+                {
+                        $this->wpie_bg_import_init();
+                }
+        }
+
+        public function unlock_process()
+        {
+
+                if( $this->process_lock )
+                {
+                        update_option( "wpie_bg_and_cron_processing_lock", 0 );
+                }
+        }
+
+        public function wpie_bg_import_init()
+        {
+                $id = $this->get_bg_template_id();
+
+                if( $id && absint( $id ) > 0 )
+                {
+
+                        parent::wpie_import_process_data( $id );
+                }
+                unset( $id );
+        }
+
+        public function get_bg_template_id()
+        {
 
                 global $wpdb;
 
                 $id = $wpdb->get_var( "SELECT `id` FROM " . $wpdb->prefix . "wpie_template where `opration` in ('import','schedule_import') and status LIKE '%background%' and process_lock = 0 ORDER BY `id` ASC limit 0,1" );
 
-                if ( $id && absint( $id ) > 0 ) {
-
-                        parent::wpie_import_process_data( $id );
-                }
-                unset( $id );
+                return $id;
         }
 
 }

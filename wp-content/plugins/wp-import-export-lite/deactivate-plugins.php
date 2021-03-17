@@ -15,7 +15,7 @@ if ( ! function_exists( "wpie_auto_deactivate_pro_plugins" ) ) {
                         $plugins[] = 'wp-import-export-lite/wp-import-export-lite.php';
                 }
                 if ( ! empty( $plugins ) ) {
-                        deactivate_plugins( $plugins );                      
+                        deactivate_plugins( $plugins );
                 }
         }
 

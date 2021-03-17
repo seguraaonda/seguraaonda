@@ -1,10 +1,10 @@
 ﻿=== Author Avatars List/Block ===
 Contributors: pbearne, bforchhammer
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=MZTZ5S8MGF75C&lc=CA&item_name=Wordpress%20Development%20%2f%20Paul%20Bearne&item_number=AuthorAvatarsList%20Plugin&currency_code=CAD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
-Tags: Avatar, Author, Gutenberg, BuddyPress, xprofile, Comment, Editor, Image, Multisite, Photo, Picture, Profile, Shortcode, Random, Sidebar, Thumbnail, User, Widget, Wpmu, BBPress, co-authors
+Tags: block, Avatar, Author, Gutenberg, BuddyPress, xprofile, Comment, Editor, Image, Multisite, Photo, Picture, Profile, Shortcode, Random, Sidebar, Thumbnail, User, Widget, Wpmu, BBPress, co-authors
 Requires at least: 3.0
-Tested up to:5.4
-Stable tag: 2.0.8
+Tested up to: 5.5.3
+Stable tag: 2.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,18 @@ If you have added CSS to your theme you may have to update it for this upgrade (
 7. Advance Gutenberg blocks options
 
 == Changelog ==
+2.1.4
+Removed .live in js
+
+2.1.3
+Added filter for last post link text
+
+2.1.2
+fix object type for Gutenberg block
+
+2.1.1
+added preview and block.json
+
 2.0.8
 fixed the detection for bbPress plugin
 

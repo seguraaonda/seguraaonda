@@ -8,40 +8,52 @@ use PhpOffice\PhpSpreadsheet\Reader;
 use PhpOffice\PhpSpreadsheet\Writer;
 use WP_Error;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-class WPIE_Upload_Validate {
+class WPIE_Upload_Validate
+{
 
         private $wpie_fileName = "wpie-import-data-";
 
-        public function __construct() {
+        public function __construct()
+        {
                 
         }
 
-        public function wpie_parse_upload_data( $template_data = null, $wpie_csv_delimiter = ",", $activeFile = false, $wpie_import_id = false ) {
+        public function wpie_parse_upload_data( $template_data = null, $wpie_csv_delimiter = ",", $is_first_row_title = 1, $activeFile = false, $wpie_import_id = false )
+        {
 
-                if ( empty( $template_data ) ) {
+                if( empty( $template_data ) )
+                {
                         return false;
                 }
-                
+
                 global $wpdb;
 
-                if ( is_array( $template_data ) ) {
+                if( is_array( $template_data ) )
+                {
                         $template_options = $template_data;
-                } else {
+                }
+                else
+                {
                         $template_options = isset( $template_data->options ) ? maybe_unserialize( $template_data->options ) : array();
                 }
 
                 $importFile = isset( $template_options[ 'importFile' ] ) ? $template_options[ 'importFile' ] : array();
 
-                if ( $activeFile === false ) {
+                if( $activeFile === false )
+                {
                         $activeFile = isset( $_GET[ 'activeFile' ] ) ? wpie_sanitize_field( $_GET[ 'activeFile' ] ) : "";
                 }
-                if ( $wpie_import_id === false ) {
+                if( $wpie_import_id === false )
+                {
                         $wpie_import_id = isset( $_GET[ "wpie_import_id" ] ) ? intval( wpie_sanitize_field( $_GET[ "wpie_import_id" ] ) ) : 0;
                 }
+
+                $is_new_request = isset( $_GET[ "is_new_request" ] ) ? intval( wpie_sanitize_field( $_GET[ "is_new_request" ] ) ) : 0;
 
                 $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : array();
 
@@ -53,7 +65,8 @@ class WPIE_Upload_Validate {
 
                 $template_options[ 'activeFile' ] = $activeFile;
 
-                if ( is_dir( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/" ) ) {
+                if( is_dir( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/" ) )
+                {
                         $this->wpie_remove_old_files( WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/" );
                 }
 
@@ -61,27 +74,36 @@ class WPIE_Upload_Validate {
 
                 $file = WPIE_UPLOAD_IMPORT_DIR . "/" . $file_path . "/" . $file_name;
 
-                if ( ! file_exists( $file ) ) {
+                if( !file_exists( $file ) )
+                {
 
                         unset( $template_options, $importFile, $activeFile, $file, $wpie_import_id, $fileData, $file_path, $file_name, $baseDir );
 
                         return new \WP_Error( 'wpie_import_error', __( 'File not found', 'wp-import-export-lite' ) );
-                } elseif ( preg_match( '%\W(xls|xlsx|ods)$%i', trim( $file_name ) ) ) {
+                }
+                elseif( preg_match( '%\W(xls|xlsx|ods)$%i', trim( $file_name ) ) )
+                {
 
                         unset( $template_options, $importFile, $activeFile, $file, $wpie_import_id, $fileData );
 
-                        return $this->wpie_convert_excel_2_csv( $file_path, $file_name, $baseDir );
-                } elseif ( preg_match( '%\W(csv)$%i', trim( $file_name ) ) ) {
+                        return $this->wpie_convert_excel_2_csv( $file_path, $file_name, $baseDir, $is_first_row_title );
+                }
+                elseif( preg_match( '%\W(csv)$%i', trim( $file_name ) ) )
+                {
 
                         unset( $template_options, $importFile, $activeFile, $file, $wpie_import_id, $fileData );
 
-                        return $this->wpie_convert_csv_2_xml( $file_path, $file_name, $baseDir, $wpie_csv_delimiter );
-                } elseif ( preg_match( '%\W(txt|json)$%i', trim( $file_name ) ) ) {
+                        return $this->wpie_convert_csv_2_xml( $file_path, $file_name, $baseDir, $is_first_row_title, $wpie_csv_delimiter, $is_new_request );
+                }
+                elseif( preg_match( '%\W(txt|json)$%i', trim( $file_name ) ) )
+                {
 
                         unset( $template_options, $importFile, $activeFile, $file, $wpie_import_id, $fileData );
 
                         return $this->wpie_convert_json_2_xml( $file_path, $file_name, $baseDir );
-                } elseif ( preg_match( '%\W(xml)$%i', trim( $file_name ) ) ) {
+                }
+                elseif( preg_match( '%\W(xml)$%i', trim( $file_name ) ) )
+                {
 
                         copy( $file, WPIE_UPLOAD_IMPORT_DIR . "/" . $baseDir . "/parse/" . $this->wpie_fileName . "1.xml" );
 
@@ -95,19 +117,19 @@ class WPIE_Upload_Validate {
                 return new \WP_Error( 'wpie_import_error', __( 'Invalid File to parse. Please Choose other FIle', 'wp-import-export-lite' ) );
         }
 
-        private function wpie_convert_excel_2_csv( $fileDir = "", $file_name = "", $baseDir = "" ) {
+        private function wpie_convert_excel_2_csv( $fileDir = "", $file_name = "", $baseDir = "", $is_first_row_title = 1 )
+        {
 
                 $file = WPIE_UPLOAD_IMPORT_DIR . "/" . $fileDir . "/" . $file_name;
 
-                if ( ! file_exists( $file ) ) {
+                if( !file_exists( $file ) )
+                {
                         return new \WP_Error( 'wpie_import_error', __( 'File not found', 'wp-import-export-lite' ) );
                 }
 
                 $newFileName = wp_unique_filename( WPIE_UPLOAD_IMPORT_DIR . "/" . $fileDir, preg_replace( '%\W(xls|xlsx|ods)$%i', ".csv", $file_name ) );
 
-                if ( file_exists( WPIE_LIBRARIES_DIR . '/composer/vendor/autoload.php' ) ) {
-                        require_once( WPIE_LIBRARIES_DIR . '/composer/vendor/autoload.php' );
-                }
+                wpie_load_vendor_autoloader();
 
                 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load( $file );
 
@@ -117,33 +139,37 @@ class WPIE_Upload_Validate {
 
                 $spreadsheet->disconnectWorksheets();
 
-                $return_data = $this->wpie_convert_csv_2_xml( $fileDir, $newFileName, $baseDir );
+                $return_data = $this->wpie_convert_csv_2_xml( $fileDir, $newFileName, $baseDir, $is_first_row_title );
 
                 unset( $file, $newFileName, $reader, $spreadsheet, $writer );
 
                 return $return_data;
         }
 
-        private function wpie_convert_csv_2_xml( $fileDir = "", $file_name = "", $baseDir = "", $wpie_csv_delimiter = "," ) {
+        private function wpie_convert_csv_2_xml( $fileDir = "", $file_name = "", $baseDir = "", $is_first_row_title = 1, $wpie_csv_delimiter = ",", $is_new_request = 0 )
+        {
 
-                if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php' ) ) {
+                if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php' ) )
+                {
                         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-csv-chunk.php');
                 }
 
                 $csv_chunk = new \wpie\import\chunk\csv\WPIE_CSV_Chunk();
 
-                $return_data = $csv_chunk->process_csv( $fileDir, $file_name, $baseDir, $wpie_csv_delimiter, $this->wpie_fileName );
+                $return_data = $csv_chunk->process_csv( $fileDir, $file_name, $baseDir, $wpie_csv_delimiter, $this->wpie_fileName, $is_new_request,$is_first_row_title );
 
                 unset( $csv_chunk );
 
                 return $return_data;
         }
 
-        private function wpie_convert_json_2_xml( $fileDir = "", $file_name = "", $baseDir = "" ) {
+        private function wpie_convert_json_2_xml( $fileDir = "", $file_name = "", $baseDir = "" )
+        {
 
                 $file = WPIE_UPLOAD_IMPORT_DIR . "/" . $fileDir . "/" . $file_name;
 
-                if ( ! file_exists( $file ) ) {
+                if( !file_exists( $file ) )
+                {
                         return false;
                 }
 
@@ -157,7 +183,8 @@ class WPIE_Upload_Validate {
 
                 $xmlfileName = wp_unique_filename( $xmlFilePath, $fileName );
 
-                if ( file_exists( WPIE_LIBRARIES_DIR . '/xml/class-wpie-array2xml.php' ) ) {
+                if( file_exists( WPIE_LIBRARIES_DIR . '/xml/class-wpie-array2xml.php' ) )
+                {
                         require_once(WPIE_LIBRARIES_DIR . '/xml/class-wpie-array2xml.php');
                 }
 
@@ -174,16 +201,23 @@ class WPIE_Upload_Validate {
                 return $xmlFilePath . "/" . $xmlfileName;
         }
 
-        private function wpie_remove_old_files( $targetDir = "" ) {
+        private function wpie_remove_old_files( $targetDir = "" )
+        {
 
                 $cdir = scandir( $targetDir );
 
-                if ( is_array( $cdir ) && ! empty( $cdir ) ) {
-                        foreach ( $cdir as $key => $value ) {
-                                if ( ! in_array( $value, array( ".", ".." ) ) ) {
-                                        if ( is_dir( $targetDir . '/' . $value ) ) {
+                if( is_array( $cdir ) && !empty( $cdir ) )
+                {
+                        foreach( $cdir as $key => $value )
+                        {
+                                if( !in_array( $value, array( ".", ".." ) ) )
+                                {
+                                        if( is_dir( $targetDir . '/' . $value ) )
+                                        {
                                                 $this->wpie_remove_old_files( $targetDir . '/' . $value );
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 unlink( $targetDir . '/' . $value );
                                         }
                                 }
@@ -192,8 +226,10 @@ class WPIE_Upload_Validate {
                 unset( $cdir );
         }
 
-        public function __destruct() {
-                foreach ( $this as $key => $value ) {
+        public function __destruct()
+        {
+                foreach( $this as $key => $value )
+                {
                         unset( $this->$key );
                 }
         }

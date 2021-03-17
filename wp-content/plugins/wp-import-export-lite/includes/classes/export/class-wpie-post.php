@@ -17,179 +17,179 @@ if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export-engine.php' ) ) 
 
 class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
-        protected $item_where = array();
-        protected $item_join = array();
+        protected $item_where = array ();
+        protected $item_join = array ();
         private $user_where = "";
-        private $user_join = array();
+        private $user_join = array ();
 
-        protected function get_fields( $exclude_meta = array() ) {
+        protected function get_fields( $exclude_meta = array () ) {
 
-                $standard_fields = array(
+                $standard_fields = array (
                         "title"     => __( "Standerd", 'wp-import-export-lite' ),
                         "isDefault" => true,
-                        "data"      => array(
-                                array(
+                        "data"      => array (
+                                array (
                                         'name'      => 'ID',
                                         'type'      => 'id',
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Title',
                                         'type'      => 'title',
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Content',
                                         'type'      => 'content',
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Excerpt',
                                         'type'      => 'excerpt',
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Date',
                                         'type'      => 'date',
                                         'isDate'    => true,
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Post Type',
                                         'type'      => 'post_type',
                                         'isDefault' => true
                                 ),
-                                array(
+                                array (
                                         'name'      => 'Permalink',
                                         'type'      => 'permalink',
                                         'isDefault' => true
                                 )
                         )
                 );
-                $image_fields = array(
+                $image_fields = array (
                         "title"      => __( "Images", 'wp-import-export-lite' ),
                         "isFiltered" => false,
-                        "data"       => array(
-                                array(
+                        "data"       => array (
+                                array (
                                         'name' => 'Image URL',
                                         'type' => 'image_url',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Filename',
                                         'type' => 'image_filename',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Path',
                                         'type' => 'image_path',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images ID',
                                         'type' => 'image_id',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Title',
                                         'type' => 'image_title',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Caption',
                                         'type' => 'image_caption',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Description',
                                         'type' => 'image_description',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Images Alt Text',
                                         'type' => 'image_alt',
                                 ),
                         )
                 );
 
-                $attachment_fields = array(
+                $attachment_fields = array (
                         "title"      => __( "Attachments", 'wp-import-export-lite' ),
                         "isFiltered" => false,
-                        "data"       => array(
-                                array(
+                        "data"       => array (
+                                array (
                                         'name' => 'Attachment URL',
                                         'type' => 'attachment_url',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Filename',
                                         'type' => 'attachment_filename',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Path',
                                         'type' => 'attachment_path',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments ID',
                                         'type' => 'attachment_id',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Title',
                                         'type' => 'attachment_title',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Caption',
                                         'type' => 'attachment_caption',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Description',
                                         'type' => 'attachment_description',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Attachments Alt Text',
                                         'type' => 'attachment_alt',
                                 ),
                         )
                 );
 
-                $author_fields = array(
+                $author_fields = array (
                         "title"      => __( "Author", 'wp-import-export-lite' ),
                         "isExported" => false,
-                        "data"       => array(
-                                array(
+                        "data"       => array (
+                                array (
                                         'name' => 'User ID',
                                         'type' => 'user_ID',
                                 ),
-                                array(
+                                array (
                                         'name' => 'User Login',
                                         'type' => 'user_login',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Nicename',
                                         'type' => 'user_nicename',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Email',
                                         'type' => 'user_email',
                                 ),
-                                array(
+                                array (
                                         'name'   => 'Date Registered (Y-m-d H:i:s)',
                                         'type'   => 'user_registered',
                                         "isDate" => true,
                                 ),
-                                array(
+                                array (
                                         'name' => 'Display Name',
                                         'type' => 'display_name',
                                 ),
-                                array(
+                                array (
                                         'name' => 'First Name',
                                         'type' => 'wpie_cf_first_name',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Last Name',
                                         'type' => 'wpie_cf_last_name',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Nickname',
                                         'type' => 'nickname',
                                 ),
-                                array(
+                                array (
                                         'name' => 'User Description',
                                         'type' => 'description',
                                 ),
-                                array(
+                                array (
                                         'name'         => 'User Role',
                                         'type'         => 'wp_capabilities',
                                         'isCapability' => true
@@ -197,66 +197,66 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                         )
                 );
 
-                $other_fields = array(
+                $other_fields = array (
                         "title" => __( "Other", 'wp-import-export-lite' ),
-                        "data"  => array(
-                                array(
+                        "data"  => array (
+                                array (
                                         'name' => 'Status',
                                         'type' => 'status',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Author ID',
                                         'type' => 'author_id'
                                 ),
-                                array(
+                                array (
                                         'name' => 'Author Username',
                                         'type' => 'author_username'
                                 ),
-                                array(
+                                array (
                                         'name' => 'Author Email',
                                         'type' => 'author_email'
                                 ),
-                                array(
+                                array (
                                         'name' => 'Author First Name',
                                         'type' => 'wpie_cf_first_name',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Author Last Name',
                                         'type' => 'wpie_cf_last_name',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Slug',
                                         'type' => 'slug',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Format',
                                         'type' => 'format',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Template',
                                         'type' => 'template',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Parent',
                                         'type' => 'parent',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Parent Slug',
                                         'type' => 'parent_slug',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Order',
                                         'type' => 'order',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Comment Status',
                                         'type' => 'comment_status',
                                 ),
-                                array(
+                                array (
                                         'name' => 'Ping Status',
                                         'type' => 'ping_status',
                                 ),
-                                array(
+                                array (
                                         'name'   => 'Post Modified Date',
                                         'type'   => 'post_modified',
                                         "isDate" => true,
@@ -266,7 +266,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 $taxonomy_data = $this->get_taxonomies_by_post_type( $this->export_type, "wpie_tax", false );
 
-                $taxonomy = array(
+                $taxonomy = array (
                         "title" => __( "Taxonomy", 'wp-import-export-lite' ),
                         "data"  => $taxonomy_data
                 );
@@ -275,7 +275,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 $metas = $this->get_meta_keys( $this->export_type );
 
-                $export_fields = array(
+                $export_fields = array (
                         "standard"   => $standard_fields,
                         "meta"       => $metas,
                         "taxonomy"   => $taxonomy,
@@ -286,7 +286,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 );
 
 
-                $addon_class = apply_filters( 'wpie_prepare_post_fields', array(), $this->export_type );
+                $addon_class = apply_filters( 'wpie_prepare_post_fields', array (), $this->export_type );
 
                 if ( ! empty( $addon_class ) ) {
 
@@ -306,7 +306,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                         }
                 }
 
-                $meta_data = array();
+                $meta_data = array ();
 
                 if ( ! empty( $export_fields[ "meta" ] ) ) {
                         foreach ( $export_fields[ "meta" ] as $key ) {
@@ -314,7 +314,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                 if ( empty( trim( $key ) ) ) {
                                         continue;
                                 }
-                                $meta_data[] = apply_filters( "wpie_pre_item_meta", array(
+                                $meta_data[] = apply_filters( "wpie_pre_item_meta", array (
                                         'name'    => $key,
                                         'type'    => "wpie_cf",
                                         'metaKey' => $key
@@ -324,7 +324,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 unset( $metas );
 
-                $meta_fields = array(
+                $meta_fields = array (
                         "title" => __( "Custom Fields", 'wp-import-export-lite' ),
                         "data"  => $meta_data
                 );
@@ -336,7 +336,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return apply_filters( "wpie_export_fields", $export_fields, $this->export_type );
         }
 
-        protected function get_meta_keys( $export_type = array() ) {
+        protected function get_meta_keys( $export_type = array () ) {
 
                 global $wpdb;
 
@@ -349,7 +349,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 			HAVING $wpdb->postmeta.meta_key NOT LIKE %s
 			ORDER BY $wpdb->postmeta.meta_key
 			LIMIT %d";
-                $limit = apply_filters( 'wpie_postmeta_form_limit', 500 );
+                $limit = apply_filters( 'wpie_postmeta_form_limit', 1000 );
 
                 $keys = $wpdb->get_col( $wpdb->prepare( $sql, $wpdb->esc_like( '_' ) . 'edit%', $limit ) );
 
@@ -358,7 +358,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return $keys;
         }
 
-        protected function parse_rule( $filter = array() ) {
+        protected function parse_rule( $filter = array () ) {
 
                 if ( isset( $filter[ 'element' ] ) ) {
 
@@ -410,7 +410,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                         $this->user_where = " AND (";
 
-                                        $this->user_join = array();
+                                        $this->user_join = array ();
 
                                         $meta_query = false;
 
@@ -465,13 +465,13 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                         unset( $meta_query );
 
-                                        add_action( 'pre_user_query', array( $this, 'pre_user_query' ), 10, 1 );
+                                        add_action( 'pre_user_query', array ( $this, 'pre_user_query' ), 10, 1 );
 
-                                        $user_query = new \WP_User_Query( array( 'orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids' ) );
+                                        $user_query = new \WP_User_Query( array ( 'orderby' => 'ID', 'order' => 'ASC', 'fields' => 'ids' ) );
 
-                                        remove_action( 'pre_user_query', array( $this, 'pre_user_query' ) );
+                                        remove_action( 'pre_user_query', array ( $this, 'pre_user_query' ) );
 
-                                        $user_list = array();
+                                        $user_list = array ();
 
                                         if ( ! empty( $user_query->results ) ) {
                                                 foreach ( $user_query->results as $user ) {
@@ -504,7 +504,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                 $tx_name = isset( $filter[ 'taxName' ] ) ? $filter[ 'taxName' ] : "category";
 
-                                                $terms = array();
+                                                $terms = array ();
 
                                                 $txs = explode( ",", $filter[ 'value' ] );
 
@@ -588,7 +588,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                 $this->item_where[] = "$table_alias.meta_id " . $this->add_filter_rule( $filter, false, false );
                                         } else {
 
-                                                if ( in_array( $meta_key, array( '_completed_date' ) ) ) {
+                                                if ( in_array( $meta_key, array ( '_completed_date' ) ) ) {
                                                         $filter[ 'value' ] = $this->add_date_filter_rule( $filter );
                                                 }
 
@@ -623,7 +623,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
         protected function process_export() {
 
-                $query = array(
+                $query = array (
                         'post_type'      => $this->export_type,
                         'post_status'    => array_keys( get_post_stati() ),
                         'orderby'        => "ID",
@@ -640,17 +640,17 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 $query = apply_filters( 'wpie_pre_execute_post_query', $query );
 
-                add_filter( 'posts_where', array( $this, 'posts_where' ), 10, 1 );
+                add_filter( 'posts_where', array ( $this, 'posts_where' ), 10, 1 );
 
-                add_filter( 'posts_join', array( $this, 'posts_join' ), 10, 1 );
+                add_filter( 'posts_join', array ( $this, 'posts_join' ), 10, 1 );
 
                 $post_result = new \WP_Query( $query );
 
                 unset( $query );
 
-                remove_filter( 'posts_where', array( $this, 'posts_where' ), 10, 1 );
+                remove_filter( 'posts_where', array ( $this, 'posts_where' ), 10, 1 );
 
-                remove_filter( 'posts_join', array( $this, 'posts_join' ), 10, 1 );
+                remove_filter( 'posts_join', array ( $this, 'posts_join' ), 10, 1 );
 
                 wp_reset_postdata();
 
@@ -669,15 +669,15 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return true;
         }
 
-        protected function process_items( $post_data = array() ) {
+        protected function process_items( $post_data = array () ) {
 
-                $fields_data = (isset( $this->template_options[ 'fields_data' ] ) && trim( $this->template_options[ 'fields_data' ] ) != "") ? explode( "~||~", wpie_sanitize_field( wp_unslash( $this->template_options[ 'fields_data' ] ) ) ) : array();
+                $fields_data = (isset( $this->template_options[ 'fields_data' ] ) && trim( $this->template_options[ 'fields_data' ] ) != "") ? explode( "~||~", wpie_sanitize_field( wp_unslash( $this->template_options[ 'fields_data' ] ) ) ) : array ();
 
                 $site_date_format = get_option( 'date_format' );
 
-                $users = array();
+                $users = array ();
 
-                $media = array();
+                $media = array ();
 
                 if ( $this->addons && is_array( $this->addons ) ) {
 
@@ -692,11 +692,19 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 if ( $post_data ) {
 
+                        $temp_field_count = 0;
+
+                        global $wpie_export_id;
+                       
+                        $wpie_export_id = 0;
+
                         foreach ( $post_data as $post_id ) {
+
+                                $wpie_export_id = $post_id;
 
                                 $item = get_post( $post_id );
 
-                                $this->export_data = array();
+                                $this->export_data = array ();
 
                                 $this->has_multiple_rows = false;
 
@@ -707,6 +715,8 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                 if ( empty( $field ) ) {
                                                         continue;
                                                 }
+                                                $temp_field_count ++;
+
                                                 $new_field = explode( "|~|", $field );
 
                                                 $field_label = isset( $new_field[ 0 ] ) ? wpie_sanitize_field( $new_field[ 0 ] ) : "";
@@ -723,32 +733,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                 $date_format = isset( $field_option[ 'dateFormat' ] ) ? wpie_sanitize_field( $field_option[ 'dateFormat' ] ) : "";
 
-                                                $field_name = strtolower( preg_replace( "/[^a-zA-Z0-9]+/", "", $field_type . $field_label ) );
-
-                                                if ( isset( $this->export_data[ $field_name ] ) ) {
-
-                                                        $base_name = $field_name;
-
-                                                        $is_added = false;
-
-                                                        $i = 0;
-
-                                                        $element_name = "";
-
-                                                        while ( ! $is_added ) {
-
-                                                                $element_name = $base_name . '_' . md5( $i );
-
-                                                                if ( ! isset( $this->export_data[ $element_name ] ) ) {
-
-                                                                        $field_name = $element_name;
-
-                                                                        $is_added = true;
-                                                                }
-                                                                $i ++;
-                                                        }
-                                                        unset( $element_name, $base_name, $i, $is_added );
-                                                }
+                                                $field_name = strtolower( preg_replace( "/[^a-zA-Z0-9]+/", "", $field_type . $field_label ) ) . $this->get_unique_str() . "_" . $temp_field_count;
 
                                                 if ( $this->process_log[ 'exported' ] == 0 ) {
 
@@ -831,7 +816,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                                         if ( ! empty( $wpie_parent_posts ) ) {
 
-                                                                                $wpie_slugs = array();
+                                                                                $wpie_slugs = array ();
 
                                                                                 foreach ( $wpie_parent_posts as $wpie_parent_post ) {
 
@@ -981,6 +966,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                                                                 break;
 
                                                         case 'excerpt':
+                                                        case 'post_excerpt':
 
                                                                 $this->export_data[ $field_name ] = apply_filters( 'wpie_export_post_excerpt', $this->apply_user_function( $item->post_excerpt, $is_php, $php_func ), $item );
 
@@ -1017,7 +1003,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                                                 $tax_name = isset( $field_option[ 'taxName' ] ) ? wpie_sanitize_field( $field_option[ 'taxName' ] ) : "";
 
-                                                                $tax_value = array();
+                                                                $tax_value = array ();
 
                                                                 if ( $tax_name != "" ) {
 
@@ -1167,6 +1153,8 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                 unset( $item );
                         }
+                        
+                        $wpie_export_id = 0;
                 }
 
                 unset( $fields_data, $site_date_format, $users, $media );
@@ -1180,7 +1168,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                 if ( ! empty( $this->item_where ) ) {
 
-                        $post_where = preg_replace( array( '/OR$/', '/OR $/', '/AND$/', '/AND $/' ), " ", preg_replace( array( '%^ OR %', '%^ AND %' ), ' ', implode( ' ', $this->item_where ) ) );
+                        $post_where = preg_replace( array ( '/OR$/', '/OR $/', '/AND$/', '/AND $/' ), " ", preg_replace( array ( '%^ OR %', '%^ AND %' ), ' ', implode( ' ', $this->item_where ) ) );
 
                         $data .= " AND ( " . $post_where . ") GROUP BY {$wpdb->posts}.ID";
 
@@ -1240,7 +1228,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return $return_data;
         }
 
-        private function check_children_assign( $parent, $taxonomy, $term_ids = array() ) {
+        private function check_children_assign( $parent, $taxonomy, $term_ids = array () ) {
 
                 $is_latest_child = true;
 
@@ -1263,7 +1251,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return $is_latest_child;
         }
 
-        public function get_hierarchy_by_taxonomy_id( $tax_ids = array(), $tax_name = "" ) {
+        public function get_hierarchy_by_taxonomy_id( $tax_ids = array (), $tax_name = "" ) {
 
                 if ( is_array( $tax_ids ) && ! empty( $tax_ids ) ) {
 
@@ -1271,9 +1259,9 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                         if ( version_compare( $wp_version, '4.5.0', '<' ) ) {
 
-                                $taxonomies = get_terms( $tax_name, array( 'include' => $tax_ids, "hide_empty" => false ) );
+                                $taxonomies = get_terms( $tax_name, array ( 'include' => $tax_ids, "hide_empty" => false ) );
                         } else {
-                                $taxonomies = get_terms( array( 'taxonomy' => $tax_name, 'include' => $tax_ids, "hide_empty" => false ) );
+                                $taxonomies = get_terms( array ( 'taxonomy' => $tax_name, 'include' => $tax_ids, "hide_empty" => false ) );
                         }
 
                         return $this->get_hierarchy_by_taxonomy( $taxonomies );
@@ -1288,13 +1276,13 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
                 return $this->get_hierarchy_by_taxonomy( $taxonomies, $tax_name );
         }
 
-        private function get_hierarchy_by_taxonomy( $taxonomy = array(), $tax_name = "" ) {
+        private function get_hierarchy_by_taxonomy( $taxonomy = array (), $tax_name = "" ) {
 
-                $hierarchy_groups = array();
+                $hierarchy_groups = array ();
 
                 if ( ! is_wp_error( $taxonomy ) && ! empty( $taxonomy ) ) {
 
-                        $tax_ids = array();
+                        $tax_ids = array ();
 
                         foreach ( $taxonomy as $tax_list ) {
                                 $tax_ids[] = $tax_list->term_id;
@@ -1308,7 +1296,7 @@ class WPIE_Post extends \wpie\export\engine\WPIE_Export_Engine {
 
                                         if ( count( $ancestors ) > 0 ) {
 
-                                                $hierarchy = array();
+                                                $hierarchy = array ();
 
                                                 for ( $i = count( $ancestors ) - 1; $i >= 0; $i -- ) {
 

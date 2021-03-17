@@ -59,8 +59,8 @@ class WPIE_Export {
                 die();
         }
 
-        public function prepare_fields( $export_type = "", $taxonomy_type = "" ) {
-                return $this->init_export( $export_type, "fields", array ( "wpie_taxonomy_type" => $taxonomy_type ) );
+        public function prepare_fields( $export_type = "", $taxonomy_type = "", $attribute_taxonomy = "" ) {
+                return $this->init_export( $export_type, "fields", [ "wpie_taxonomy_type" => $taxonomy_type, "wpie_attribute_taxonomy" => $attribute_taxonomy ] );
         }
 
         protected function get_field_list() {
@@ -69,7 +69,9 @@ class WPIE_Export {
 
                 $taxonomy_type = isset( $_GET[ 'taxonomy_type' ] ) ? wpie_sanitize_field( $_GET[ 'taxonomy_type' ] ) : "";
 
-                $fields = $this->prepare_fields( $export_type, $taxonomy_type );
+                $attribute_taxonomy = isset( $_GET[ 'attribute_taxonomy' ] ) && ! empty( $_GET[ 'attribute_taxonomy' ] ) ? explode( ",", wpie_sanitize_field( $_GET[ 'attribute_taxonomy' ] ) ) : [];
+
+                $fields = $this->prepare_fields( $export_type, $taxonomy_type, $attribute_taxonomy );
 
                 if ( is_wp_error( $fields ) ) {
 
@@ -101,7 +103,7 @@ class WPIE_Export {
                         }
 
                         $export_engine = '\wpie\export\taxonomy\WPIE_Taxonomy';
-                } elseif ( $export_type == "comments" ) {
+                } elseif ( $export_type == "comments" || $export_type == "product_reviews" ) {
 
                         if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-comment.php' ) ) {
 
@@ -139,165 +141,138 @@ class WPIE_Export {
                 return $export_process;
         }
 
+        private function get_deafult_export_type() {
+
+                return [
+                        "post"               => __( 'Post', 'wp-import-export-lite' ),
+                        "page"               => __( 'Page', 'wp-import-export-lite' ),
+                        "product"            => __( 'WooCommerce Products', 'wp-import-export-lite' ),
+                        "taxonomies"         => __( 'Taxonomies | Categories | Tags', 'wp-import-export-lite' ),
+                        "users"              => __( 'Users', 'wp-import-export-lite' ),
+                        "comments"           => __( 'Comments', 'wp-import-export-lite' ),
+                        "product_reviews"    => __( 'Product Reviews', 'wp-import-export-lite' ),
+                        "product_attributes" => __( 'Product Attributes', 'wp-import-export-lite' ),
+                        "shop_order"         => __( 'WooCommerce Orders', 'wp-import-export-lite' ),
+                        "shop_coupon"        => __( 'WooCommerce Coupons', 'wp-import-export-lite' ),
+                        "shop_customer"      => __( 'WooCommerce Customers', 'wp-import-export-lite' ),
+                ];
+        }
+
         public function get_export_type() {
 
-                global $wp_version;
+                $export_type = $this->get_deafult_export_type();
 
-                $custom_export_type = get_post_types( array ( '_builtin' => true ), 'objects' ) + get_post_types( array ( '_builtin' => false, 'show_ui' => true ), 'objects' ) + get_post_types( array ( '_builtin' => false, 'show_ui' => false ), 'objects' );
+                $custom_export_type = get_post_types( [ '_builtin' => true ], 'objects' ) + get_post_types( [ '_builtin' => false, 'show_ui' => true ], 'objects' ) + get_post_types( [ '_builtin' => false, 'show_ui' => false ], 'objects' );
 
-                if ( ! empty( $custom_export_type ) ) {
-
-                        foreach ( $custom_export_type as $key => $ct ) {
-                                if ( in_array( $key, array ( 'attachment', 'revision', 'nav_menu_item', 'import_users', 'shop_webhook', 'acf-field', 'acf-field-group' ) ) ) {
-                                        unset( $custom_export_type[ $key ] );
-                                }
-                        }
+                if ( empty( $custom_export_type ) ) {
+                        return $export_type;
                 }
 
-                $custom_export_type = apply_filters( 'wpie_custom_export_types', $this->wpie_manage_woo_data( $custom_export_type ) );
-
-                $export_type = array ();
-
-                if ( ! empty( $custom_export_type ) ) {
-
-                        foreach ( $custom_export_type as $key => $data ) {
-
-                                $export_type[ $key ] = $data;
-
-                                if ( ! empty( $custom_export_type[ 'page' ] ) && $key == 'page' || empty( $custom_export_type[ 'page' ] ) && $key == 'post' ) {
-
-                                        $export_type[ 'taxonomies' ] = new \stdClass();
-                                        $export_type[ 'taxonomies' ]->labels = new \stdClass();
-                                        $export_type[ 'taxonomies' ]->labels->name = __( 'Taxonomies', 'wp-import-export-lite' );
-
-                                        $export_type[ 'comments' ] = new \stdClass();
-                                        $export_type[ 'comments' ]->labels = new \stdClass();
-                                        $export_type[ 'comments' ]->labels->name = __( 'Comments', 'wp-import-export-lite' );
-
-                                        $export_type[ 'users' ] = new \stdClass();
-                                        $export_type[ 'users' ]->labels = new \stdClass();
-                                        $export_type[ 'users' ]->labels->name = __( 'Users', 'wp-import-export-lite' );
-                                        break;
-                                }
-                        }
-                }
-
-                $wc_types = array ( 'shop_order', 'shop_coupon', 'shop_customer', 'product' );
-
-                foreach ( $wc_types as $data ) {
-
-                        if ( ! empty( $custom_export_type[ $data ] ) ) {
-                                $export_type[ $data ] = $custom_export_type[ $data ];
-                        }
-                }
-
-                uasort( $custom_export_type, array ( $this, "set_export_custom_types" ) );
+                $hidden_posts = [
+                        'attachment',
+                        'revision',
+                        'nav_menu_item',
+                        'shop_webhook',
+                        'import_users',
+                        'wp-types-group',
+                        'wp-types-user-group',
+                        'wp-types-term-group',
+                        'acf-field',
+                        'acf-field-group',
+                        'custom_css',
+                        'customize_changeset',
+                        'oembed_cache',
+                        'wp_block',
+                        'user_request',
+                        'scheduled-action',
+                        'product_variation',
+                        'shop_order_refund'
+                ];
 
                 foreach ( $custom_export_type as $key => $data ) {
-                        if ( empty( $export_type[ $key ] ) ) {
-                                $export_type[ $key ] = $data;
-                        }
-                }
-                unset( $wc_types, $custom_export_type );
 
-                return $export_type;
-        }
-
-        public function set_export_custom_types( $key = null, $data = null ) {
-                return strcmp( $key->labels->name, $data->labels->name );
-        }
-
-        private function wpie_manage_woo_data( $custom_data_types = array () ) {
-
-                if ( class_exists( 'WooCommerce' ) ) {
-
-                        if ( isset( $custom_data_types[ 'product' ] ) && ! empty( $custom_data_types[ 'product' ] ) ) {
-                                $custom_data_types[ 'product' ]->labels->name = __( 'WooCommerce Products', 'wp-import-export-lite' );
-                        }
-                        if ( isset( $custom_data_types[ 'shop_order' ] ) && ! empty( $custom_data_types[ 'shop_order' ] ) ) {
-                                $custom_data_types[ 'shop_order' ]->labels->name = __( 'WooCommerce Orders', 'wp-import-export-lite' );
-                        }
-                        if ( isset( $custom_data_types[ 'shop_coupon' ] ) && ! empty( $custom_data_types[ 'shop_coupon' ] ) ) {
-                                $custom_data_types[ 'shop_coupon' ]->labels->name = __( 'WooCommerce Coupons', 'wp-import-export-lite' );
-                        }
-                        if ( isset( $custom_data_types[ 'product_variation' ] ) && ! empty( $custom_data_types[ 'product_variation' ] ) ) {
-                                unset( $custom_data_types[ 'product_variation' ] );
-                        }
-                        if ( isset( $custom_data_types[ 'shop_order_refund' ] ) && ! empty( $custom_data_types[ 'shop_order_refund' ] ) ) {
-                                unset( $custom_data_types[ 'shop_order_refund' ] );
+                        if ( in_array( $key, $hidden_posts ) ) {
+                                continue;
                         }
 
-                        $wc_types = array ( 'shop_order', 'shop_coupon', 'shop_customer', 'product' );
+                        if ( isset( $export_type[ $key ] ) ) {
+                                continue;
+                        }
 
-                        $wc_custom_types = array ();
+                        $label = isset( $data->labels ) && isset( $data->labels->singular_name ) ? $data->labels->singular_name : "";
 
-                        foreach ( $wc_types as $type ) {
+                        if ( trim( $label ) === "" ) {
 
-                                if ( isset( $wc_custom_types[ $type ] ) ) {
+                                $label = isset( $data->labels ) && isset( $data->labels->name ) ? $data->labels->name : "";
+
+                                if ( trim( $label ) === "" ) {
                                         continue;
                                 }
-
-                                if ( $type == 'shop_customer' ) {
-                                        $wc_custom_types[ 'shop_customer' ] = new \stdClass();
-                                        $wc_custom_types[ 'shop_customer' ]->labels = new \stdClass();
-                                        $wc_custom_types[ 'shop_customer' ]->labels->name = __( 'WooCommerce Customers', 'wp-import-export-lite' );
-                                } else {
-                                        if ( ! empty( $custom_data_types ) ) {
-                                                foreach ( $custom_data_types as $key => $custom_type ) {
-                                                        if ( isset( $wc_custom_types[ $key ] ) ) {
-                                                                continue;
-                                                        }
-
-                                                        if ( in_array( $key, $wc_types ) ) {
-                                                                if ( $key == $type ) {
-                                                                        $wc_custom_types[ $key ] = $custom_type;
-                                                                }
-                                                        } else {
-                                                                $wc_custom_types[ $key ] = $custom_type;
-                                                        }
-                                                }
-                                        }
-                                }
                         }
 
-                        unset( $custom_data_types, $wc_types );
-
-                        return $wc_custom_types;
+                        $export_type[ $key ] = $label;
                 }
-                return $custom_data_types;
+
+
+                unset( $custom_export_type );
+
+                return $export_type;
         }
 
         public function wpie_get_taxonomies() {
 
                 $taxonomies = get_taxonomies( false, 'objects' );
 
-                $ignore_taxonomies = array ( 'nav_menu', 'link_category' );
-
-                $result = array ();
+                $data = [
+                        "category"    => __( 'Post Categories', 'wp-import-export-lite' ),
+                        "product_cat" => __( 'Product Categories', 'wp-import-export-lite' ),
+                        "post_tag"    => __( 'Post Tags', 'wp-import-export-lite' ),
+                        "product_tag" => __( 'Product Tags', 'wp-import-export-lite' ),
+                ];
 
                 if ( ! empty( $taxonomies ) ) {
 
-                        foreach ( $taxonomies as $_key => $taxonomy ) {
+                        foreach ( $taxonomies as $key => $taxonomy ) {
 
-                                if ( in_array( $_key, $ignore_taxonomies ) || (isset( $taxonomy->show_in_nav_menus ) && $taxonomy->show_in_nav_menus === false) ) {
+                                if ( in_array( $key, [ 'nav_menu', 'link_category' ] ) || isset( $data[ $key ] ) || (isset( $taxonomy->show_in_nav_menus ) && $taxonomy->show_in_nav_menus === false) ) {
                                         continue;
                                 }
 
-                                if ( $_key === "product_cat" ) {
-                                        $_label = "Product Category";
-                                } else {
-                                        $_label = ucwords( str_replace( '_', ' ', $_key ) );
-                                }
-
-                                $result[ $_key ] = $_label;
+                                $data[ $key ] = ucwords( str_replace( '_', ' ', $key ) );
                         }
                 }
 
-                unset( $taxonomies, $ignore_taxonomies );
+                unset( $taxonomies );
 
-                asort( $result, SORT_FLAG_CASE | SORT_STRING );
+                return $data;
+        }
 
-                return $result;
+        public function get_attribute_list() {
+
+                global $wpdb;
+
+                return $wpdb->get_results( "SELECT attribute_name,attribute_label FROM {$wpdb->prefix}woocommerce_attribute_taxonomies WHERE attribute_name != ''  ORDER BY attribute_name ASC;" );
+        }
+
+        public function wpie_get_attribute_taxonomies() {
+
+                $taxonomies = get_taxonomies( false, 'objects' );
+
+                if ( ! empty( $taxonomies ) ) {
+
+                        foreach ( $taxonomies as $key => $taxonomy ) {
+
+                                if ( in_array( $key, [ 'nav_menu', 'link_category' ] ) || isset( $data[ $key ] ) || (isset( $taxonomy->show_in_nav_menus ) && $taxonomy->show_in_nav_menus === false) ) {
+                                        continue;
+                                }
+
+                                $data[ $key ] = ucwords( str_replace( '_', ' ', $key ) );
+                        }
+                }
+
+                unset( $taxonomies );
+
+                return $data;
         }
 
         protected function get_export_rule() {
@@ -716,7 +691,10 @@ class WPIE_Export {
 
                 $export_fields = array ( "is_exported" => 1 );
 
-                if ( $wpie_export_type == "taxonomies" ) {
+                if ( $wpie_export_type == "product_attributes" ) {
+                        $export_fields[ "wpie_existing_item_search_logic" ] = "slug";
+                        $export_fields[ "wpie_existing_item_search_logic_slug" ] = "{slug[1]}";
+                } elseif ( $wpie_export_type == "taxonomies" ) {
                         $export_fields[ "wpie_existing_item_search_logic" ] = "slug";
                 } elseif ( $wpie_export_type == "product" ) {
                         $export_fields[ "wpie_item_variation_import_method" ] = "match_unique_field";
@@ -724,6 +702,7 @@ class WPIE_Export {
                         $export_fields[ "wpie_item_product_variation_match_unique_field_parent" ] = "{parent[1]}";
                 } elseif ( $wpie_export_type == "shop_order" ) {
                         /* billing fields */
+                        $export_fields[ "wpie_item_order_number" ] = "{orderid[1]}";
                         $export_fields[ "wpie_item_order_billing_source" ] = "existing";
                         $export_fields[ "wpie_item_order_billing_match_by" ] = "email";
                         $export_fields[ "wpie_item_order_billing_match_by_email" ] = "{_customer_user_email[1]}";
@@ -768,6 +747,9 @@ class WPIE_Export {
                         $export_fields[ "wpie_item_order_item_product_price" ] = "{itemcost1[1]}";
                         $export_fields[ "wpie_item_order_item_product_quantity" ] = "{quantity1[1]}";
                         $export_fields[ "wpie_item_order_item_product_sku" ] = "{sku1[1]}";
+                        $export_fields[ "wpie_item_order_item_is_variation" ] = "{isvariation1[1]}";
+                        $export_fields[ "wpie_item_order_item_original_product_title" ] = "{originalproducttitle1[1]}";
+                        $export_fields[ "wpie_item_order_item_variation_attributes" ] = "{variationattributes1[1]}";
                         $export_fields[ "wpie_item_order_item_product_delim" ] = "|";
 
                         $wpie_order_item_count = isset( $options[ 'wpie_order_item_count' ] ) ? intval( $options[ 'wpie_order_item_count' ] ) : 0;
@@ -780,6 +762,9 @@ class WPIE_Export {
                                         $export_fields[ "wpie_item_order_item_product_price" ] .= "|{itemcost" . $i . "[1]}";
                                         $export_fields[ "wpie_item_order_item_product_quantity" ] .= "|{quantity" . $i . "[1]}";
                                         $export_fields[ "wpie_item_order_item_product_sku" ] .= "|{sku" . $i . "[1]}";
+                                        $export_fields[ "wpie_item_order_item_is_variation" ] .= "|{isvariation" . $i . "[1]}";
+                                        $export_fields[ "wpie_item_order_item_original_product_title" ] .= "|{originalproducttitle" . $i . "[1]}";
+                                        $export_fields[ "wpie_item_order_item_variation_attributes" ] .= "|{variationattributes" . $i . "[1]}";
                                 }
                         }
 
@@ -832,6 +817,9 @@ class WPIE_Export {
                         $export_fields[ "wpie_existing_item_search_logic" ] = "cf";
                         $export_fields[ "wpie_existing_item_search_logic_cf_key" ] = "_order_key";
                         $export_fields[ "wpie_existing_item_search_logic_cf_value" ] = "{orderkey[1]}";
+                } elseif ( $wpie_export_type == "comments" ) {
+
+                        $export_fields[ "wpie_item_comment_parent_post" ] = "{parentposttitle[1]}";
                 }
 
                 if ( ! empty( $fields_data ) ) {
@@ -957,7 +945,18 @@ class WPIE_Export {
 
                                         unset( $count );
                                 }
+                                if ( $wpie_export_type == "comments" ) {
 
+                                        if ( $new_key == "comment_parent" ) {
+                                                $export_fields[ "wpie_item_" . $new_key ] = $fielData;
+                                                continue;
+                                        }
+                                        if ( $new_key == "comment_parent_content" ) {
+                                                $export_fields[ "wpie_item_" . $new_key ] = $fielData;
+                                                $export_fields[ "wpie_item_comment_parent" ] = $fielData;
+                                                continue;
+                                        }
+                                }
                                 if ( $field_type == "wpie_cf" ) {
 
                                         if ( $wpie_export_type == "product" && in_array( $new_key, array ( "_sku", "_regular_price", "_sale_price", "_sale_price_dates_from", "_sale_price_dates_to", "_virtual", "_downloadable", "_tax_status", "_tax_class", "_downloadable_files", "_downloadable_file_name", "_download_limit", "_download_expiry", "_manage_stock", "_stock", "_stock_status", "_backorders", "_sold_individually", "_weight", "_length", "_width", "_height", "_upsell_ids", "_crosssell_ids", "_purchase_note", "_featured", "_visibility" ) ) ) {
@@ -991,17 +990,39 @@ class WPIE_Export {
                                         }
                                 } elseif ( $field_type == "wc-product-attr" ) {
 
-                                        $attr_name = isset( $field_option[ 'name' ] ) ? strtolower( preg_replace( '/[^a-z0-9_]/i', '', $field_option[ 'name' ] ) ) : "";
+                                        $attr_label = isset( $field_option[ 'name' ] ) ? $field_option[ 'name' ] : "";
+                                        $attr_name = ! empty( $attr_label ) ? strtolower( preg_replace( '/[^a-z0-9_]/i', '', str_replace( [ '"', '&' ], [ "&quot;", "&amp;" ], $attr_label ) ) ) : "";
 
-                                        $export_fields[ "wpie_product_attr_name" ][] = "{attributename" . $attr_name . "[1]}";
+                                        $temp_attr_name = "{attributename" . $attr_name . "[1]}";
+
+                                        if ( isset( $export_fields[ "wpie_attr_slug" ] ) && is_array( $export_fields[ "wpie_attr_slug" ] ) && ! empty( $export_fields[ "wpie_attr_slug" ] ) && in_array( $temp_attr_name, $export_fields[ "wpie_attr_slug" ] ) ) {
+
+                                                $attr_count = 0;
+
+                                                while ( in_array( $temp_attr_name, $export_fields[ "wpie_attr_slug" ] ) ) {
+                                                        $attr_count ++;
+                                                        $temp_attr_name = "{attributename" . $attr_name . "_" . $attr_count . "[1]}";
+                                                }
+
+                                                $attr_name = $attr_name . "_" . $attr_count;
+
+                                                unset( $attr_count );
+                                        }
+
+                                        $export_fields[ "wpie_product_attr_name" ][] = $attr_label;
+                                        $export_fields[ "wpie_attr_slug" ][] = "{attributename" . $attr_name . "[1]}";
                                         $export_fields[ "wpie_product_attr_value" ][] = "{attributevalue" . $attr_name . "[1]}";
                                         $export_fields[ "wpie_attr_in_variations" ][] = "{attributeinvariations" . $attr_name . "[1]}";
                                         $export_fields[ "wpie_attr_is_visible" ][] = "{attributeisvisible" . $attr_name . "[1]}";
                                         $export_fields[ "wpie_attr_is_taxonomy" ][] = "{attributeistaxonomy" . $attr_name . "[1]}";
                                         $export_fields[ "wpie_attr_is_auto_create_term" ][] = "yes";
+                                        $export_fields[ "wpie_attr_position" ][] = "{attributeposition" . $attr_name . "[1]}";
 
-                                        unset( $attr_name );
+                                        unset( $attr_name, $_attr_name );
                                         continue;
+                                } elseif ( $new_key == "parent" ) {
+                                        $export_fields[ "wpie_item_parent" ] = "{parentslug[1]}";
+                                        $export_fields[ "wpie_item_parent_id" ] = "{parent[1]}";
                                 } else {
 
                                         switch ( $new_key ) {
@@ -1154,13 +1175,7 @@ class WPIE_Export {
 
                 unset( $wpie_export_type );
 
-                $export_type[ $temp_wpie_export_type ] = isset( $export_type[ $temp_wpie_export_type ] ) ? $export_type[ $temp_wpie_export_type ] : "";
-
-                if ( ! empty( $export_type[ $temp_wpie_export_type ] ) && isset( $export_type[ $temp_wpie_export_type ]->labels ) && isset( $export_type[ $temp_wpie_export_type ]->labels->name ) ) {
-                        $exported_data = $export_type[ $temp_wpie_export_type ]->labels->name;
-                } else {
-                        $exported_data = 'post';
-                }
+                $exported_data = ( isset( $export_type[ $temp_wpie_export_type ] ) && ! empty( $export_type[ $temp_wpie_export_type ] ) ) ? $export_type[ $temp_wpie_export_type ] : "post";
 
                 unset( $export_type );
 
@@ -1286,6 +1301,8 @@ class WPIE_Export {
 
                                 $is_package = isset( $options[ 'is_package' ] ) ? intval( $options[ 'is_package' ] ) : 0;
 
+                                $skip_empty_nodes = isset( $options[ 'wpie_skip_empty_nodes' ] ) ? intval( $options[ 'wpie_skip_empty_nodes' ] ) === 1 : false;
+
                                 if ( $template->opration === "schedule_export" ) {
                                         $is_package = isset( $options[ 'is_migrate_package' ] ) ? intval( $options[ 'is_migrate_package' ] ) : 0;
                                 }
@@ -1303,7 +1320,7 @@ class WPIE_Export {
                                                 switch ( $type ) {
 
                                                         case "xml" :
-                                                                $data = $this->csv2xml( $filename, $fileDir );
+                                                                $data = $this->csv2xml( $filename, $fileDir, $skip_empty_nodes );
 
                                                                 break;
                                                         case "json" :
@@ -1402,9 +1419,7 @@ class WPIE_Export {
                         return new \WP_Error( 'wpie_import_error', __( 'File not found', 'wp-import-export-lite' ) );
                 }
 
-                if ( file_exists( WPIE_LIBRARIES_DIR . '/composer/vendor/autoload.php' ) ) {
-                        require_once( WPIE_LIBRARIES_DIR . '/composer/vendor/autoload.php' );
-                }
+                wpie_load_vendor_autoloader();
 
                 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load( $file );
 
@@ -1449,7 +1464,7 @@ class WPIE_Export {
 
                 unset( $file );
 
-                array_walk( $csv, function(&$a) use ($csv) {
+                array_walk( $csv, function( &$a ) use ( $csv ) {
                         $a = array_combine( $csv[ 0 ], $a );
                 } );
 
@@ -1462,7 +1477,7 @@ class WPIE_Export {
                 return true;
         }
 
-        private function csv2xml( $filename = "", $fileDir = "" ) {
+        private function csv2xml( $filename = "", $fileDir = "", $skip_empty_nodes = false ) {
 
                 $file = WPIE_UPLOAD_EXPORT_DIR . "/" . $fileDir . "/" . $filename;
 
@@ -1477,6 +1492,10 @@ class WPIE_Export {
                 $converter = new \wpie\lib\xml\array2xml\ArrayToXml();
 
                 $converter->create_root( "wpiedata" );
+
+                if ( $skip_empty_nodes ) {
+                        $converter->skip_empty();
+                }
 
                 $headers = array ();
 

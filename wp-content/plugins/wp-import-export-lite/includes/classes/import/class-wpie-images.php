@@ -2,20 +2,34 @@
 
 namespace wpie\import\images;
 
-if ( ! defined( 'ABSPATH' ) ) {
+use wpie\import\Downloader\Manager as Downloader;
+
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import-base.php' ) ) {
+if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import-base.php' ) )
+{
 
         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import-base.php');
 }
 
-if ( file_exists( ABSPATH . 'wp-admin/includes/image.php' ) ) {
+if( file_exists( ABSPATH . 'wp-admin/includes/image.php' ) )
+{
         require_once(ABSPATH . 'wp-admin/includes/image.php');
 }
+if( file_exists( ABSPATH . 'wp-admin/includes/media.php' ) )
+{
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+}
+if( file_exists( ABSPATH . 'wp-admin/includes/file.php' ) )
+{
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+}
 
-class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
+class WPIE_Images extends \wpie\import\base\WPIE_Import_Base
+{
 
         private $target_dir;
         private $images = [];
@@ -23,7 +37,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
         private $gallary = [];
         private $image_options = [];
 
-        public function __construct( $item_id = 0, $is_new_item = true, $wpie_import_option = array(), $wpie_import_record = array() ) {
+        public function __construct( $item_id = 0, $is_new_item = true, $wpie_import_option = array(), $wpie_import_record = array(), $import_type = "post" )
+        {
 
                 $this->item_id = $item_id;
 
@@ -32,11 +47,15 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 $this->wpie_import_option = $wpie_import_option;
 
                 $this->wpie_import_record = $wpie_import_record;
+
+                $this->import_type = $import_type;
         }
 
-        public function prepare_images() {
+        public function prepare_images()
+        {
 
-                if ( $this->item_id ) {
+                if( $this->item_id )
+                {
 
                         $wp_uploads = wp_upload_dir();
 
@@ -44,7 +63,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                         $this->prepare_image_option();
 
-                        if ( ! $this->is_new_item && trim( strtolower( wpie_sanitize_field( $this->get_field_value( 'wpie_item_update_images' ) ) ) ) === "all" ) {
+                        if( !$this->is_new_item && trim( strtolower( wpie_sanitize_field( $this->get_field_value( 'wpie_item_update_images' ) ) ) ) === "all" )
+                        {
                                 $this->prepare_old_attch();
                         }
 
@@ -52,7 +72,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                         $this->process_images( $image_option );
 
-                        if ( ! $this->is_new_item && wpie_sanitize_field( $this->get_field_value( 'wpie_item_update_images' ) ) == "all" ) {
+                        if( !$this->is_new_item && wpie_sanitize_field( $this->get_field_value( 'wpie_item_update_images' ) ) == "all" )
+                        {
                                 $this->remove_old_attch( "images" );
                         }
 
@@ -64,24 +85,28 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 return array( "as_draft" => $this->as_draft, "import_log" => $this->import_log );
         }
 
-        private function is_search_existing() {
+        private function is_search_existing()
+        {
 
                 return absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_search_existing_images', true ) ) ) === 1;
         }
 
-        private function process_images( $method = "media_library" ) {
+        private function process_images( $method = "media_library" )
+        {
 
                 $method = ("download_images" === $method) ? "url" : (("local_images" === $method) ? "local" : $method);
 
                 $image_data = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_image_' . $method ) );
 
-                if ( empty( $image_data ) ) {
+                if( empty( $image_data ) )
+                {
                         return true;
                 }
 
                 $data = explode( "\n", $image_data );
 
-                if ( ( ! isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) ) {
+                if( (!isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) )
+                {
 
                         $delim = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_' . $method . '_delim' ) );
 
@@ -90,47 +115,61 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                         unset( $delim );
                 }
 
-                if ( empty( $data ) || ! is_array( $data ) ) {
+                if( empty( $data ) || !is_array( $data ) )
+                {
                         return true;
                 }
 
-                foreach ( $data as $index => $image ) {
+                foreach( $data as $index => $image )
+                {
 
-                        if ( empty( $image ) ) {
+                        if( empty( $image ) )
+                        {
                                 continue;
                         }
                         $attch_id = null;
 
                         $existing_image = $this->get_existing_image( $image );
 
-                        if ( $existing_image !== false && absint( $existing_image ) > 0 ) {
+                        if( $existing_image !== false && absint( $existing_image ) > 0 )
+                        {
                                 $attch_id = $existing_image;
                         }
 
-                        if ( empty( $attch_id ) && (($method === "media_library") || ($method !== "media_library" && $this->is_search_existing() ) ) ) {
+                        if( empty( $attch_id ) && (($method === "media_library") || ($method !== "media_library" && $this->is_search_existing() ) ) )
+                        {
 
                                 $media_id = $this->wpie_get_image_from_gallery( $image );
 
-                                if ( $media_id !== false ) {
+                                if( $media_id !== false )
+                                {
                                         $attch_id = absint( $media_id );
                                 }
                         }
 
-                        if ( empty( $attch_id ) ) {
+                        if( empty( $attch_id ) )
+                        {
                                 $temp_id = false;
-                                if ( $method === "local" ) {
+                                if( $method === "local" )
+                                {
                                         $temp_id = $this->wpie_get_image_from_local( $image );
-                                } elseif ( $method === "url" ) {
+                                }
+                                elseif( $method === "url" )
+                                {
                                         $temp_id = $this->wpie_get_image_from_url( $image );
                                 }
-                                if ( $temp_id !== false ) {
+                                if( $temp_id && (!empty( $temp_id )) && absint( $temp_id ) > 0 )
+                                {
                                         $attch_id = absint( $temp_id );
-                                } else {
+                                }
+                                else
+                                {
                                         $this->set_as_draft();
                                 }
                         }
 
-                        if ( ! empty( $attch_id ) ) {
+                        if( !empty( $attch_id ) )
+                        {
 
                                 $this->images[] = absint( $attch_id );
                                 $this->wpie_set_image_meta( absint( $attch_id ), $index );
@@ -138,7 +177,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 }
         }
 
-        private function prepare_image_option() {
+        private function prepare_image_option()
+        {
 
                 $this->prepare_image_meta();
 
@@ -146,11 +186,13 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $this->image_options[ 'new_name' ] = array();
 
-                if ( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_rename', true ) ) ) === 1 ) {
+                if( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_rename', true ) ) ) === 1 )
+                {
 
                         $new_names = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_new_name' ) );
 
-                        if ( empty( $new_names ) ) {
+                        if( empty( $new_names ) )
+                        {
 
                                 $this->image_options[ 'new_name' ] = explode( ",", $new_names );
                         }
@@ -159,11 +201,13 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $this->image_options[ 'new_ext' ] = array();
 
-                if ( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_change_ext', true ) ) ) === 1 ) {
+                if( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_change_ext', true ) ) ) === 1 )
+                {
 
                         $new_ext = wpie_sanitize_field( $this->get_field_value( 'wpie_item_new_ext' ) );
 
-                        if ( empty( $new_ext ) ) {
+                        if( empty( $new_ext ) )
+                        {
 
                                 $this->image_options[ 'new_ext' ] = explode( ",", $new_ext );
                         }
@@ -171,29 +215,35 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 }
         }
 
-        private function get_image_meta_values( $field = "" ) {
+        private function get_image_meta_values( $field = "" )
+        {
 
                 $meta = [];
 
-                if ( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_set_image_' . $field, true ) ) ) !== 1 ) {
+                if( absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_set_image_' . $field, true ) ) ) !== 1 )
+                {
                         return $meta;
                 }
 
                 $value = wpie_sanitize_textarea( $this->get_field_value( 'wpie_item_image_' . $field ) );
 
-                if ( empty( $value ) ) {
+                if( empty( $value ) )
+                {
                         return $meta;
                 }
 
                 $data = explode( "\n", $value );
 
-                if ( ( ! isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) ) {
+                if( (!isset( $data[ 1 ] )) || ( isset( $data[ 1 ] ) && empty( $data[ 1 ] )) )
+                {
                         $delim = wpie_sanitize_field( $this->get_field_value( 'wpie_item_set_image_' . $field . '_delim' ) );
 
                         $meta = explode( $delim != "" ? $delim : ",", $value );
 
                         unset( $delim );
-                } else {
+                }
+                else
+                {
                         $meta = $data;
                 }
                 unset( $value, $data );
@@ -202,38 +252,45 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 return $meta;
         }
 
-        private function prepare_image_meta() {
+        private function prepare_image_meta()
+        {
 
                 $this->image_meta = [
-                        'title'   => $this->get_image_meta_values( "title" ),
+                        'title' => $this->get_image_meta_values( "title" ),
                         'caption' => $this->get_image_meta_values( "caption" ),
-                        'alt'     => $this->get_image_meta_values( "alt" ),
-                        'desc'    => $this->get_image_meta_values( "description" )
+                        'alt' => $this->get_image_meta_values( "alt" ),
+                        'desc' => $this->get_image_meta_values( "description" )
                 ];
         }
 
-        private function wpie_set_image_meta( $attch_id = 0, $index = 0 ) {
+        private function wpie_set_image_meta( $attch_id = 0, $index = 0 )
+        {
 
                 $update_attch_meta = array();
 
-                if ( isset( $this->image_meta[ 'title' ][ $index ] ) ) {
+                if( isset( $this->image_meta[ 'title' ][ $index ] ) )
+                {
 
                         $update_attch_meta[ 'post_title' ] = $this->image_meta[ 'title' ][ $index ];
                 }
-                if ( isset( $this->image_meta[ 'caption' ][ $index ] ) ) {
+                if( isset( $this->image_meta[ 'caption' ][ $index ] ) )
+                {
 
                         $update_attch_meta[ 'post_excerpt' ] = $this->image_meta[ 'caption' ][ $index ];
                 }
-                if ( isset( $this->image_meta[ 'alt' ][ $index ] ) ) {
+                if( isset( $this->image_meta[ 'alt' ][ $index ] ) )
+                {
 
                         update_post_meta( $attch_id, '_wp_attachment_image_alt', $this->image_meta[ 'alt' ][ $index ] );
                 }
-                if ( isset( $this->image_meta[ 'desc' ][ $index ] ) ) {
+                if( isset( $this->image_meta[ 'desc' ][ $index ] ) )
+                {
 
                         $update_attch_meta[ 'post_content' ] = $this->image_meta[ 'desc' ][ $index ];
                 }
 
-                if ( ! empty( $update_attch_meta ) ) {
+                if( !empty( $update_attch_meta ) )
+                {
 
                         global $wpdb;
 
@@ -243,56 +300,81 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 unset( $update_attch_meta );
         }
 
-        private function wpie_get_image_from_gallery( $image_name = "" ) {
+        private function wpie_get_image_from_gallery( $image_name = "" )
+        {
 
-                if ( empty( $image_name ) ) {
+                if( empty( $image_name ) )
+                {
                         return false;
                 }
                 global $wpdb;
 
+                $attachment = $wpdb->get_var( $wpdb->prepare( "SELECT post.ID FROM {$wpdb->posts} post INNER JOIN {$wpdb->postmeta} meta ON post.ID = meta.post_id WHERE post.post_type = 'attachment' AND meta.meta_key = '_wpie_source_url' AND meta.meta_value = %s LIMIT 0,1;", esc_url_raw( $image_name ) ) );
+
+                if( $attachment && absint( $attachment ) > 0 )
+                {
+                        return $attachment;
+                }
 
                 $attachment = $wpdb->get_var( $wpdb->prepare( "SELECT post.ID FROM {$wpdb->posts} post INNER JOIN {$wpdb->postmeta} meta ON post.ID = meta.post_id WHERE post.post_type = 'attachment' AND meta.meta_key = %s AND (meta.meta_value = %s OR meta.meta_value LIKE %s) LIMIT 0,1;", '_wp_attached_file', basename( $image_name ), "%/" . basename( $image_name ) ) );
 
-                if ( $attachment && absint( $attachment ) > 0 ) {
+                if( $attachment && absint( $attachment ) > 0 )
+                {
                         return $attachment;
                 }
 
                 $attachment = $wpdb->get_var( $wpdb->prepare( "SELECT post.ID FROM {$wpdb->posts} post INNER JOIN {$wpdb->postmeta} meta ON post.ID = meta.post_id WHERE post.post_type = 'attachment' AND meta.meta_key = %s AND (meta.meta_value = %s OR meta.meta_value LIKE %s) LIMIT 0,1;", '_wp_attached_file', sanitize_file_name( basename( $image_name ) ), "%/" . sanitize_file_name( basename( $image_name ) ) ) );
 
-                if ( $attachment && absint( $attachment ) > 0 ) {
+                if( $attachment && absint( $attachment ) > 0 )
+                {
                         return $attachment;
                 }
 
                 $wp_filetype = wp_check_filetype( basename( $image_name ) );
 
-                if ( isset( $wp_filetype[ 'type' ] ) && ! empty( $wp_filetype[ 'type' ] ) ) {
+                if( isset( $wp_filetype[ 'type' ] ) && !empty( $wp_filetype[ 'type' ] ) )
+                {
                         $name = pathinfo( $image_name, PATHINFO_FILENAME );
-                        $attch = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM " . $wpdb->posts . " WHERE (post_title = %s OR post_title = %s OR post_name = %s) AND post_type = 'attachment' AND post_mime_type = %s;", $name, $name, $name, $wp_filetype[ 'type' ] ) );
-                        if ( $attch && absint( $attch ) > 0 ) {
+                        $attch = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM " . $wpdb->posts . " WHERE post_title = %s AND post_type = 'attachment' AND post_mime_type LIKE %s;", $name, "image%" ) );
+                        if( $attch && absint( $attch ) > 0 )
+                        {
                                 return $attch;
                         }
                 }
                 return false;
         }
 
-        private function wpie_get_image_from_local( $filename = "" ) {
+        private function wpie_get_image_from_local( $filename = "" )
+        {
 
-                if ( ( ! wp_is_writable( $this->target_dir )) || empty( $filename ) ) {
-                        return;
+                if( (!wp_is_writable( $this->target_dir )) || empty( $filename ) )
+                {
+                        return false;
                 }
 
                 $file = WPIE_UPLOAD_TEMP_DIR . "/" . $filename;
 
-                $file_info = pathinfo( $filename );
+                if( !file_exists( $file ) )
+                {
+                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $filename . " " . __( 'Image Not Exist', 'wp-import-export-lite' );
+                        return false;
+                }
+                if( !$this->is_valid_image( $file ) )
+                {
+                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $filename . " " . __( 'File is not valid Image', 'wp-import-export-lite' );
+                        return false;
+                }
 
                 $rename = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_rename', true ) );
 
-                if ( $rename == 1 ) {
+                if( $rename == 1 )
+                {
 
                         $new_filename = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_new_name' ) );
 
-                        if ( ! empty( $new_filename ) ) {
-                                $filename = sanitize_file_name( $new_filename . '.' . $file_info[ 'extension' ] );
+                        if( !empty( $new_filename ) )
+                        {
+                                $filename = sanitize_file_name( pathinfo( $new_filename, PATHINFO_FILENAME ) . '.' . pathinfo( $filename, PATHINFO_EXTENSION ) );
                         }
                         unset( $new_filename );
                 }
@@ -301,38 +383,39 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $change_ext = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_change_ext' ) ) );
 
-                if ( $change_ext === 1 ) {
-
+                if( $change_ext === 1 )
+                {
                         $new_file_ext = wpie_sanitize_field( $this->get_field_value( 'wpie_item_new_ext' ) );
 
-                        if ( ! empty( $new_file_ext ) ) {
-
-                                $filename = sanitize_file_name( $file_info[ 'filename' ] . '.' . $new_extension );
+                        if( !empty( $new_file_ext ) )
+                        {
+                                $filename = sanitize_file_name( pathinfo( $filename, PATHINFO_FILENAME ) . '.' . ltrim( $new_file_ext, "." ) );
                         }
                         unset( $new_file_ext );
                 }
 
                 $upload_file = wp_upload_bits( $filename, null, file_get_contents( $file ) );
 
-                unset( $file, $file_info, $change_ext );
+                unset( $file, $change_ext );
 
-                if ( ! $upload_file[ 'error' ] ) {
+                if( !$upload_file[ 'error' ] )
+                {
 
                         $wp_filetype = wp_check_filetype( $filename, null );
 
-
                         $attachment = array(
                                 'post_mime_type' => $wp_filetype[ 'type' ],
-                                'post_parent'    => $this->item_id,
-                                'post_title'     => preg_replace( '/\.[^.]+$/', '', $filename ),
-                                'post_content'   => '',
-                                'post_status'    => 'inherit',
-                                'post_author'    => $this->get_post_user()
+                                'post_parent' => $this->item_id,
+                                'post_title' => preg_replace( '/\.[^.]+$/', '', $filename ),
+                                'post_content' => '',
+                                'post_status' => 'inherit',
+                                'post_author' => $this->get_post_user()
                         );
 
                         $attachment_id = wp_insert_attachment( $attachment, $upload_file[ 'file' ], $this->item_id );
 
-                        if ( ! is_wp_error( $attachment_id ) && absint( $attachment_id ) > 0 ) {
+                        if( !is_wp_error( $attachment_id ) && absint( $attachment_id ) > 0 )
+                        {
 
                                 $attachment_data = wp_generate_attachment_metadata( $attachment_id, $upload_file[ 'file' ] );
 
@@ -351,32 +434,68 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 unset( $upload_file, $filename );
         }
 
-        private function get_post_user() {
+        private function is_valid_image( $file = "" )
+        {
+
+                if( empty( $file ) )
+                {
+                        return false;
+                }
+
+                if( !is_readable( $file ) )
+                {
+                        return false;
+                }
+
+                if( !preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png|bmp|tif|tiff|ico|svg)\b/i', strtolower( trim( $file ) ) ) )
+                {
+                        return false;
+                }
+
+                $filesize = filesize( $file );
+
+                if( $filesize === 0 || $filesize === false )
+                {
+                        return false;
+                }
+
+                return true;
+        }
+
+        private function get_post_user()
+        {
 
                 $user_id = 0;
-                if ( ! empty( $this->item_id ) ) {
+                if( !empty( $this->item_id ) )
+                {
                         $post = get_post( $this->item_id );
-                        if ( $post && isset( $post->post_author ) && ! empty( $post->post_author ) ) {
+                        if( $post && isset( $post->post_author ) && !empty( $post->post_author ) )
+                        {
                                 $user_id = $post->post_author;
                         }
                         unset( $post );
                 }
-                if ( $user_id === 0 ) {
-                        if ( ! empty( $this->import_username ) ) {
+                if( $user_id === 0 )
+                {
+                        if( !empty( $this->import_username ) )
+                        {
 
                                 $user = get_user_by( "login", $this->import_username );
 
-                                if ( $user && isset( $user->ID ) ) {
+                                if( $user && isset( $user->ID ) )
+                                {
                                         $user_id = $user->ID;
                                 }
                                 unset( $user );
                         }
                 }
-                if ( $user_id === 0 ) {
+                if( $user_id === 0 )
+                {
 
                         $current_user = wp_get_current_user();
 
-                        if ( $current_user && isset( $current_user->ID ) ) {
+                        if( $current_user && isset( $current_user->ID ) )
+                        {
                                 $user_id = $current_user->ID;
                         }
                         unset( $current_user );
@@ -384,212 +503,158 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 return $user_id;
         }
 
-        private function wpie_get_image_from_url( $image_url = "" ) {
+        private function wpie_get_image_from_url( $file_url = "" )
+        {
 
-                if ( empty( $image_url ) ) {
+                if( empty( $file_url ) )
+                {
+                        return new \WP_Error( 'wpie_import_error', __( 'File URL is empty', 'wp-import-export-lite' ) );
+                }
+
+                if( is_readable( WPIE_IMPORT_CLASSES_DIR . '/downloader/manager.php' ) )
+                {
+                        require_once(WPIE_IMPORT_CLASSES_DIR . '/downloader/manager.php');
+                }
+
+                $download_manager = new Downloader();
+
+                $fileName = $download_manager->get_filename( $file_url, "image" );
+
+                if( \is_wp_error( $fileName ) )
+                {
+                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $fileName->get_error_message();
                         return false;
                 }
 
-                if ( file_exists( ABSPATH . 'wp-admin/includes/media.php' ) ) {
-                        require_once(ABSPATH . 'wp-admin/includes/media.php');
-                }
-                if ( file_exists( ABSPATH . 'wp-admin/includes/file.php' ) ) {
-                        require_once(ABSPATH . 'wp-admin/includes/file.php');
+                $rename = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_rename', true ) );
+
+                $newFileName = $fileName;
+
+                if( $rename == 1 )
+                {
+                        $new_filename = wpie_sanitize_field( $this->get_field_value( 'wpie_item_image_new_name' ) );
+
+                        if( !empty( $new_filename ) )
+                        {
+                                $newFileName = sanitize_file_name( pathinfo( $new_filename, PATHINFO_FILENAME ) . '.' . pathinfo( $fileName, PATHINFO_EXTENSION ) );
+                        }
+                        unset( $new_filename );
                 }
 
-                $attch = $this->download_image( $image_url );
+                unset( $rename );
 
-                if ( is_wp_error( $attch ) ) {
-                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $attch->get_error_message();
+                $change_ext = absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_change_ext' ) ) );
+
+                if( $change_ext === 1 )
+                {
+                        $new_file_ext = wpie_sanitize_field( $this->get_field_value( 'wpie_item_new_ext' ) );
+
+                        if( !empty( $new_file_ext ) )
+                        {
+                                $newFileName = sanitize_file_name( pathinfo( $newFileName, PATHINFO_FILENAME ) . '.' . ltrim( $new_file_ext, "." ) );
+                        }
+                        unset( $new_file_ext );
+                }
+
+                if( $newFileName !== $fileName )
+                {
+                        $fileName = $newFileName;
+
+                        $download_manager->setFilename( $fileName );
+                }
+
+
+                if( $this->is_search_existing() )
+                {
+                        $media_id = $this->wpie_get_image_from_gallery( $fileName );
+
+                        if( $media_id !== false && absint( $media_id ) > 0 )
+                        {
+                                unset( $download_manager );
+                                return \absint( $media_id );
+                        }
+                }
+
+                $file = $download_manager->download();
+
+                if( \is_wp_error( $file ) )
+                {
+                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $file->get_error_message();
                         return false;
                 }
-                $author_id = absint( $this->get_post_user() );
 
-                if ( $author_id > 0 ) {
-                        global $wpdb;
-                        $wpdb->update( $wpdb->posts, [ "post_author" => $author_id ], [ 'ID' => $attch ] );
-                }
-                return $attch;
-        }
+                unset( $download_manager );
 
-        private function download_image( $file_url = "" ) {
-
-                if ( empty( $file_url ) ) {
-                        return new \WP_Error( 'http_404', __( 'Empty Image URL', 'wp-import-export-lite' ) );
-                }
-
-                $fileName = time() . rand() . ".tmp";
-
-                $filePath = WPIE_UPLOAD_TEMP_DIR . "/" . $fileName;
-
-                $response = wp_safe_remote_get( $file_url, array( 'timeout' => 3000, 'stream' => true, 'filename' => $filePath ) );
-
-                if ( is_wp_error( $response ) ) {
-
-                        if ( file_exists( $filePath ) ) {
-                                unlink( $filePath );
-                        }
-
-                        return $response;
-                }
-
-                if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
-
-                        if ( file_exists( $filePath ) ) {
-                                unlink( $filePath );
-                        }
-
-                        return new \WP_Error( 'http_404', trim( wp_remote_retrieve_response_message( $response ) ) );
-                }
-
-                $content_md5 = wp_remote_retrieve_header( $response, 'content-md5' );
-
-                if ( $content_md5 ) {
-
-                        $md5_check = verify_file_md5( $filePath, $content_md5 );
-
-                        if ( is_wp_error( $md5_check ) ) {
-
-                                if ( file_exists( $filePath ) ) {
-                                        unlink( $filePath );
-                                }
-
-                                return $md5_check;
-                        }
-
-                        unset( $md5_check );
-                }
-
-                $original_name = $this->get_filename_from_headers( $response, $file_url );
-
-                if ( is_wp_error( $original_name ) ) {
-
-                        if ( file_exists( $filePath ) ) {
-                                unlink( $filePath );
-                        }
-
-                        return $original_name;
-                }
-
-                preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', strtolower( trim( $original_name ) ), $matches );
-
-                if ( ! $matches ) {
-                        if ( file_exists( $filePath ) ) {
-                                unlink( $filePath );
-                        }
-                        return new WP_Error( 'invalid_image', __( 'Invalid image Extension', 'wp-import-export-lite' ) );
-                }
-
-                if ( $this->is_search_existing() ) {
-
-                        $media_id = $this->wpie_get_image_from_gallery( $original_name );
-
-                        if ( $media_id !== false ) {
-                                if ( file_exists( $filePath ) ) {
-                                        unlink( $filePath );
-                                }
-                                return absint( $media_id );
-                        }
-                }
-
-                $file_array = [ "name" => $original_name, "tmp_name" => $filePath ];
-
-                $id = media_handle_sideload( $file_array, $this->item_id );
+                $id = \media_handle_sideload( [ 'name' => $fileName, 'tmp_name' => $file ], $this->item_id );
 
                 // If error storing permanently, unlink.
-                if ( is_wp_error( $id ) ) {
-                        @unlink( $file_array[ 'tmp_name' ] );
-                        return $id;
+                if( \is_wp_error( $id ) )
+                {
+                        if( \file_exists( $file ) )
+                        {
+                                \unlink( $file );
+                        }
+                        $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . $id->get_error_message();
+                        return false;
                 }
-
                 // Store the original attachment source in meta.
-                add_post_meta( $id, '_source_url', $file_url );
+                \update_post_meta( $id, '_wpie_source_url', esc_url_raw( $file_url ) );
 
+                $author_id = \absint( $this->get_post_user() );
+
+                if( $author_id > 0 )
+                {
+                        global $wpdb;
+                        $wpdb->update( $wpdb->posts, [ "post_author" => $author_id ], [ 'ID' => $id ] );
+                }
                 return $id;
         }
 
-        private function get_filename_from_headers( $response = "", $file_url = "" ) {
-
-                $header_content_disposition = wp_remote_retrieve_header( $response, 'content-disposition' );
-
-                $default_filename = basename( parse_url( $file_url, PHP_URL_PATH ) );
-
-                if ( empty( $header_content_disposition ) ) {
-                        return $default_filename;
-                }
-
-                $regex = '/.*?filename=(?<fn>[^\s]+|\x22[^\x22]+\x22)\x3B?.*$/m';
-
-                $new_file_data = null;
-
-                $original_name = "";
-
-                if ( preg_match( $regex, $header_content_disposition, $new_file_data ) ) {
-
-                        if ( isset( $new_file_data[ 'fn' ] ) && ! empty( $new_file_data[ 'fn' ] ) ) {
-                                $wp_filetype = wp_check_filetype( $new_file_data[ 'fn' ] );
-                                if ( isset( $wp_filetype[ 'ext' ] ) && ( ! empty( $wp_filetype[ 'ext' ] )) && isset( $wp_filetype[ 'type' ] ) && ( ! empty( $wp_filetype[ 'type' ] )) ) {
-                                        $original_name = $new_file_data[ 'fn' ];
-                                }
-                        }
-                }
-
-                if ( empty( $original_name ) ) {
-
-                        $regex = '/.*filename=([\'\"]?)([^\"]+)\1/';
-
-                        if ( preg_match( $regex, $header_content_disposition, $new_file_data ) ) {
-
-                                if ( isset( $new_file_data[ '2' ] ) && ! empty( $new_file_data[ '2' ] ) ) {
-                                        $wp_filetype = wp_check_filetype( $new_file_data[ '2' ] );
-                                        if ( isset( $wp_filetype[ 'ext' ] ) && ( ! empty( $wp_filetype[ 'ext' ] )) && isset( $wp_filetype[ 'type' ] ) && ( ! empty( $wp_filetype[ 'type' ] )) ) {
-                                                $original_name = $new_file_data[ '2' ];
-                                        }
-                                }
-                        }
-                }
-                if ( empty( $original_name ) ) {
-                        $original_name = $default_filename;
-                }
-
-                return preg_replace( "/[^a-z0-9\_\-\.]/i", '', preg_replace( '#[ -]+#', '-', $original_name ) );
-        }
-
-        private function prepare_old_attch() {
+        private function prepare_old_attch()
+        {
                 $this->attach = get_posts(
                         [
                                 'post_parent' => $this->item_id,
-                                'post_type'   => 'attachment',
+                                'post_type' => 'attachment',
                                 'numberposts' => -1,
                                 'post_status' => null,
-                                "fields"      => "ids"
+                                "fields" => "ids"
                         ]
                 );
         }
 
-        private function remove_old_attch( $type = 'images' ) {
+        private function remove_old_attch( $type = 'images' )
+        {
 
-                if ( $type === 'images' && has_post_thumbnail( $this->item_id ) ) {
+                if( $type === 'images' && has_post_thumbnail( $this->item_id ) )
+                {
                         delete_post_thumbnail( $this->item_id );
                 }
 
                 $ids = array();
 
-                if ( ! empty( $this->attach ) ) {
+                if( !empty( $this->attach ) )
+                {
 
                         $keep_images = absint( (wpie_sanitize_field( $this->get_field_value( 'wpie_item_keep_images', true ) ) ) === 1 );
 
                         $attachments = array_diff( $this->attach, $this->images );
 
-                        if ( ! empty( $attachments ) ) {
+                        if( !empty( $attachments ) )
+                        {
 
-                                foreach ( $attachments as $attach ) {
+                                foreach( $attachments as $attach )
+                                {
 
-                                        if ( ($type === 'files' && ! wp_attachment_is_image( $attach )) || ($type === 'images' && wp_attachment_is_image( $attach )) ) {
+                                        if( ($type === 'files' && !wp_attachment_is_image( $attach )) || ($type === 'images' && wp_attachment_is_image( $attach )) )
+                                        {
 
-                                                if ( $keep_images === false ) {
+                                                if( $keep_images === false )
+                                                {
                                                         wp_delete_attachment( $attach, true );
-                                                } else {
+                                                }
+                                                else
+                                                {
                                                         $ids[] = $attach;
                                                 }
                                         }
@@ -599,7 +664,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                         global $wpdb;
 
-                        if ( ! empty( $ids ) ) {
+                        if( !empty( $ids ) )
+                        {
 
                                 $ids_string = implode( ',', array_map( "absint", $ids ) );
 
@@ -607,7 +673,8 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                                 unset( $ids_string );
 
-                                foreach ( $ids as $att_id ) {
+                                foreach( $ids as $att_id )
+                                {
                                         clean_attachment_cache( $att_id );
                                 }
                         }
@@ -616,36 +683,49 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
                 return $ids;
         }
 
-        private function set_as_draft() {
-                if ( ! $this->as_draft && absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_unsuccess_set_draft' ) ) ) === 1 ) {
+        private function set_as_draft()
+        {
+                if( !$this->as_draft && absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_unsuccess_set_draft' ) ) ) === 1 )
+                {
                         $this->as_draft = true;
                 }
         }
 
-        private function set_gallary_images() {
+        private function set_gallary_images()
+        {
 
                 $this->gallary = $this->images;
 
-                if ( ! empty( $this->images ) && absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_first_imaege_is_featured' ) ) ) === 1 ) {
+                if( !empty( $this->images ) && absint( wpie_sanitize_field( $this->get_field_value( 'wpie_item_first_imaege_is_featured' ) ) ) === 1 )
+                {
 
                         $image_id = array_shift( $this->gallary );
 
-                        $thumbnail_id = set_post_thumbnail( $this->item_id, $image_id );
+                        $this->set_thumbnail( $image_id );
 
-                        if ( $thumbnail_id === false ) {
-
-                                $this->set_as_draft();
-
-                                $this->import_log[] = '<strong>' . __( 'Warning', 'wp-import-export-lite' ) . '</strong> : ' . __( 'Error on try to set Featured Image', 'wp-import-export-lite' );
-                        }
-                        unset( $image_id, $thumbnail_id );
+                        unset( $image_id );
                 }
                 update_post_meta( $this->item_id, '_product_image_gallery', (empty( $this->gallary ) ? "" : implode( ",", $this->gallary ) ) );
         }
 
-        private function get_existing_image( $image = "" ) {
+        private function set_thumbnail( $thumbnail_id )
+        {
 
-                if ( empty( $this->attach ) || empty( $image ) ) {
+                if( $this->import_type === "taxonomy" )
+                {
+                        update_term_meta( $this->item_id, "thumbnail_id", $thumbnail_id );
+                }
+                else
+                {
+                        update_post_meta( $this->item_id, '_thumbnail_id', $thumbnail_id );
+                }
+        }
+
+        private function get_existing_image( $image = "" )
+        {
+
+                if( empty( $this->attach ) || empty( $image ) )
+                {
                         return false;
                 }
 
@@ -653,23 +733,158 @@ class WPIE_Images extends \wpie\import\base\WPIE_Import_Base {
 
                 $name = sanitize_file_name( basename( $image ) );
 
-                foreach ( $this->attach as $id ) {
+                foreach( $this->attach as $id )
+                {
 
                         $file = get_post_meta( $id, "_wp_attached_file", true );
 
-                        if ( ! empty( $file ) && $name === sanitize_file_name( basename( $file ) ) || get_the_title( $id ) == pathinfo( $name, PATHINFO_FILENAME ) ) {
+                        if( !empty( $file ) && $name === sanitize_file_name( basename( $file ) ) || get_the_title( $id ) == pathinfo( $name, PATHINFO_FILENAME ) )
+                        {
                                 $attach_id = $id;
                                 break;
                         }
                 }
-                if ( $attach_id !== 0 ) {
+                if( $attach_id !== 0 )
+                {
                         return $attach_id;
                 }
                 return false;
         }
 
-        public function __destruct() {
-                foreach ( $this as $key => $value ) {
+        public function relink_content_images( $content = "" )
+        {
+
+                if( empty( $content ) )
+                {
+                        return $content;
+                }
+
+                if( strpos( trim( strtolower( $content ) ), "<img" ) === false )
+                {
+                        return $content;
+                }
+
+                // search for images in <img> tags
+                $tag_images = [];
+                $matches = [];
+
+                if( preg_match_all( '%<img\s[^>]*src=(?(?=")"([^"]*)"|(?(?=\')\'([^\']*)\'|([^\s>]*)))%is', $content, $matches, PREG_PATTERN_ORDER ) )
+                {
+                        $tag_images = array_unique( array_merge( array_filter( $matches[ 1 ] ), array_filter( $matches[ 2 ] ), array_filter( $matches[ 3 ] ) ) );
+                }
+
+                if( preg_match_all( '%<img\s[^>]*srcset=(?(?=")"([^"]*)"|(?(?=\')\'([^\']*)\'|([^\s>]*)))%is', $content, $matches, PREG_PATTERN_ORDER ) )
+                {
+
+                        $srcset_images = array_unique( array_merge( array_filter( $matches[ 1 ] ), array_filter( $matches[ 2 ] ), array_filter( $matches[ 3 ] ) ) );
+
+                        if( !empty( $srcset_images ) )
+                        {
+
+                                foreach( $srcset_images as $srcset_image )
+                                {
+
+                                        if( empty( $srcset_image ) )
+                                        {
+                                                continue;
+                                        }
+
+                                        $srcset = array_filter( explode( ",", $srcset_image ) );
+
+                                        foreach( $srcset as $srcset_img )
+                                        {
+
+                                                if( empty( $srcset_img ) )
+                                                {
+                                                        continue;
+                                                }
+                                                $srcset_image_parts = explode( " ", $srcset_img );
+
+                                                foreach( $srcset_image_parts as $srcset_image_part )
+                                                {
+
+                                                        if( empty( $srcset_image_part ) )
+                                                        {
+                                                                continue;
+                                                        }
+                                                        if( !empty( filter_var( $srcset_image_part, FILTER_VALIDATE_URL ) ) )
+                                                        {
+                                                                $tag_images[] = trim( $srcset_image_part );
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                }
+
+                if( empty( $tag_images ) )
+                {
+                        return $content;
+                }
+
+                $full_size_images = apply_filters( 'wpie_import_content_images_get_full_size', true, $this->item_id );
+
+                foreach( $tag_images as $img_url )
+                {
+
+                        if( empty( $img_url ) || !preg_match( '%^(http|ftp)s?://%i', $img_url ) )
+                        {
+                                continue;
+                        }
+
+                        $original_img_url = $img_url;
+
+                        // Trying to get image full size.
+                        if( $full_size_images )
+                        {
+
+                                $full_size = preg_replace( '%-\d{2,4}x\d{2,4}%', '', $img_url );
+
+                                if( $full_size != $img_url )
+                                {
+
+                                        // check if full size image exists
+                                        $image_headers = get_headers( $full_size, true );
+
+                                        if( $image_headers !== false && isset( $image_headers[ 'Content-Type' ] ) && !empty( $image_headers[ 'Content-Type' ] ) )
+                                        {
+
+                                                $content_type = is_array( $image_headers[ 'Content-Type' ] ) ? end( $image_headers[ 'Content-Type' ] ) : $image_headers[ 'Content-Type' ];
+
+                                                if( strpos( $content_type, 'image' ) !== false )
+                                                {
+                                                        $img_url = $full_size;
+                                                }
+                                        }
+
+                                        unset( $image_headers );
+                                }
+
+                                unset( $full_size );
+                        }
+
+                        $attch_id = $this->wpie_get_image_from_url( $img_url );
+
+                        if( $attch_id && absint( $attch_id ) > 0 )
+                        {
+
+                                $attach_url = wp_get_attachment_url( absint( $attch_id ) );
+
+                                $content = str_replace( $original_img_url, $attach_url, $content );
+
+                                unset( $attach_url );
+                        }
+
+                        unset( $attch_id, $original_img_url );
+                }
+
+                return $content;
+        }
+
+        public function __destruct()
+        {
+                foreach( $this as $key => $value )
+                {
                         unset( $this->$key );
                 }
         }

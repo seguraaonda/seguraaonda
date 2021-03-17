@@ -1,0 +1,151 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Segura a Onda\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-08 16:03+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.3.3; wp-5.4.1"
+
+#: functions.php:38
+msgid "Forum"
+msgstr ""
+
+#: functions.php:40
+msgid "Widgets in this area will be displayed in the forums pages."
+msgstr ""
+
+#: functions.php:51
+msgctxt "Post type general name"
+msgid "Victim"
+msgstr ""
+
+#: functions.php:52
+msgctxt "Post type singular name"
+msgid "Victim"
+msgstr ""
+
+#: functions.php:53
+msgctxt "Admin Menu text"
+msgid "Victim"
+msgstr ""
+
+#: functions.php:54
+msgctxt "Add New on Toolbar"
+msgid "Victim"
+msgstr ""
+
+#: functions.php:55
+msgid "Add New"
+msgstr ""
+
+#: functions.php:56
+msgid "Add New Victim"
+msgstr ""
+
+#: functions.php:57
+msgid "New Victim"
+msgstr ""
+
+#: functions.php:58
+msgid "Edit Victim"
+msgstr ""
+
+#: functions.php:59
+msgid "View Victim"
+msgstr ""
+
+#: functions.php:60
+msgid "All Victims"
+msgstr ""
+
+#: functions.php:61
+msgid "Search Victim"
+msgstr ""
+
+#: functions.php:62
+msgid "No victims found."
+msgstr ""
+
+#: functions.php:63
+msgid "No victims found in Trash."
+msgstr ""
+
+#: functions.php:64
+msgctxt ""
+"Overrides the “Featured Image” phrase for this post type. Added in 4.3"
+msgid "Victim Picture"
+msgstr ""
+
+#: functions.php:65
+msgctxt ""
+"Overrides the “Set featured image” phrase for this post type. Added in 4.3"
+msgid "Set picture"
+msgstr ""
+
+#: functions.php:66
+msgctxt ""
+"Overrides the “Remove featured image” phrase for this post type. Added in 4.3"
+msgid "Remove picture"
+msgstr ""
+
+#: functions.php:67
+msgctxt ""
+"Overrides the “Use as featured image” phrase for this post type. Added in 4.3"
+msgid "Use as picture"
+msgstr ""
+
+#: functions.php:68
+msgctxt ""
+"The post type archive label used in nav menus. Default “Post Archives”. "
+"Added in 4.4"
+msgid "Victim"
+msgstr ""
+
+#. Name of the template
+msgid "Forum Template"
+msgstr ""
+
+#. Name of the template
+msgid "Map Template"
+msgstr ""
+
+#: template-parts/content-memorial.php:51
+msgid "Leave a tribute"
+msgstr ""
+
+#: template-parts/content-memorial.php:51
+msgid "1 tribute"
+msgstr ""
+
+#: template-parts/content-memorial.php:51
+msgid "% tributes"
+msgstr ""
+
+#. Name of the theme
+msgid "Segura a Onda"
+msgstr ""
+
+#. Description of the theme
+msgid "Tema do site Segura a Onda"
+msgstr ""
+
+#. URI of the theme
+msgid "https://seguraaonda.com.br"
+msgstr ""
+
+#. Author of the theme
+msgid "Cátia Kitahara"
+msgstr ""
+
+#. Author URI of the theme
+msgid "https://catiakitahara.com.br"
+msgstr ""

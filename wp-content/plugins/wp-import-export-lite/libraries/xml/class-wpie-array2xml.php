@@ -26,6 +26,13 @@ class ArrayToXml {
         public $root;
 
         /**
+         * Skip empty nodes
+         *
+         * @var string
+         */
+        private $skip_empty = false;
+
+        /**
          * Construct a new instance.
          *
          * @param string[] $array
@@ -57,7 +64,11 @@ class ArrayToXml {
                 $this->document->getElementsByTagName( $name );
         }
 
-        public function append_child( $parent_tag = "", $key = "", $value = array() ) {
+        public function skip_empty() {
+                $this->skip_empty = true;
+        }
+
+        public function append_child( $parent_tag = "", $key = "", $value = array () ) {
 
                 $elements = $this->document->getElementsByTagName( $parent_tag );
 
@@ -132,7 +143,7 @@ class ArrayToXml {
 
                         if ( ! is_null( $value ) && $value != "" ) {
 
-                                if ( ! seems_utf8( $value ) ) {
+                                if ( is_string( $value ) && seems_utf8( $value ) === false ) {
                                         $value = utf8_encode( $value );
                                 }
                                 $value = htmlspecialchars( $value );
@@ -186,6 +197,10 @@ class ArrayToXml {
          * @param string|string[] $value
          */
         public function addNode( \DOMElement $element, $key, $value, $lvl = 0 ) {
+
+                if ( $this->skip_empty === true && is_scalar( $value ) && trim( $value ) === "" ) {
+                        return;
+                }
 
                 $key = preg_replace( '/[^a-z0-9_]/i', '', $key );
 

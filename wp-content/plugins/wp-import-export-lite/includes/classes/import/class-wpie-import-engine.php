@@ -26,7 +26,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 $this->wpie_import_id = isset( $template_data->id ) ? $template_data->id : 0;
 
-                $this->wpie_import_option = isset( $template_data->options ) && trim( $template_data->options ) != "" ? maybe_unserialize( $template_data->options ) : array();
+                $this->wpie_import_option = isset( $template_data->options ) && trim( $template_data->options ) != "" ? maybe_unserialize( $template_data->options ) : array ();
 
                 $this->import_username = isset( $template_data->username ) && trim( $template_data->username ) != "" ? $template_data->username : "";
 
@@ -38,11 +38,11 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
                         return $import_data;
                 }
 
-                $process_data = isset( $template_data->process_log ) ? maybe_unserialize( $template_data->process_log ) : array();
+                $process_data = isset( $template_data->process_log ) ? maybe_unserialize( $template_data->process_log ) : array ();
 
                 unset( $template_data );
 
-                $this->process_log = array(
+                $this->process_log = array (
                         'total'               => (isset( $process_data[ 'total' ] ) && $process_data[ 'total' ] != "") ? absint( $process_data[ 'total' ] ) : 0,
                         'imported'            => (isset( $process_data[ 'imported' ] ) && $process_data[ 'imported' ] != "") ? absint( $process_data[ 'imported' ] ) : 0,
                         'created'             => (isset( $process_data[ 'created' ] ) && $process_data[ 'created' ] != "") ? absint( $process_data[ 'created' ] ) : 0,
@@ -54,7 +54,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 unset( $process_data );
 
-                $addon_class = apply_filters( 'wpie_import_addon', array(), wpie_sanitize_field( $this->get_field_value( 'wpie_import_type', true ) ) );
+                $addon_class = apply_filters( 'wpie_import_addon', array (), wpie_sanitize_field( $this->get_field_value( 'wpie_import_type', true ) ) );
 
                 if ( ! empty( $addon_class ) ) {
 
@@ -69,7 +69,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 unset( $addon_class );
 
-                $this->import_log = array();
+                $this->import_log = array ();
 
                 global $wpdb;
 
@@ -83,7 +83,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                                 $this->init_import_process();
 
-                                $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ), 'process_log' => maybe_serialize( $this->process_log ) ), array( 'id' => $this->wpie_import_id ) );
+                                $wpdb->update( $wpdb->prefix . "wpie_template", array ( 'last_update_date' => current_time( 'mysql' ), 'process_log' => maybe_serialize( $this->process_log ) ), array ( 'id' => $this->wpie_import_id ) );
 
                                 $this->set_log( "" );
                         }
@@ -103,7 +103,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                                                 $this->set_log( $this->addon_log );
 
-                                                $this->addon_log = array();
+                                                $this->addon_log = array ();
                                         }
 
                                         if ( $this->addon_error === true ) {
@@ -124,17 +124,17 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 if ( $this->process_log[ "total" ] !== 0 && $this->process_log[ "imported" ] >= $this->process_log[ "total" ] ) {
 
-                        $wpdb->update( $wpdb->prefix . "wpie_template", array( 'last_update_date' => current_time( 'mysql' ), 'status' => "completed" ), array( 'id' => $this->wpie_import_id ) );
+                        $wpdb->update( $wpdb->prefix . "wpie_template", array ( 'last_update_date' => current_time( 'mysql' ), 'status' => "completed" ), array ( 'id' => $this->wpie_import_id ) );
                 }
 
-                return array( 'process_log' => $this->process_log, 'import_log' => $this->import_log );
+                return array ( 'process_log' => $this->process_log, 'import_log' => $this->import_log );
         }
 
         private function get_records( &$template_data ) {
 
                 $xpath = isset( $this->wpie_import_option[ "xpath" ] ) ? "/" . wp_unslash( $this->wpie_import_option[ "xpath" ] ) : "";
 
-                $process_data = isset( $template_data->process_log ) ? maybe_unserialize( $template_data->process_log ) : array();
+                $process_data = isset( $template_data->process_log ) ? maybe_unserialize( $template_data->process_log ) : array ();
 
                 $start = (isset( $process_data[ 'imported' ] ) && $process_data[ 'imported' ] != "") ? absint( $process_data[ 'imported' ] ) : 0;
 
@@ -160,7 +160,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 $activeFile = isset( $this->wpie_import_option[ 'activeFile' ] ) ? $this->wpie_import_option[ 'activeFile' ] : "";
 
-                $importFile = isset( $this->wpie_import_option[ 'importFile' ] ) ? $this->wpie_import_option[ 'importFile' ] : array();
+                $importFile = isset( $this->wpie_import_option[ 'importFile' ] ) ? $this->wpie_import_option[ 'importFile' ] : array ();
 
                 $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : "";
 
@@ -203,7 +203,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 $this->existing_item_id = 0;
 
-                $this->wpie_final_data = array();
+                $this->wpie_final_data = array ();
 
                 $this->as_draft = false;
 
@@ -248,7 +248,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                                                 $this->set_log( $this->addon_log );
 
-                                                $this->addon_log = array();
+                                                $this->addon_log = array ();
                                         }
 
                                         if ( $this->addon_error === true ) {
@@ -331,7 +331,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                                                 $this->set_log( $this->addon_log );
 
-                                                $this->addon_log = array();
+                                                $this->addon_log = array ();
                                         }
 
                                         if ( $this->addon_error === true ) {
@@ -348,8 +348,15 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
                         return true;
                 }
 
-                if ( $this->as_draft ) {
-                        $wpdb->update( $wpdb->posts, array( 'post_status' => "draft" ), array( 'ID' => $this->item_id ) );
+                if ( $this->as_draft && $this->import_type === "post" ) {
+
+                        $post_status = 'draft';
+
+                        if ( isset( $this->item->post_type ) && $this->item->post_type === "product_variation" ) {
+                                $post_status = "publish";
+                        }
+
+                        $wpdb->update( $wpdb->posts, array ( 'post_status' => $post_status ), [ 'ID' => $this->item_id ] );
                 }
 
                 do_action( 'wpie_after_completed_item_import', $this->item_id, $this->wpie_import_record, $this->wpie_final_data, $this->wpie_import_option );
@@ -367,7 +374,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
                         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-images.php');
                 }
 
-                $wpie_images = new \wpie\import\images\WPIE_Images( $this->item_id, $this->is_new_item, $this->wpie_import_option, $this->wpie_import_record );
+                $wpie_images = new \wpie\import\images\WPIE_Images( $this->item_id, $this->is_new_item, $this->wpie_import_option, $this->wpie_import_record, $this->import_type );
 
                 $image_data = $wpie_images->prepare_images();
 
@@ -377,22 +384,45 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
                         }
                         if ( isset( $image_data[ 'import_log' ] ) && is_array( $image_data[ 'import_log' ] ) && ! empty( $image_data[ 'import_log' ] ) ) {
 
-                                array_map( array( $this, 'set_log' ), $image_data[ 'import_log' ] );
+                                array_map( array ( $this, 'set_log' ), $image_data[ 'import_log' ] );
                         }
                 }
 
                 unset( $image_data, $wpie_images );
         }
 
+        protected function import_image_tags( $post_content = "" ) {
+
+                if ( empty( $post_content ) ) {
+                        return $post_content;
+                }
+
+                if ( strpos( trim( strtolower( $post_content ) ), "<img" ) === false ) {
+                        return $post_content;
+                }
+
+                if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-images.php' ) ) {
+                        require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-images.php');
+                }
+
+                $wpie_images = new \wpie\import\images\WPIE_Images( $this->item_id, $this->is_new_item, $this->wpie_import_option, $this->wpie_import_record, $this->import_type );
+
+                $post_content = $wpie_images->relink_content_images( $post_content );
+
+                unset( $wpie_images );
+
+                return $post_content;
+        }
+
         protected function wpie_import_cf() {
 
                 $item_cf_option = wpie_sanitize_field( $this->get_field_value( 'wpie_item_update_cf', true ) );
 
-                $existing_metas = array();
+                $existing_metas = array ();
 
-                $exclude_metas = array();
+                $exclude_metas = array ();
 
-                $includes_metas = array();
+                $includes_metas = array ();
 
                 if ( $item_cf_option == "all" ) {
                         $existing_metas = $this->get_meta();
@@ -436,10 +466,10 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
                                         continue;
                                 }
 
-                                if ( in_array( $meta_key, array( '_thumbnail_id', '_product_image_gallery' ) ) ) {
+                                if ( in_array( $meta_key, array ( '_thumbnail_id', '_product_image_gallery', '_wpie_order_number' ) ) ) {
                                         continue;
                                 }
-                                if ( ($not_add_empty === 1 && ! empty( $meta_value )) || $not_add_empty !== 1 ) {
+                                if ( ($not_add_empty === 1 && trim( $meta_value ) !== "") || $not_add_empty !== 1 ) {
 
                                         $this->update_meta( $meta_key, $meta_value );
                                 }
@@ -456,7 +486,7 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
         private function get_cf_list( $wpie_item_cf ) {
 
-                $cf = array();
+                $cf = array ();
 
                 if ( ! empty( $wpie_item_cf ) && is_array( $wpie_item_cf ) ) {
 
@@ -490,11 +520,11 @@ abstract class WPIE_Import_Engine extends \wpie\import\base\WPIE_Import_Base {
 
                 $activeFile = isset( $this->wpie_import_option[ 'activeFile' ] ) ? $this->wpie_import_option[ 'activeFile' ] : "";
 
-                $importFile = isset( $this->wpie_import_option[ 'importFile' ] ) ? $this->wpie_import_option[ 'importFile' ] : array();
+                $importFile = isset( $this->wpie_import_option[ 'importFile' ] ) ? $this->wpie_import_option[ 'importFile' ] : array ();
 
                 $fileData = isset( $importFile[ $activeFile ] ) ? $importFile[ $activeFile ] : "";
 
-                $this->base_dir = $fileData[ 'baseDir' ] ? $fileData[ 'baseDir' ] : "";
+                $this->base_dir = isset( $fileData[ 'baseDir' ] ) ? $fileData[ 'baseDir' ] : "";
 
                 unset( $activeFile, $importFile, $fileData );
 

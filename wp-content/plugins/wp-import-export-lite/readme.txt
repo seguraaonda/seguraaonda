@@ -3,9 +3,9 @@ Contributors: vjinfotech
 Tags: export, import, migrate, csv, migration, product import, woocommerce import, bulk export, bulk import, bulk upload, Order Import, post import, Product Upload, schedule, wordpress import export
 Donate link: https://1.envato.market/1krom
 Requires at least: 4.4
-Tested up to: 5.4.2
+Tested up to: 5.7
 Requires PHP: 5.6
-Stable tag: 1.6.4
+Stable tag: 3.4.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -21,10 +21,10 @@ WordPress Import Export gives you ability to export you site data into Multiple 
 
 - Pause, Resume & Stop process for import & export
 - Background import & export
-- Scheduled import & export
+- Scheduled import & export ( Premium )
 - Powerful Filter available for import & export
 - Drag & Drop Field mapping
-- 17+ AddOns for multiple plugin support
+- 19+ Freemium AddOns for multiple plugin support
 - Multiple File Format support for import export
 - Import process Log
 
@@ -52,7 +52,7 @@ WordPress Import Export gives you ability to export you site data into Multiple 
 - supports zip archives
 - supports format csv, xls, xlsx, json, txt, ods and xml
 
-= Schedule import & export =
+= Schedule import & export ( Premium ) =
 - automatic schedule import export 
 - schedule import export management
 - support with auto background import export
@@ -61,12 +61,17 @@ WordPress Import Export gives you ability to export you site data into Multiple 
 - complete process log available
 - step by step import each record log available
 
-= 17+ AddOns =
-- Major plugin compatibility 
+= 19+ Freemium AddOns =
 - ACF, ACF Pro
 - WPML
-- WooCommerce
+- WooCommerce import & export 
 - Schedule import & export 
+- Attribute import & export 
+- Google Drive Import
+- Onedrive Import
+- DropBox Import
+- FTP/SFTP Import
+- Background Import Export
 - and much more
 
 == WP Import Export Professional Edition ==
@@ -77,6 +82,7 @@ WordPress Import Export gives you ability to export you site data into Multiple 
 - Schedule Export
 - WooCommerce Export
 - WPML Export
+- Attribute export
 
 = Import Premium Addons =
 - ACF / ACF Pro Import
@@ -87,6 +93,7 @@ WordPress Import Export gives you ability to export you site data into Multiple 
 - Schedule Import
 - WooCommerce Import
 - WPML Import
+- Attribute Import
 
 [Upgrade to the Pro edition of WP Import Export](https://1.envato.market/1krom)
 
@@ -117,12 +124,13 @@ Unzip the archive, then upload the wp-import-export-lite folder to wp-content/pl
 Finally activate the plugin through your WordPress admin. 
 
 == Screenshots ==
-1. Export
-2. Import
-3. Import Process
-4. Import Summary
-5. Manage Export
-6. Extension
+1. Plugin Comparison
+2. Export
+3. Import
+4. Import Process
+5. Import Summary
+6. Manage Export
+7. Extension
 
 == Changelog ==
 

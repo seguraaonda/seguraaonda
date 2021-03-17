@@ -113,9 +113,7 @@ $page = isset( $_GET[ 'page' ] ) ? wpie_sanitize_field( $_GET[ 'page' ] ) : "";
                                                                     if ( isset( $extData[ "is_default" ] ) && $extData[ "is_default" ] == true ) {
                                                                             continue;
                                                                     }
-
                                                                     $is_pro = isset( $extData[ "is_pro" ] ) ? $extData[ "is_pro" ] : false;
-
                                                                     if ( $temp % 3 == 0 ) {
                                                                             ?>
                                                                         </tr>

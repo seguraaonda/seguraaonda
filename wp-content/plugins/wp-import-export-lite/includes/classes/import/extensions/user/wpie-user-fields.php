@@ -7,9 +7,7 @@ add_filter( 'wpie_import_mapping_fields', "wpie_import_user_mapping_fields", 20,
 
 if ( ! function_exists( "wpie_import_user_mapping_fields" ) ) {
 
-        function wpie_import_user_mapping_fields( $sections = array(), $wpie_import_type = "" ) {
-
-                global $wp_version;
+        function wpie_import_user_mapping_fields( $sections = [], $wpie_import_type = "" ) {
 
                 $uniqid = uniqid();
 
@@ -102,6 +100,25 @@ if ( ! function_exists( "wpie_import_user_mapping_fields" ) ) {
 
                 ob_start();
                 ?>
+                <div class="wpie_field_mapping_container_wrapper wpie_<?php echo esc_attr( $wpie_import_type ); ?>_field_mapping_container">
+                        <div class="wpie_field_mapping_container_title"><?php esc_html_e( "Email Notifications", 'wp-import-export-lite' ); ?><div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
+                        <div class="wpie_field_mapping_container_data">
+                                <div class="wpie_field_mapping_container_element">
+                                        <div class="wpie_field_mapping_other_option_wrapper">
+                                                <input type="checkbox" id="wpie_item_send_email_notifications" name="wpie_item_send_email_notifications" value="1" class="wpie_checkbox wpie_item_send_email_notifications">
+                                                <label class="wpie_checkbox_label" for="wpie_item_send_email_notifications"><?php esc_html_e( "Send Email Notifications For Imported Users", 'wp-import-export-lite' ); ?><i class="far fa-question-circle wpie_data_tipso" data-tipso="<?php esc_attr_e( "If disable, WP Import Export will prevent WordPress from sending notification emails to imported users while the import is processing.", "wp-import-export-lite" ); ?>"></i></label>
+                                        </div>
+                                </div>
+
+                        </div>
+                </div>
+
+                <?php
+                $user_notifications = ob_get_clean();
+
+
+                ob_start();
+                ?>
                 <div class="wpie_field_mapping_container_wrapper">
                         <div class="wpie_field_mapping_container_title"><?php esc_html_e( 'User Meta', 'wp-import-export-lite' ); ?><div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
                         <div class="wpie_field_mapping_container_data">
@@ -163,13 +180,13 @@ if ( ! function_exists( "wpie_import_user_mapping_fields" ) ) {
                 <?php
                 $user_meta = ob_get_clean();
 
-                $field_mapping_sections = array(
+                $field_mapping_sections = array (
                         '100' => $user_data,
-                        '200' => $user_meta,
+                        '200' => $user_notifications,
+                        '300' => $user_meta,
                 );
 
-                unset( $user_data );
-                unset( $user_meta );
+                unset( $user_data, $user_notifications, $user_meta );
 
                 return apply_filters( "wpie_pre_user_field_mapping_section", array_replace( $sections, $field_mapping_sections ), $wpie_import_type );
         }

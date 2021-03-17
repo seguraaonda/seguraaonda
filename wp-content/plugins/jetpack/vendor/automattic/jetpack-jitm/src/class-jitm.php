@@ -9,9 +9,7 @@ namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\JITMS\Post_Connection_JITM;
-use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
 /**
@@ -21,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.0'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.13.6'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -37,7 +35,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( \Jetpack::is_active() ) {
+		if ( ( new Connection_Manager() )->is_active() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();
@@ -64,7 +62,7 @@ class JITM {
 		}
 
 		// Folks cannot connect to WordPress.com and won't really be able to act on the pre-connection messages. So bail.
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
@@ -82,14 +80,15 @@ class JITM {
 	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
 	public function prepare_jitms( $screen ) {
-		if ( ! in_array(
-			$screen->id,
-			array(
-				'jetpack_page_akismet-key-config',
-				'admin_page_jetpack_modules',
-			),
-			true
-		) ) {
+		/**
+		 * Filter to hide JITMs on certain screens.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool true Whether to show just in time messages.
+		 * @param string $string->id The ID of the current screen.
+		 */
+		if ( apply_filters( 'jetpack_display_jitms_on_screen', true, $screen->id ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
@@ -106,7 +105,7 @@ class JITM {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
-			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
+			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
 			false,
 			self::PACKAGE_VERSION .
 			'-201243242'
@@ -117,7 +116,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION,
 			true
@@ -130,6 +129,7 @@ class JITM {
 				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+				'nonce'                  => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}

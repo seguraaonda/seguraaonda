@@ -1,9 +1,13 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
+global $wpdb;
+
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-if ( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export.php' ) ) {
+if( file_exists( WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export.php' ) )
+{
         require_once(WPIE_EXPORT_CLASSES_DIR . '/class-wpie-export.php');
 }
 $wpie_export = new \wpie\export\WPIE_Export();
@@ -12,6 +16,11 @@ $export_type = $wpie_export->get_export_type();
 
 $wpie_taxonomies_list = $wpie_export->wpie_get_taxonomies();
 
+$attribute_taxonomies = null;
+if( class_exists( "WooCommerce" ) )
+{
+        $attribute_taxonomies = $wpie_export->get_attribute_list();
+}
 unset( $wpie_export );
 
 $advance_options_files = apply_filters( 'wpie_export_advance_option_files', array() );
@@ -27,7 +36,7 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                 <div class="wpie_content_header_inner_wrapper">
                         <div class="wpie_content_header_title"><?php esc_html_e( 'New Export', 'wp-import-export-lite' ); ?></div>
                         <a class="wpie_btn wpie_btn_primary ml-4" href="https://1.envato.market/1krom" target="_blank">
-                            <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
+                                <?php esc_html_e( 'Upgrade Pro', 'wp-import-export-lite' ); ?>
                         </a>
                         <div class="wpie_total_records_wrapper">
                                 <div class="wpie_total_record_text"><?php esc_html_e( 'Total Records Found', 'wp-import-export-lite' ); ?></div>
@@ -60,22 +69,38 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                 <div class="wpie_content_data_wrapper">
                                                         <select class="wpie_content_data_select wpie_export_type_select" name="wpie_export_type">
                                                                 <option value=""><?php esc_html_e( 'Select Export Type', 'wp-import-export-lite' ); ?></option>
-                                                                <?php if ( ! empty( $export_type ) ) { ?>                       
-                                                                        <?php foreach ( $export_type as $value => $export_data ) { ?>
-                                                                                <option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $export_data->labels->name ); ?></option>
-                                                                        <?php } ?>
+                                                                <?php if( !empty( $export_type ) )
+                                                                { ?>                       
+        <?php foreach( $export_type as $key => $label )
+        { ?>
+                                                                                <option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></option>
+        <?php } ?>
                                                                 <?php } ?>
                                                         </select>
                                                 </div>
-                                                <div class="wpie_content_data_wrapper wpie_taxonomies_types_wrapper">
+                                                <div class="wpie_content_data_wrapper wpie_taxonomies_types_wrapper wpie_sub_type_wrapper">
                                                         <select class="wpie_content_data_select wpie_taxonomies_types_select" name="wpie_taxonomy_type">
                                                                 <option value=""><?php esc_html_e( 'Select Taxonomy', 'wp-import-export-lite' ); ?></option>
-                                                                <?php if ( ! empty( $wpie_taxonomies_list ) ) { ?>                       
-                                                                        <?php foreach ( $wpie_taxonomies_list as $slug => $name ) { ?>
+<?php if( !empty( $wpie_taxonomies_list ) )
+{ ?>                       
+        <?php foreach( $wpie_taxonomies_list as $slug => $name )
+        { ?>
                                                                                 <option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $name ); ?></option>
                                                                         <?php } ?>
                                                                 <?php } ?>
                                                         </select>
+                                                </div>
+                                                <div class="wpie_content_data_wrapper wpie_attribute_taxonomies_wrapper wpie_sub_type_wrapper">
+                                                        <select class="wpie_content_data_select wpie_attribute_taxonomies_select" data-placeholder="<?php esc_html_e( 'All Attributes', 'wp-import-export-lite' ); ?>" name="wpie_attribute_taxonomy[]"  multiple="multiple">
+<?php if( !empty( $attribute_taxonomies ) )
+{ ?>                       
+        <?php foreach( $attribute_taxonomies as $attribute )
+        { ?>
+                                                                                <option value="<?php echo isset( $attribute->attribute_name ) ? esc_attr( $attribute->attribute_name ) : ""; ?>" ><?php echo isset( $attribute->attribute_label ) ? esc_html( $attribute->attribute_label ) : ""; ?></option>
+        <?php } ?>
+<?php } ?>
+                                                        </select>
+                                                        <div class="wpie_export_default_hint"><?php esc_html_e( 'Default : All Attributes.', 'wp-import-export-lite' ); ?></div>
                                                 </div>
                                         </div>
                                 </div>
@@ -107,13 +132,13 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                                         <input type="text" class="wpie_content_data_input wpie_content_data_rule_value" value=""/>
                                                                         <div class="wpie_value_hints_container">
                                                                                 <div class="wpie_value_hints">
-                                                                                    <?php esc_html_e( 'Dynamic date allowed', 'wp-import-export-lite' ); ?>
+<?php esc_html_e( 'Dynamic date allowed', 'wp-import-export-lite' ); ?>
                                                                                 </div>
                                                                                 <div class="wpie_value_hints">
-                                                                                        <?php esc_html_e( 'Example :', 'wp-import-export-lite' ); ?> yesterday, today, tomorrow...
+<?php esc_html_e( 'Example :', 'wp-import-export-lite' ); ?> yesterday, today, tomorrow...
                                                                                 </div>
                                                                                 <div class="wpie_value_hints">
-                                                                                        <?php esc_html_e( 'For more click', 'wp-import-export-lite' ); ?> <a target="_blank" href="<?php echo esc_url( 'https://www.php.net/manual/en/datetime.formats.relative.php' ); ?>"><?php esc_html_e( 'here', 'wp-import-export-lite' ); ?> </a>
+<?php esc_html_e( 'For more click', 'wp-import-export-lite' ); ?> <a target="_blank" href="<?php echo esc_url( 'https://www.php.net/manual/en/datetime.formats.relative.php' ); ?>"><?php esc_html_e( 'here', 'wp-import-export-lite' ); ?> </a>
                                                                                 </div>                                        
                                                                         </div>
                                                                 </div>
@@ -234,45 +259,65 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                                                 </div>
                                                                         </td>
                                                                 </tr>
-                                                                <?php
-                                                                if ( ! empty( $advance_options_files ) ) {
+                                                                <tr class="wpie_skip_empty_nodes_wrapper">
+                                                                        <td colspan="2">
+                                                                                <div class="wpie_options_data">
+                                                                                        <div class="wpie_options_data_content">
+                                                                                                <input type="checkbox" class="wpie_export_include_bom_chk wpie_checkbox wpie_skip_empty_nodes" id="wpie_skip_empty_nodes" name="wpie_skip_empty_nodes" value="1" checked="checked"/>
+                                                                                                <label for="wpie_skip_empty_nodes" class="wpie_options_data_title_email wpie_checkbox_label"><?php esc_html_e( 'Do not add Empty nodes in xml file', 'wp-import-export-lite' ); ?></label>
+                                                                                                <i class="far fa-question-circle wpie_data_tipso" data-tipso="<?php esc_attr_e( "Plugin will not add empty value nodes", "wp-import-export-lite" ); ?>"></i>
+                                                                                        </div>
+                                                                                </div>
+                                                                        </td>
 
-                                                                        $temp = 0;
+                                                                </tr>
+                                                                        <?php
+                                                                        if( !empty( $advance_options_files ) )
+                                                                        {
 
-                                                                        foreach ( $advance_options_files as $adv_options ) {
+                                                                                $temp = 0;
 
-                                                                                if ( $temp % 2 == 0 ) {
-                                                                                        ?>
+                                                                                foreach( $advance_options_files as $adv_options )
+                                                                                {
+
+                                                                                        if( $temp % 2 == 0 )
+                                                                                        {
+                                                                                                ?>
                                                                                         <tr class="wpie_advance_options_row">
-                                                                                            <?php
-                                                                                    }
-                                                                                    if ( file_exists( $adv_options ) ) {
-                                                                                            include $adv_options;
-                                                                                    }
-                                                                                    if ( $temp % 2 == 0 ) {
-                                                                                            ?>
-                                                                                        </tr>
                                                                                         <?php
                                                                                 }
+                                                                                if( file_exists( $adv_options ) )
+                                                                                {
+                                                                                        include $adv_options;
+                                                                                }
+                                                                                if( $temp % 2 == 0 )
+                                                                                {
+                                                                                        ?>
+                                                                                        </tr>
+                                                        <?php
+                                                }
 
-                                                                                $temp ++;
-                                                                        }
-                                                                }
-                                                                ?>
+                                                $temp++;
+                                        }
+                                }
+                                ?>
 
                                                         </table>
                                                 </div>
                                         </div>
                                 </div>
-                                <?php
-                                if ( ! empty( $extension_html_files ) ) {
-                                        foreach ( $extension_html_files as $ext_html_file ) {
-                                                if ( file_exists( $ext_html_file ) ) {
-                                                        include $ext_html_file;
-                                                }
-                                        }
-                                }
-                                ?>
+<?php
+if( !empty( $extension_html_files ) )
+{
+        foreach( $extension_html_files as $ext_html_file )
+        {
+                if( file_exists( $ext_html_file ) )
+                {
+                        include $ext_html_file;
+                }
+        }
+}
+?>
                         </div>
                         <div class="wpie_export_sidebar">
                                 <div class="wpie_section_wrapper">
@@ -442,6 +487,18 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                 </div>
         </div>
 </div>
+<div class="modal fade wpie_strict_error_model" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered " role="document">
+                <div class="modal-content wpie_error">
+                        <div class="modal-header">
+                                <h5 class="modal-title"><?php esc_html_e( 'Permission Required', 'wp-import-export-lite' ); ?></h5>                            
+                        </div>
+                        <div class="modal-body">
+                                <div class="wpie_strict_error_content"></div>
+                        </div>                        
+                </div>
+        </div>
+</div>
 <div class="modal fade wpie_preview_model" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
@@ -480,11 +537,13 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                         <span class="wpie_total_records wpie_export_total_records_count"></span></div>
                                         </div>
                                 </div>
-                                <?php if ( ! empty( $wpie_remote_data ) ) { ?>
+                                                                                <?php if( !empty( $wpie_remote_data ) )
+                                                                                { ?>
                                         <div class="wpie_remote_export_wrapper">
                                                 <div class="wpie_remote_export_title"><?php esc_html_e( 'Send Exported Data To', 'wp-import-export-lite' ); ?></div>
                                                 <table class="wpie_remote_export_table table table-borderedtable table-bordered">
-                                                    <?php foreach ( $wpie_remote_data as $remote_key => $remote_data ) { ?>
+        <?php foreach( $wpie_remote_data as $remote_key => $remote_data )
+        { ?>
                                                                 <tr>
                                                                         <td>
                                                                                 <input type="checkbox" class="wpie_checkbox" id="wpie_remote_export_dropbox" name="wpie_remote_exported_data[]" value="<?php echo esc_attr( $remote_key ); ?>"/>
@@ -493,18 +552,20 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                                         <td>
                                                                                 <div class="wpie_content_data_wrapper">
                                                                                         <select class="wpie_content_data_select" name="wpie_export_type" multiple="multiple">
-                                                                                            <?php $remote_options = isset( $remote_data[ 'data' ] ) ? $remote_data[ 'data' ] : array(); ?>
-                                                                                            <?php if ( ! empty( $remote_options ) ) { ?>                       
-                                                                                                    <?php foreach ( $remote_options as $option_key => $option_data ) { ?>
+                                                <?php $remote_options = isset( $remote_data[ 'data' ] ) ? $remote_data[ 'data' ] : array(); ?>
+                <?php if( !empty( $remote_options ) )
+                { ?>                       
+                        <?php foreach( $remote_options as $option_key => $option_data )
+                        { ?>
                                                                                                                 <option value="<?php echo esc_attr( $option_key ); ?>"><?php echo isset( $option_data[ 'wpie_export_ext_label' ] ) ? esc_html( $option_data[ 'wpie_export_ext_label' ] ) : ""; ?></option>
-                                                                                                        <?php } ?>
-                                                                                                <?php } ?>
-                                                                                                <?php unset( $remote_options ); ?>
+                        <?php } ?>
+                <?php } ?>
+                <?php unset( $remote_options ); ?>
                                                                                         </select>
                                                                                 </div>
                                                                         </td>
                                                                 </tr>
-                                                        <?php } ?>
+                                                <?php } ?>
                                                 </table>
                                                 <div class="wpie_send_remote_data_wrapper">
                                                         <div class="wpie_btn wpie_btn_primary wpie_send_remote_data">
@@ -512,7 +573,7 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                                         </div>
                                                 </div>
                                         </div>
-                                <?php } ?>
+                                        <?php } ?>
                         </div>
                         <div class="modal-footer">
                                 <div class="wpie_export_process_option_btn_wrapper">
@@ -525,15 +586,18 @@ $wpie_remote_data = apply_filters( 'wpie_get_export_remote_locations', array() )
                                         <div class="wpie_btn wpie_btn_primary wpie_export_process_resume_btn wpie_export_process_btn">
                                                 <i class="fas fa-play wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Resume', 'wp-import-export-lite' ); ?>
                                         </div>
-                                        <?php
-                                        if ( ! empty( $extension_process_btn ) ) {
-                                                foreach ( $extension_process_btn as $ext_p_btn ) {
-                                                        if ( file_exists( $ext_p_btn ) ) {
-                                                                include $ext_p_btn;
-                                                        }
-                                                }
-                                        }
-                                        ?>
+<?php
+if( !empty( $extension_process_btn ) )
+{
+        foreach( $extension_process_btn as $ext_p_btn )
+        {
+                if( file_exists( $ext_p_btn ) )
+                {
+                        include $ext_p_btn;
+                }
+        }
+}
+?>
                                 </div>
                                 <div class="wpie_export_process_btn_wrapper ">
                                         <div class="wpie_btn wpie_btn_primary wpie_export_process_close_btn wpie_export_process_btn">

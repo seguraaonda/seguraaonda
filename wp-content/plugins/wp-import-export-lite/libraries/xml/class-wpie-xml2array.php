@@ -7,8 +7,8 @@ class XmlToArray {
         protected $document;
         protected $domxpath;
         protected $xpathelement;
-        private $xmldata = array();
-        private $wpie_filtering_element = array();
+        private $xmldata = array ();
+        private $wpie_filtering_element = array ();
 
         public function __construct( $fileName = "", $xml = "", $xmlEncoding = 'UTF-8', $xmlVersion = '1.0', $formatOutput = true, $preserveWhiteSpace = false ) {
 
@@ -18,10 +18,18 @@ class XmlToArray {
 
                 $this->document->preserveWhiteSpace = $preserveWhiteSpace;
 
+                $new_xml = "";
+
                 if ( ! empty( $fileName ) && file_exists( $fileName ) ) {
-                        $this->document->load( $fileName );
+                        $new_xml = file_get_contents( $fileName );
                 } elseif ( ! empty( $xml ) ) {
-                        $this->document->loadXML( $xml );
+                        $new_xml = $xml;
+                }
+
+                if ( ! empty( $new_xml ) ) {
+
+                        $new_xml = preg_replace( '%xmlns\s*=\s*([\'"]).*\1%sU', '', $new_xml );
+                        $this->document->loadXML( $new_xml );
                 }
         }
 
@@ -29,12 +37,6 @@ class XmlToArray {
 
                 $this->domxpath = new \DOMXPath( $this->document );
 
-                $xmlns = $this->document->documentElement->getAttribute( "xmlns" );
-
-                if ( ! empty( $xmlns ) ) {
-                        $this->domxpath->registerNamespace( 'wpiens', $xmlns );
-                        $xpath = '//wpiens:' . substr( $xpath, 2 );
-                }
                 $this->xpathelement = $this->domxpath->query( $xpath );
         }
 
@@ -48,7 +50,7 @@ class XmlToArray {
 
         public function get_records( $start = false, $length = false, $xmlView = "array" ) {
 
-                $result = array();
+                $result = array ();
 
                 if ( $this->xpathelement !== false && $this->xpathelement->length > 0 ) {
 
@@ -71,7 +73,7 @@ class XmlToArray {
                                         $result[] = $this->convertXMLView( $this->xpathelement->item( $i ), false, '/', 0 );
                                 } elseif ( $xmlView = "single_array" ) {
 
-                                        $this->xmldata == array();
+                                        $this->xmldata == array ();
 
                                         $this->convertSingleArray( $this->xpathelement->item( $i ), false, '/', 0 );
 
@@ -88,14 +90,14 @@ class XmlToArray {
 
         public function get_tags() {
                 if ( $this->xpathelement !== false && $this->xpathelement->length > 0 ) {
-                        $this->wpie_filtering_element = array();
+                        $this->wpie_filtering_element = array ();
                         return $this->get_tag_list( $this->xpathelement->item( 0 ) );
                 }
         }
 
         private function get_tag_list( \DOMElement $element, $originPath = '', $lvl = 0 ) {
 
-                $filtering_elements = array();
+                $filtering_elements = array ();
 
                 $path = $originPath;
 
@@ -144,7 +146,7 @@ class XmlToArray {
 
         public function toArray() {
 
-                $result = array();
+                $result = array ();
 
                 if ( $this->document->hasChildNodes() ) {
 
@@ -186,7 +188,7 @@ class XmlToArray {
 
                 if ( $element->hasChildNodes() ) {
 
-                        $index = array();
+                        $index = array ();
 
                         foreach ( $element->childNodes as $key => $node ) {
 
@@ -226,7 +228,7 @@ class XmlToArray {
                         $path .= "[" . $ind . "]";
                 }
 
-                $result = array();
+                $result = array ();
 
                 $result[ "name" ] = $element->nodeName;
 
@@ -244,7 +246,7 @@ class XmlToArray {
 
                 if ( $element->hasChildNodes() ) {
 
-                        $index = array();
+                        $index = array ();
 
                         foreach ( $element->childNodes as $key => $node ) {
 
@@ -277,7 +279,7 @@ class XmlToArray {
                         return "";
                 }
 
-                $result = array();
+                $result = array ();
 
                 if ( $element->hasAttributes() ) {
 
@@ -291,7 +293,7 @@ class XmlToArray {
 
                 if ( $element->hasChildNodes() ) {
 
-                        $index = array();
+                        $index = array ();
 
                         foreach ( $element->childNodes as $key => $node ) {
 
@@ -309,7 +311,7 @@ class XmlToArray {
 
                                                 if ( $index[ $node->nodeName ] == 1 ) {
 
-                                                        $result[ $node->nodeName ] = array( $result[ $node->nodeName ], $nodeData );
+                                                        $result[ $node->nodeName ] = array ( $result[ $node->nodeName ], $nodeData );
                                                 } else {
                                                         $result[ $node->nodeName ][] = $nodeData;
                                                 }
@@ -337,7 +339,7 @@ class XmlToArray {
                         return null;
                 }
 
-                $attributes = array();
+                $attributes = array ();
 
                 /** @var DOMAttr $item */
                 foreach ( $nodeMap as $item ) {

@@ -9,24 +9,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class WPIE_Import_Base {
 
         protected $wpie_import_id = 0;
-        protected $wpie_import_option = array();
-        protected $import_log = array();
-        protected $process_log = array();
-        protected $wpie_import_record = array();
+        protected $wpie_import_option = array ();
+        protected $import_log = array ();
+        protected $process_log = array ();
+        protected $wpie_import_record = array ();
         protected $is_new_item = true;
         protected $item_id = 0;
         protected $item;
         protected $existing_item_id = 0;
-        protected $wpie_final_data = array();
+        protected $wpie_final_data = array ();
         protected $log_service = false;
         protected $backup_service = false;
         protected $import_type;
         protected $as_draft = false;
         protected $base_dir = false;
         protected $wpie_fileName = "wpie-import-data-";
-        protected $addons = array();
+        protected $addons = array ();
         protected $addon_error = false;
-        protected $addon_log = array();
+        protected $addon_log = array ();
         protected $import_username = "";
 
         public function __construct() {
@@ -86,20 +86,20 @@ abstract class WPIE_Import_Base {
                         $field_data = $this->get_field( $field );
                 }
 
-                return $this->decode_special_char( wp_unslash( $field_data ) );
+                $field_data = $this->map_deep( wp_unslash( $field_data ), [ __CLASS__, 'validate_data' ] );
+
+                return $field_data;
         }
 
-        private function decode_special_char( $data ) {
+        public static function validate_data( $data = null ) {
 
-                return $this->map_deep( $data, array( __CLASS__, 'str_replace' ) );
-        }
-
-        public static function str_replace( $subject ) {
-
-                if ( empty( $subject ) ) {
-                        return "";
+                if ( empty( trim( $data ) ) ) {
+                        return $data;
                 }
-                return str_replace( [ "&quot;", "&amp;" ], [ '"', '&' ], $subject );
+
+                $data = preg_replace( '/{(.*?)\\[([0-9]*?)\\]}/', "", $data );
+
+                return str_replace( [ "&quot;", "&amp;" ], [ '"', '&' ], $data );
         }
 
         /**
@@ -117,12 +117,12 @@ abstract class WPIE_Import_Base {
 
                 if ( is_array( $value ) ) {
                         foreach ( $value as $index => $item ) {
-                                $value[ $index ] = map_deep( $item, $callback );
+                                $value[ $index ] = $this->map_deep( $item, $callback );
                         }
                 } elseif ( is_object( $value ) ) {
                         $object_vars = get_object_vars( $value );
                         foreach ( $object_vars as $property_name => $property_value ) {
-                                $value->$property_name = map_deep( $property_value, $callback );
+                                $value->$property_name = $this->map_deep( $property_value, $callback );
                         }
                 } else {
                         $value = call_user_func( $callback, $value );
@@ -134,7 +134,7 @@ abstract class WPIE_Import_Base {
         public function get_field( $field = "" ) {
 
                 if ( is_array( $field ) ) {
-                        $field = array_map( array( $this, "get_field" ), $field );
+                        $field = array_map( array ( $this, "get_field" ), $field );
                 } elseif ( is_array( $this->wpie_import_record ) && ! empty( $this->wpie_import_record ) ) {
 
                         if ( $this->has_shortcode( $field ) ) {
@@ -296,8 +296,10 @@ abstract class WPIE_Import_Base {
         }
 
         protected function update_meta( $meta_key = "", $meta_val = "" ) {
+
                 $meta_val = maybe_unserialize( $meta_val );
-                if ( $this->import_type == "taxonomy" ) {
+
+                if ( $this->import_type == "taxonomy" || $this->import_type == "product_attribute" ) {
                         update_term_meta( $this->item_id, $meta_key, $meta_val );
                 } elseif ( $this->import_type == "user" ) {
                         update_user_meta( $this->item_id, $meta_key, $meta_val );
@@ -306,12 +308,14 @@ abstract class WPIE_Import_Base {
                 } else {
                         update_post_meta( $this->item_id, $meta_key, $meta_val );
                 }
+
+                do_action( 'wpie_after_update_meta', $this->item_id, $meta_key, $meta_val, $this->import_type );
         }
 
         protected function get_meta( $meta_key = "", $is_single = false ) {
 
                 if ( ! empty( $meta_key ) && ! empty( $this->item_id ) ) {
-                        if ( $this->import_type == "taxonomy" ) {
+                        if ( $this->import_type == "taxonomy" || $this->import_type == "product_attribute" ) {
                                 return get_term_meta( $this->item_id, $meta_key, $is_single );
                         } elseif ( $this->import_type == "user" ) {
                                 return get_user_meta( $this->item_id, $meta_key, $is_single );
@@ -325,7 +329,7 @@ abstract class WPIE_Import_Base {
 
         protected function remove_meta( $meta_key = "" ) {
                 if ( ! empty( $meta_key ) && ! empty( $this->item_id ) ) {
-                        if ( $this->import_type == "taxonomy" ) {
+                        if ( $this->import_type == "taxonomy" || $this->import_type == "product_attribute" ) {
                                 delete_term_meta( $this->item_id, $meta_key );
                         } elseif ( $this->import_type == "user" ) {
                                 delete_user_meta( $this->item_id, $meta_key );
@@ -340,6 +344,69 @@ abstract class WPIE_Import_Base {
         protected function wpie_term_exists( $term, $taxonomy = '', $parent = null ) {
 
                 return apply_filters( 'wpie_term_exists', term_exists( $term, $taxonomy, $parent ), $term, $taxonomy, $parent );
+        }
+
+        protected function get_date( $date = "", $format = "" ) {
+
+                if ( empty( $date ) ) {
+                        $date = date( "Y-m-d H:i:s" );
+                }
+
+                $format = empty( trim( $format ) ) ? "Y-m-d H:i:s" : $format;
+
+                if ( ! strtotime( $date ) ) {
+
+                        $date = $this->get_valid_date( $date );
+                }
+
+                if ( ! strtotime( $date ) ) {
+                        return false;
+                }
+
+                return date( $format, strtotime( $date ) );
+        }
+
+        private function get_valid_date( $date = "" ) {
+
+                if ( empty( $date ) ) {
+                        return $date;
+                }
+
+                $separator = "";
+
+                $date_separators = [ '/', '-', '.' ];
+
+                foreach ( $date_separators as $sep ) {
+
+                        if ( strpos( $date, $sep ) !== false ) {
+                                $separator = $sep;
+
+                                break;
+                        }
+                }
+
+                if ( empty( $separator ) ) {
+                        return $date;
+                }
+
+                $date_separators = array_diff( $date_separators, [ $separator ] );
+
+                $new_date = "";
+
+                foreach ( $date_separators as $sep ) {
+
+                        $new_date = str_replace( $separator, $sep, $date );
+
+                        if ( strtotime( $new_date ) ) {
+                                break;
+                        } else {
+                                $new_date = "";
+                        }
+                }
+
+                unset( $date_separators );
+
+                return empty( $new_date ) ? $date : $new_date;
         }
 
         public function __destruct() {

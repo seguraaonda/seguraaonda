@@ -1,12 +1,15 @@
 <?php
 
-if ( ! defined( 'ABSPATH' ) ) {
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-class WPIE_Common_Actions {
+class WPIE_Common_Actions
+{
 
-        public function __construct() {
+        public function __construct()
+        {
 
                 add_action( 'wp_ajax_wpie_save_user_cap', array( $this, 'wpie_save_user_cap' ) );
 
@@ -22,9 +25,13 @@ class WPIE_Common_Actions {
 
                 add_action( 'wp_ajax_wpie_update_process_status', array( $this, 'update_process_status' ) );
 
-    }
+                add_action( 'wp_ajax_wpie_save_bg_cron_processing', array( $this, 'wpie_save_bg_cron_processing' ) );
 
-        public function wpie_save_user_cap() {
+                add_action( 'wp_ajax_wpie_change_license_status', array( $this, 'wpie_change_license_status' ) );
+        }
+
+        public function wpie_save_user_cap()
+        {
 
                 $new_export = isset( $_POST[ 'wpie_cap_new_export' ] ) ? intval( wpie_sanitize_field( $_POST[ 'wpie_cap_new_export' ] ) ) : 0;
 
@@ -46,57 +53,86 @@ class WPIE_Common_Actions {
 
                 unset( $wpie_user_role );
 
-                if ( $role ) {
+                if( $role )
+                {
 
-                        if ( $new_export == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_new_export' ) ) {
+                        if( $new_export == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_new_export' ) )
+                                {
                                         $role->add_cap( 'wpie_new_export' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_new_export' );
                         }
 
-                        if ( $manage_export == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_manage_export' ) ) {
+                        if( $manage_export == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_manage_export' ) )
+                                {
                                         $role->add_cap( 'wpie_manage_export' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_manage_export' );
                         }
 
-                        if ( $new_import == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_new_import' ) ) {
+                        if( $new_import == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_new_import' ) )
+                                {
                                         $role->add_cap( 'wpie_new_import' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_new_import' );
                         }
-                        if ( $manage_import == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_manage_import' ) ) {
+                        if( $manage_import == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_manage_import' ) )
+                                {
                                         $role->add_cap( 'wpie_manage_import' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_manage_import' );
                         }
-                        if ( $cap_settings == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_settings' ) ) {
+                        if( $cap_settings == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_settings' ) )
+                                {
                                         $role->add_cap( 'wpie_settings' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_settings' );
                         }
-                        if ( $cap_ext == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_extensions' ) ) {
+                        if( $cap_ext == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_extensions' ) )
+                                {
                                         $role->add_cap( 'wpie_extensions' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_extensions' );
                         }
-                        if ( $add_shortcode == 1 ) {
-                                if ( ! $role->has_cap( 'wpie_add_shortcode' ) ) {
+                        if( $add_shortcode == 1 )
+                        {
+                                if( !$role->has_cap( 'wpie_add_shortcode' ) )
+                                {
                                         $role->add_cap( 'wpie_add_shortcode' );
                                 }
-                        } else {
+                        }
+                        else
+                        {
                                 $role->remove_cap( 'wpie_add_shortcode' );
                         }
                 }
@@ -116,7 +152,8 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function wpie_get_user_cap() {
+        public function wpie_get_user_cap()
+        {
 
                 $wpie_user_role = isset( $_GET[ 'user_role' ] ) ? wpie_sanitize_field( $_GET[ 'user_role' ] ) : "";
 
@@ -124,26 +161,34 @@ class WPIE_Common_Actions {
 
                 $cap = array();
 
-                if ( $role ) {
-                        if ( $role->has_cap( 'wpie_new_export' ) ) {
+                if( $role )
+                {
+                        if( $role->has_cap( 'wpie_new_export' ) )
+                        {
                                 $cap[] = 'wpie_new_export';
                         }
-                        if ( $role->has_cap( 'wpie_manage_export' ) ) {
+                        if( $role->has_cap( 'wpie_manage_export' ) )
+                        {
                                 $cap[] = 'wpie_manage_export';
                         }
-                        if ( $role->has_cap( 'wpie_new_import' ) ) {
+                        if( $role->has_cap( 'wpie_new_import' ) )
+                        {
                                 $cap[] = 'wpie_new_import';
                         }
-                        if ( $role->has_cap( 'wpie_manage_import' ) ) {
+                        if( $role->has_cap( 'wpie_manage_import' ) )
+                        {
                                 $cap[] = 'wpie_manage_import';
                         }
-                        if ( $role->has_cap( 'wpie_settings' ) ) {
+                        if( $role->has_cap( 'wpie_settings' ) )
+                        {
                                 $cap[] = 'wpie_settings';
                         }
-                        if ( $role->has_cap( 'wpie_extensions' ) ) {
+                        if( $role->has_cap( 'wpie_extensions' ) )
+                        {
                                 $cap[] = 'wpie_extensions';
                         }
-                        if ( $role->has_cap( 'wpie_add_shortcode' ) ) {
+                        if( $role->has_cap( 'wpie_add_shortcode' ) )
+                        {
                                 $cap[] = 'wpie_add_shortcode';
                         }
                 }
@@ -163,15 +208,18 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function wpie_get_tempalte_list() {
+        public function wpie_get_tempalte_list()
+        {
 
                 $templates = $this->wpie_get_templates();
 
                 $template_html = "";
 
-                if ( ! empty( $templates ) ) {
+                if( !empty( $templates ) )
+                {
 
-                        foreach ( $templates as $data ) {
+                        foreach( $templates as $data )
+                        {
 
                                 $id = isset( $data->id ) ? $data->id : 0;
 
@@ -179,7 +227,8 @@ class WPIE_Common_Actions {
 
                                 $name = isset( $options[ 'wpie_template_name' ] ) ? $options[ 'wpie_template_name' ] : "";
 
-                                if ( $id > 0 && ! empty( $name ) ) {
+                                if( $id > 0 && !empty( $name ) )
+                                {
 
                                         $template_html .= '<option value="' . esc_attr( $id ) . '">' . esc_html( $name ) . '</option>';
                                 }
@@ -202,7 +251,8 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function get_export_list() {
+        public function get_export_list()
+        {
 
                 global $wpdb;
 
@@ -211,7 +261,8 @@ class WPIE_Common_Actions {
                 return $results;
         }
 
-        public function get_import_list() {
+        public function get_import_list()
+        {
 
                 global $wpdb;
 
@@ -220,7 +271,8 @@ class WPIE_Common_Actions {
                 return $results;
         }
 
-        public function wpie_get_templates() {
+        public function wpie_get_templates()
+        {
 
                 global $wpdb;
 
@@ -229,27 +281,35 @@ class WPIE_Common_Actions {
                 return $results;
         }
 
-        public function wpie_delete_tempaltes() {
+        public function wpie_delete_tempaltes()
+        {
 
                 $templates = isset( $_GET[ 'templates' ] ) ? wpie_sanitize_field( $_GET[ 'templates' ] ) : "";
 
-                if ( ! empty( $templates ) ) {
+                if( !empty( $templates ) )
+                {
 
                         $templates = explode( ",", $templates );
 
-                        if ( is_array( $templates ) && ! empty( $templates ) ) {
+                        if( is_array( $templates ) && !empty( $templates ) )
+                        {
 
                                 $ids = implode( ',', array_map( 'absint', $templates ) );
 
                                 $process_type = isset( $_GET[ 'process_type' ] ) ? wpie_sanitize_field( $_GET[ 'process_type' ] ) : "";
 
-                                if ( $process_type == "schedule_import" ) {
+                                if( $process_type == "schedule_import" )
+                                {
 
-                                        foreach ( $templates as $cron_id ) {
+                                        foreach( $templates as $cron_id )
+                                        {
                                                 wp_clear_scheduled_hook( 'wpie_cron_schedule_import', array( absint( $cron_id ) ) );
                                         }
-                                } elseif ( $process_type == "schedule_export" ) {
-                                        foreach ( $templates as $cron_id ) {
+                                }
+                                elseif( $process_type == "schedule_export" )
+                                {
+                                        foreach( $templates as $cron_id )
+                                        {
                                                 wp_clear_scheduled_hook( 'wpie_cron_schedule_export', array( absint( $cron_id ) ) );
                                         }
                                 }
@@ -277,7 +337,8 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function wpie_save_advance_option() {
+        public function wpie_save_advance_option()
+        {
 
                 $is_delete_data = isset( $_GET[ 'is_delete_data' ] ) ? absint( wpie_sanitize_field( $_GET[ 'is_delete_data' ] ) ) : 0;
 
@@ -296,29 +357,35 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function wpie_tempalte_import() {
+        public function wpie_tempalte_import()
+        {
 
                 $return_value = array( "status" => 'error' );
 
-                if ( $_FILES && file_exists( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) && is_uploaded_file( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) ) {
+                if( $_FILES && file_exists( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) && is_uploaded_file( $_FILES[ 'wpie_template_file' ][ 'tmp_name' ] ) )
+                {
 
-                        if ( ! function_exists( 'wp_handle_upload' ) ) {
+                        if( !function_exists( 'wp_handle_upload' ) )
+                        {
                                 require_once( ABSPATH . 'wp-admin/includes/file.php' );
                         }
 
                         $movefile = wp_handle_upload( $_FILES[ 'wpie_template_file' ], array( 'test_form' => false ) );
 
-                        if ( $movefile && isset( $movefile[ 'file' ] ) && ! isset( $movefile[ 'error' ] ) ) {
+                        if( $movefile && isset( $movefile[ 'file' ] ) && !isset( $movefile[ 'error' ] ) )
+                        {
 
                                 $file_path = $movefile[ 'file' ];
 
                                 $template_data = file_get_contents( $file_path );
 
-                                if ( ! empty( $template_data ) ) {
+                                if( !empty( $template_data ) )
+                                {
 
                                         $template_data = maybe_unserialize( $template_data );
 
-                                        if ( ! empty( $template_data ) ) {
+                                        if( !empty( $template_data ) )
+                                        {
 
                                                 global $wpdb;
 
@@ -328,13 +395,12 @@ class WPIE_Common_Actions {
 
                                                 $query = "INSERT INTO " . $wpdb->prefix . "wpie_template (opration, opration_type, options,unique_id,username) VALUES ";
 
-                                                foreach ( $template_data as $template ) {
+                                                foreach( $template_data as $template )
+                                                {
 
                                                         $opration = isset( $template->opration ) ? $template->opration : "";
 
                                                         $opration_type = isset( $template->opration_type ) ? $template->opration_type : "";
-
-                                                        $options = isset( $template->options ) ? $template->options : "";
 
                                                         $options = isset( $template->options ) ? $template->options : "";
 
@@ -346,31 +412,40 @@ class WPIE_Common_Actions {
 
                                                         unset( $opration, $opration_type, $options, $unique_id, $username );
 
-                                                        $place_holders[] = "('%s', '%s', '%s', '%s', '%s')";
+                                                        $place_holders[] = "(%s, %s, %s, %s, %s)";
                                                 }
 
                                                 $query .= implode( ', ', $place_holders );
 
-                                                if ( $wpdb->query( $wpdb->prepare( "$query ", $values ) ) ) {
+                                                if( $wpdb->query( $wpdb->prepare( "$query ", $values ) ) )
+                                                {
                                                         $return_value[ 'status' ] = 'success';
                                                         $return_value[ 'message' ] = __( 'Templates Successfully Imported', 'wp-import-export-lite' );
-                                                } else {
+                                                }
+                                                else
+                                                {
                                                         $return_value[ 'status' ] = 'error';
                                                         $return_value[ 'message' ] = __( 'Error when insert to database', 'wp-import-export-lite' );
                                                 }
                                                 unset( $place_holders, $query, $values );
-                                        } else {
+                                        }
+                                        else
+                                        {
                                                 $return_value[ 'status' ] = 'error';
                                                 $return_value[ 'message' ] = __( 'Empty Data', 'wp-import-export-lite' );
                                         }
-                                } else {
+                                }
+                                else
+                                {
                                         $return_value[ 'status' ] = 'error';
                                         $return_value[ 'message' ] = __( 'Empty Data', 'wp-import-export-lite' );
                                 }
                                 unset( $template_data );
 
                                 unlink( $file_path );
-                        } else {
+                        }
+                        else
+                        {
                                 $return_value[ 'status' ] = 'error';
                                 $return_value[ 'message' ] = isset( $movefile[ 'error' ] ) ? $movefile[ 'error' ] : __( 'Error When move uploaded file', 'wp-import-export-lite' );
                         }
@@ -383,7 +458,8 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function update_process_status() {
+        public function update_process_status()
+        {
 
                 global $wpdb;
 
@@ -391,23 +467,29 @@ class WPIE_Common_Actions {
 
                 $wpie_import_id = isset( $_GET[ 'wpie_process_id' ] ) ? absint( wpie_sanitize_field( $_GET[ 'wpie_process_id' ] ) ) : 0;
 
-                if ( $wpie_import_id > 0 ) {
+                if( $wpie_import_id > 0 )
+                {
 
                         $process_status = isset( $_GET[ 'process_status' ] ) ? wpie_sanitize_field( $_GET[ 'process_status' ] ) : "";
 
                         $new_satus = "";
 
-                        if ( $process_status == "bg" ) {
+                        if( $process_status == "bg" )
+                        {
 
                                 $new_satus = "background";
 
                                 $return_value[ 'message' ] = __( 'Background Process Successfully Set', 'wp-import-export-lite' );
-                        } elseif ( $process_status == "stop" ) {
+                        }
+                        elseif( $process_status == "stop" )
+                        {
 
                                 $new_satus = "stopped";
 
                                 $return_value[ 'message' ] = __( 'Process Stopped Successfully', 'wp-import-export-lite' );
-                        } elseif ( $process_status == "pause" ) {
+                        }
+                        elseif( $process_status == "pause" )
+                        {
 
                                 $new_satus = "paused";
 
@@ -416,11 +498,12 @@ class WPIE_Common_Actions {
 
                         unset( $process_status );
 
-                        if ( $new_satus != "" ) {
+                        if( $new_satus != "" )
+                        {
 
                                 $final_data = array(
                                         'last_update_date' => current_time( 'mysql' ),
-                                        'status'           => $new_satus,
+                                        'status' => $new_satus,
                                 );
 
                                 $wpdb->update( $wpdb->prefix . "wpie_template", $final_data, array( 'id' => $wpie_import_id ) );
@@ -428,12 +511,16 @@ class WPIE_Common_Actions {
                                 unset( $final_data );
 
                                 $return_value[ 'status' ] = 'success';
-                        } else {
+                        }
+                        else
+                        {
                                 $return_value[ 'message' ] = __( 'Empty Status', 'wp-import-export-lite' );
                         }
 
                         unset( $new_satus );
-                } else {
+                }
+                else
+                {
                         $return_value[ 'message' ] = __( 'Template id not found', 'wp-import-export-lite' );
                 }
 
@@ -444,8 +531,56 @@ class WPIE_Common_Actions {
                 die();
         }
 
-        public function __destruct() {
-                foreach ( $this as $key => $value ) {
+        public function wpie_save_bg_cron_processing()
+        {
+
+                $wpie_bg_and_cron_processing = get_option( "wpie_bg_and_cron_processing" );
+
+                if( $wpie_bg_and_cron_processing && !empty( $wpie_bg_and_cron_processing ) )
+                {
+                        $cron_data = maybe_unserialize( $wpie_bg_and_cron_processing );
+
+                        $cron_method = isset( $_GET[ 'method' ] ) && wpie_sanitize_field( $_GET[ 'method' ] ) === "external" ? "external" : "wp";
+                }
+                else
+                {
+                        $cron_method = "wp";
+
+                        $cron_data = [ "token" => time() ];
+                }
+
+                $cron_data[ "method" ] = $cron_method;
+
+                update_option( "wpie_bg_and_cron_processing", maybe_serialize($cron_data ));
+
+                $return_value = array( "status" => 'success', "message" => __( 'Settings Successfully Saved', 'wp-import-export-lite' ) );
+
+                echo json_encode( $return_value );
+
+                die();
+        }
+
+        public function wpie_change_license_status()
+        {
+
+                if( file_exists( WPIE_CLASSES_DIR . '/class-wpie-license-manager.php' ) )
+                {
+                        require_once(WPIE_CLASSES_DIR . '/class-wpie-license-manager.php');
+                }
+
+                $license = new \wpie\license\WPIE_License_Manager(
+                        WPIE_PLUGIN_API,
+                        WPIE_PLUGIN_FILE,
+                        array( 'version' => WPIE_PLUGIN_VERSION, 'license_db_key' => "wpie_license", 'author' => 'vjinfotech' )
+                );
+
+                $license->wpie_change_license_status();
+        }
+
+        public function __destruct()
+        {
+                foreach( $this as $key => $value )
+                {
                         unset( $this->$key );
                 }
         }

@@ -327,4 +327,8 @@ abstract class WPIE_Export_Engine extends \wpie\export\base\WPIE_Export_Base {
                 unset( $wpie_export_condition );
         }
 
+        protected function get_unique_str() {
+                return uniqid() . "__" . rand( 1, 999 );
+        }
+
 }

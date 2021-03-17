@@ -1,26 +1,31 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
+if( !defined( 'ABSPATH' ) )
+{
         die( __( "Can't load this file directly", 'wp-import-export-lite' ) );
 }
 
-if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php' ) ) {
+if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php' ) )
+{
         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-import.php');
 
         $wpie_import = new \wpie\import\WPIE_Import();
 
         $wpie_import_type = $wpie_import->wpie_get_import_type();
 
-        $wpie_taxonomies_list = $wpie_import->wpie_get_all_taxonomies( array(), array(), "keytitle" );
+        $wpie_taxonomies_list = $wpie_import->wpie_get_taxonomies();
 
         unset( $wpie_import );
-} else {
+}
+else
+{
 
         $wpie_import_type = null;
 
         $wpie_taxonomies_list = null;
 }
 
-if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php' ) ) {
+if( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php' ) )
+{
         require_once(WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php');
 
         $wpie_import_uploader = new \wpie\import\upload\WPIE_Upload();
@@ -28,7 +33,9 @@ if ( file_exists( WPIE_IMPORT_CLASSES_DIR . '/class-wpie-upload.php' ) ) {
         $upload_sections = $wpie_import_uploader->wpie_get_upload_section();
 
         unset( $wpie_import_uploader );
-} else {
+}
+else
+{
         $upload_sections = array();
 }
 
@@ -44,27 +51,37 @@ $nonce = "";
 
 $import_id = isset( $_GET[ 'import_id' ] ) ? absint( sanitize_text_field( $_GET[ 'import_id' ] ) ) : 0;
 
-if ( $import_id > 0 ) {
+if( $import_id > 0 )
+{
 
         $ref_id = isset( $_GET[ 'ref_id' ] ) ? sanitize_text_field( $_GET[ 'ref_id' ] ) : "";
 
-        if ( ! empty( $ref_id ) ) {
+        if( !empty( $ref_id ) )
+        {
 
                 $nonce = isset( $_GET[ 'nonce' ] ) ? sanitize_text_field( $_GET[ 'nonce' ] ) : "";
 
-                if ( ! empty( $nonce ) ) {
+                if( !empty( $nonce ) )
+                {
 
                         $validate_nonce = wp_verify_nonce( $nonce, $import_id . $ref_id );
 
-                        if ( $validate_nonce === 1 || $validate_nonce === 2 ) {
+                        if( $validate_nonce === 1 || $validate_nonce === 2 )
+                        {
                                 $import_ref_id = $ref_id;
-                        } else {
+                        }
+                        else
+                        {
                                 $error_msg = esc_html__( 'Invalid Nonce. Go to Manage Import for new valid Reimport links', "wp-import-export-lite" );
                         }
-                } else {
+                }
+                else
+                {
                         $error_msg = esc_html__( 'Empty Nonce', "wp-import-export-lite" );
                 }
-        } else {
+        }
+        else
+        {
                 $error_msg = esc_html__( 'Empty Reference ID', "wp-import-export-lite" );
         }
 }
@@ -101,23 +118,28 @@ if ( $import_id > 0 ) {
                                                 </div>
                                                 <div class="wpie_section_content wpie_show">
                                                         <div class="wpie_upload_menu_wrapper">
-                                                            <?php
-                                                            if ( ! empty( $upload_sections ) ) {
+                                                                <?php
+                                                                if( !empty( $upload_sections ) )
+                                                                {
 
-                                                                    $temp_flag = true;
-                                                                    foreach ( $upload_sections as $key => $data ) {
+                                                                        $temp_flag = true;
+                                                                        foreach( $upload_sections as $key => $data )
+                                                                        {
 
-                                                                            $icon = isset( $data[ 'icon' ] ) ? $data[ 'icon' ] : "fa-upload";
+                                                                                $icon = isset( $data[ 'icon' ] ) ? $data[ 'icon' ] : "fa-upload";
 
-                                                                            $label = isset( $data[ 'label' ] ) ? $data[ 'label' ] : $key;
+                                                                                $label = isset( $data[ 'label' ] ) ? $data[ 'label' ] : $key;
 
-                                                                            if ( $temp_flag === true ) {
-                                                                                    $selected_class = "wpie_active";
-                                                                                    $temp_flag = false;
-                                                                            } else {
-                                                                                    $selected_class = "";
-                                                                            }
-                                                                            ?>
+                                                                                if( $temp_flag === true )
+                                                                                {
+                                                                                        $selected_class = "wpie_active";
+                                                                                        $temp_flag = false;
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                        $selected_class = "";
+                                                                                }
+                                                                                ?>
                                                                                 <div class="wpie_upload_menu <?php echo esc_attr( $selected_class ); ?>" show_container="<?php echo esc_attr( $key ); ?>">
                                                                                         <div class="wpie_upload_menu_icon_wrapper">
                                                                                                 <i class="<?php echo esc_attr( $icon ); ?> wpie_upload_title_icon" aria-hidden="true"></i>
@@ -132,28 +154,34 @@ if ( $import_id > 0 ) {
                                                                 ?>
                                                         </div>
                                                         <div class="wpie_upload_container_wrapper">
-                                                            <?php
-                                                            if ( ! empty( $upload_sections ) ) {
+                                                                <?php
+                                                                if( !empty( $upload_sections ) )
+                                                                {
 
-                                                                    $temp_flag = true;
+                                                                        $temp_flag = true;
 
-                                                                    foreach ( $upload_sections as $key => $data ) {
+                                                                        foreach( $upload_sections as $key => $data )
+                                                                        {
 
-                                                                            $view = isset( $data[ 'view' ] ) ? $data[ 'view' ] : "";
+                                                                                $view = isset( $data[ 'view' ] ) ? $data[ 'view' ] : "";
 
-                                                                            if ( $temp_flag === true ) {
-                                                                                    $display_style = "wpie_show";
-                                                                                    $temp_flag = false;
-                                                                            } else {
-                                                                                    $display_style = "";
-                                                                            }
-                                                                            ?>
+                                                                                if( $temp_flag === true )
+                                                                                {
+                                                                                        $display_style = "wpie_show";
+                                                                                        $temp_flag = false;
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                        $display_style = "";
+                                                                                }
+                                                                                ?>
                                                                                 <div class="wpie_upload_section_wrapper <?php echo esc_attr( $key ); ?> <?php echo esc_attr( $display_style ); ?>">
-                                                                                    <?php
-                                                                                    if ( ! empty( $view ) && file_exists( $view ) ) {
-                                                                                            include $view;
-                                                                                    }
-                                                                                    ?>
+                                                                                        <?php
+                                                                                        if( !empty( $view ) && file_exists( $view ) )
+                                                                                        {
+                                                                                                include $view;
+                                                                                        }
+                                                                                        ?>
                                                                                 </div>
                                                                                 <?php
                                                                                 unset( $view, $display_style );
@@ -192,17 +220,29 @@ if ( $import_id > 0 ) {
                                                                 <div class="wpie_import_type_outer_container">
                                                                         <div class="wpie_content_data_wrapper">
                                                                                 <select class="wpie_content_data_select wpie_import_type_select" name="wpie_import_type">
-                                                                                    <?php if ( ! empty( $wpie_import_type ) ) { ?>
-                                                                                            <?php foreach ( $wpie_import_type as $key => $value ) { ?>
-                                                                                                        <option value="<?php echo esc_attr( $key ); ?>"><?php echo (isset( $value->labels ) && isset( $value->labels->name )) ? esc_html( $value->labels->name ) : ""; ?></option>
+                                                                                        <?php
+                                                                                        if( !empty( $wpie_import_type ) )
+                                                                                        {
+                                                                                                ?>
+                                                                                                <?php
+                                                                                                foreach( $wpie_import_type as $key => $val )
+                                                                                                {
+                                                                                                        ?>
+                                                                                                        <option value="<?php echo esc_attr( $key ); ?>"><?php esc_html_e( $val ); ?></option>
                                                                                                 <?php } ?>
                                                                                         <?php } ?>
                                                                                 </select>
                                                                         </div>
                                                                         <div class="wpie_content_data_wrapper wpie_taxonomies_types_wrapper">
                                                                                 <select class="wpie_content_data_select wpie_taxonomies_types_select" name="wpie_taxonomy_type">
-                                                                                    <?php if ( ! empty( $wpie_taxonomies_list ) ) { ?>
-                                                                                            <?php foreach ( $wpie_taxonomies_list as $slug => $name ) { ?>
+                                                                                        <?php
+                                                                                        if( !empty( $wpie_taxonomies_list ) )
+                                                                                        {
+                                                                                                ?>
+                                                                                                <?php
+                                                                                                foreach( $wpie_taxonomies_list as $slug => $name )
+                                                                                                {
+                                                                                                        ?>
                                                                                                         <option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $name ); ?></option>
                                                                                                 <?php } ?>
                                                                                         <?php } ?>
@@ -252,7 +292,7 @@ if ( $import_id > 0 ) {
                                         </div>
                                         <div class="wpie_section_wrapper">
                                                 <div class="wpie_content_data_header wpie_section_wrapper_selected">
-                                                        <div class="wpie_content_title"><?php esc_html_e( 'Data Filter', 'wp-import-export-lite' ); ?></div>
+                                                        <div class="wpie_content_title"><?php esc_html_e( 'Add Filter', 'wp-import-export-lite' ); ?></div>
                                                 </div>
                                                 <div class="wpie_section_content wpie_show">
                                                         <table class="wpie_filter_wrapper">
@@ -304,7 +344,41 @@ if ( $import_id > 0 ) {
                                                                         <td class="wpie_xpath_label"><?php esc_html_e( 'XPath', 'wp-import-export-lite' ); ?></td>
                                                                         <td class="wpie_xpath_element"><input class="wpie_content_data_input wpie_xpath" type="text" name="" value=""></td>
                                                                 </tr>
-                                                        </table>
+                                                        </table>                                                        
+                                                </div>
+                                        </div>
+                                        <div class="wpie_section_wrapper wpie_file_options_wrapper">
+                                                <div class="wpie_content_data_header wpie_section_wrapper_selected">
+                                                        <div class="wpie_content_title"><?php esc_html_e( 'File Options', 'wp-import-export-lite' ); ?></div>
+                                                </div>
+                                                <div class="wpie_section_content wpie_file_option_container wpie_show"> 
+
+                                                        <div class="wpie_file_option_data_wrapper wpie_csv_delimiter_wrapper">
+                                                                <div class="wpie_file_option_data_title"><?php esc_html_e( 'CSV Delimiter', 'wp-import-export-lite' ); ?></div>
+                                                                <div class="wpie_file_option_data_container">
+                                                                        <input type="text" class="wpie_content_data_input wpie_csv_delimiter" name="wpie_csv_delimiter" value=""/>
+                                                                </div>
+                                                        </div>
+                                                        <div class="wpie_file_option_data_wrapper">
+                                                                <div class="wpie_file_option_data_title"><?php esc_html_e( 'File Row Title', 'wp-import-export-lite' ); ?></div>
+                                                                <div class="wpie_file_option_data_container">
+                                                                        <input type="checkbox" class="wpie_checkbox wpie_file_first_row_is_title"  name="wpie_file_first_row_is_title" id="wpie_file_first_row_is_title" value="1" checked="checked"/>
+                                                                        <label for="wpie_file_first_row_is_title" class="wpie_checkbox_label"><?php esc_html_e( 'File First Row is Row Title.', 'wp-import-export-lite' ); ?></label>
+                                                                        <a class="wpie_doc_hint_url" href="<?php echo esc_url( 'https://plugins.vjinfotech.com/wordpress-import-export/documentation/csv-file-header-title/' ); ?>" target="_blank"><?php esc_html_e( 'Click Here For Details', 'wp-import-export-lite' ); ?></a>
+                                                                </div>
+                                                        </div>
+                                                        <div class="wpie_file_option_data_wrapper">
+                                                                <div class="wpie_btn wpie_btn_primary wpie_file_option_btn">
+                                                                        <i class="fas fa-check wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Apply Options', 'wp-import-export-lite' ); ?>
+                                                                </div>
+                                                        </div>                                                      
+                                                </div>
+                                        </div>
+                                        <div class="wpie_section_wrapper">
+                                                <div class="wpie_content_data_header wpie_section_wrapper_selected">
+                                                        <div class="wpie_content_title"><?php esc_html_e( 'File Data Preview', 'wp-import-export-lite' ); ?></div>
+                                                </div>
+                                                <div class="wpie_section_content wpie_show">                                                       
                                                         <table class="wpie_data_element_table table table-bordered">
                                                                 <tr>
                                                                         <td class="wpie_element_tag_outer">
@@ -325,20 +399,7 @@ if ( $import_id > 0 ) {
                                                                                                         <span class="wpie_data_element_nav wpie_data_element_nav_next"><i aria-hidden="true" class="fas fa-chevron-right wpie_data_element_action_icon"></i></span>
                                                                                                 </td>
                                                                                         </table>
-                                                                                </div>
-                                                                                <div class="wpie_csv_delimiter_wrapper">
-                                                                                        <table class="wpie_csv_delimiter_outer_wrapper">
-                                                                                                <tr>
-                                                                                                        <td class="wpie_csv_delimiter_container"><?php esc_html_e( 'Set delimiter for CSV fields', 'wp-import-export-lite' ); ?></td>
-                                                                                                        <td class="wpie_csv_delimiter_container wpie_csv_delimiter_outer"><input class="wpie_content_data_input wpie_csv_delimiter" type="text" name="wpie_csv_delimiter" value=","></td>
-                                                                                                        <td class="wpie_csv_delimiter_container ">
-                                                                                                                <div class="wpie_btn wpie_btn_primary wpie_csv_delimiter_btn">
-                                                                                                                        <i class="fas fa-check wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Apply', 'wp-import-export-lite' ); ?>
-                                                                                                                </div>
-                                                                                                        </td>
-                                                                                                </tr>
-                                                                                        </table>
-                                                                                </div>
+                                                                                </div>                                                                                
                                                                                 <div class="wpie_data_preview"></div>
                                                                         </td>
                                                                 </tr>
@@ -372,11 +433,18 @@ if ( $import_id > 0 ) {
                                                         <div class="wpie_content_title"><?php esc_html_e( 'Field Mapping', 'wp-import-export-lite' ); ?></div>
                                                 </div>
                                                 <div class="wpie_section_content wpie_show">
-                                                    <?php if ( current_user_can( 'wpie_add_shortcode' ) ) { ?>
+                                                        <?php
+                                                        if( current_user_can( 'wpie_add_shortcode' ) )
+                                                        {
+                                                                ?>
                                                                 <div class="wpie_hint_wrapper">
                                                                         <div class="wpie_hint_text"><i class="far fa-question-circle wpie_hint_text_icon"></i><?php esc_html_e( 'Shortcode allowed in field. for more', 'wp-import-export-lite' ); ?> <a target="_blank" class="wpie_hint_link" href="http://plugins.vjinfotech.com/wordpress-import-export/documentation/add-shortcode/"><?php esc_html_e( 'click here', 'wp-import-export-lite' ); ?></a></div>
                                                                 </div>                                     
-                                                        <?php } else { ?>
+                                                                <?php
+                                                        }
+                                                        else
+                                                        {
+                                                                ?>
                                                                 <div class="wpie_hint_wrapper">
                                                                         <div class="wpie_hint_text wpie_hint_text_warning"><i class="far fa-question-circle wpie_hint_text_icon"></i><?php esc_html_e( 'Please contact admin for allow shortcode in field. for more', 'wp-import-export-lite' ); ?> <a target="_blank" class="wpie_hint_link" href="http://plugins.vjinfotech.com/wordpress-import-export/documentation/add-shortcode/"><?php esc_html_e( 'click here', 'wp-import-export-lite' ); ?></a></div>
                                                                 </div>  
@@ -508,9 +576,12 @@ if ( $import_id > 0 ) {
                                                 </div>
                                         </div>
                                         <?php
-                                        if ( ! empty( $import_ext_html ) ) {
-                                                foreach ( $import_ext_html as $_imp_html_file ) {
-                                                        if ( file_exists( $_imp_html_file ) ) {
+                                        if( !empty( $import_ext_html ) )
+                                        {
+                                                foreach( $import_ext_html as $_imp_html_file )
+                                                {
+                                                        if( file_exists( $_imp_html_file ) )
+                                                        {
                                                                 include $_imp_html_file;
                                                         }
                                                 }
@@ -534,9 +605,12 @@ if ( $import_id > 0 ) {
                                                                 <i class="fas fa-chevron-left wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Back', 'wp-import-export-lite' ); ?>
                                                         </div>
                                                         <?php
-                                                        if ( ! empty( $final_btn_files ) ) {
-                                                                foreach ( $final_btn_files as $_btn_files ) {
-                                                                        if ( file_exists( $_btn_files ) ) {
+                                                        if( !empty( $final_btn_files ) )
+                                                        {
+                                                                foreach( $final_btn_files as $_btn_files )
+                                                                {
+                                                                        if( file_exists( $_btn_files ) )
+                                                                        {
                                                                                 include $_btn_files;
                                                                         }
                                                                 }
@@ -571,9 +645,12 @@ if ( $import_id > 0 ) {
                                                                 <i class="fas fa-chevron-left wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Back', 'wp-import-export-lite' ); ?>
                                                         </div>
                                                         <?php
-                                                        if ( ! empty( $final_btn_files ) ) {
-                                                                foreach ( $final_btn_files as $_btn_files ) {
-                                                                        if ( file_exists( $_btn_files ) ) {
+                                                        if( !empty( $final_btn_files ) )
+                                                        {
+                                                                foreach( $final_btn_files as $_btn_files )
+                                                                {
+                                                                        if( file_exists( $_btn_files ) )
+                                                                        {
                                                                                 include $_btn_files;
                                                                         }
                                                                 }
@@ -588,15 +665,18 @@ if ( $import_id > 0 ) {
                                 <div class="wpie_section_container wpie_import_step7 wpie_import_step">
                                         <div class="wpie_import_action_btn_wrapper wpie_import_action_top_btn_wrapper">
                                                 <div class="wpie_import_action_container wpie_import_processing_btn">
-                                                    <?php
-                                                    if ( ! empty( $final_btn_files ) ) {
-                                                            foreach ( $final_btn_files as $_btn_files ) {
-                                                                    if ( file_exists( $_btn_files ) ) {
-                                                                            include $_btn_files;
-                                                                    }
-                                                            }
-                                                    }
-                                                    ?>
+                                                        <?php
+                                                        if( !empty( $final_btn_files ) )
+                                                        {
+                                                                foreach( $final_btn_files as $_btn_files )
+                                                                {
+                                                                        if( file_exists( $_btn_files ) )
+                                                                        {
+                                                                                include $_btn_files;
+                                                                        }
+                                                                }
+                                                        }
+                                                        ?>
                                                         <div class="wpie_btn wpie_btn_primary wpie_import_action_btn wpie_import_action_pause_btn" >
                                                                 <i class="fas fa-pause wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Pause', 'wp-import-export-lite' ); ?>
                                                         </div>
@@ -702,6 +782,18 @@ if ( $import_id > 0 ) {
                 </div>
         </div>
 </div>
+<div class="modal fade wpie_strict_error_model" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered " role="document">
+                <div class="modal-content wpie_error">
+                        <div class="modal-header">
+                                <h5 class="modal-title"><?php esc_html_e( 'Permission Required', 'wp-import-export-lite' ); ?></h5>                            
+                        </div>
+                        <div class="modal-body">
+                                <div class="wpie_strict_error_content"></div>
+                        </div>                        
+                </div>
+        </div>
+</div>
 <div class="modal fade wpie_preview_model" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
@@ -727,6 +819,26 @@ if ( $import_id > 0 ) {
                         </div>
                         <div class="modal-body">
                                 <div class="wpie_task_list"></div>
+                        </div>
+                </div>
+        </div>
+</div>
+<div class="modal fade wpie_import_bg_set" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" ><?php esc_html_e( 'Background Import', 'wp-import-export-lite' ); ?></h5>
+                        </div>
+                        <div class="modal-body">
+                                <div class="wpie_process_action_msg"><?php esc_html_e( 'Background Process Successfully Set', 'wp-import-export-lite' ); ?></div>
+                        </div>
+                        <div class="modal-footer">                                       
+                                <a class="wpie_btn wpie_btn_primary" href="<?php echo admin_url( "admin.php?page=wpie-new-import" ); ?>">
+                                        <i class="fas fa-plus wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'New Import', 'wp-import-export-lite' ); ?>
+                                </a>
+                                <a class="wpie_btn wpie_btn_primary " href="<?php echo admin_url( "admin.php?page=wpie-manage-import" ); ?>">
+                                        <i class="fas fa-cogs wpie_general_btn_icon " aria-hidden="true"></i><?php esc_html_e( 'Manage Import', 'wp-import-export-lite' ); ?>
+                                </a>
                         </div>
                 </div>
         </div>

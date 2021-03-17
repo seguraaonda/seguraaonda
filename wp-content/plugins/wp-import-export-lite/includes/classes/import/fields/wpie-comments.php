@@ -7,53 +7,86 @@ add_filter( 'wpie_import_mapping_fields', "wpie_import_comment_mapping_fields", 
 
 if ( ! function_exists( "wpie_import_comment_mapping_fields" ) ) {
 
-        function wpie_import_comment_mapping_fields( $sections = array(), $wpie_import_type = "" ) {
+        function wpie_import_comment_mapping_fields( $sections = array (), $wpie_import_type = "" ) {
 
                 global $wp_version;
 
                 $uniqid = uniqid();
 
-                $wpie_import_type_title = ucfirst( $wpie_import_type );
+                $post_types = [];
 
-                $wpie_import_type = get_post_types( array( '_builtin' => true ), 'objects' ) + get_post_types( array( '_builtin' => false, 'show_ui' => true ), 'objects' ) + get_post_types( array( '_builtin' => false, 'show_ui' => false ), 'objects' );
 
-                foreach ( $wpie_import_type as $key => $ct ) {
-                        if ( in_array( $key, array( 'attachment', 'revision', 'nav_menu_item', 'import_users', 'shop_webhook', 'acf-field', 'acf-field-group', "shop_order", "shop_coupon", "shop_order_refund", "product_variation" ) ) ) {
-                                unset( $wpie_import_type[ $key ] );
+                if ( $wpie_import_type === "product_reviews" ) {
+
+                        $import_title = __( 'Product Reviews', 'wp-import-export-lite' );
+
+                        $parent_type = __( 'Product', 'wp-import-export-lite' );
+                } else {
+
+                        $parent_type = __( 'Post', 'wp-import-export-lite' );
+                        $import_title = __( 'Comment', 'wp-import-export-lite' );
+
+                        $post_types = get_post_types( array ( '_builtin' => true ), 'objects' ) + get_post_types( array ( '_builtin' => false, 'show_ui' => true ), 'objects' ) + get_post_types( array ( '_builtin' => false, 'show_ui' => false ), 'objects' );
+
+                        $hidden_posts = [
+                                'attachment',
+                                'revision',
+                                'nav_menu_item',
+                                'shop_webhook',
+                                'import_users',
+                                'wp-types-group',
+                                'wp-types-user-group',
+                                'wp-types-term-group',
+                                'acf-field',
+                                'acf-field-group',
+                                'custom_css',
+                                'customize_changeset',
+                                'oembed_cache',
+                                'wp_block',
+                                'user_request',
+                                'scheduled-action',
+                                'product_variation',
+                                'shop_order_refund'
+                        ];
+
+                        $exclude_types = array_merge( [ "product", "shop_order", "shop_coupon" ], $hidden_posts );
+
+                        foreach ( $post_types as $key => $ct ) {
+                                if ( in_array( $key, $exclude_types ) ) {
+                                        unset( $post_types[ $key ] );
+                                }
                         }
+
+                        unset( $exclude_types );
                 }
 
                 ob_start();
                 ?>
                 <div class="wpie_field_mapping_container_wrapper wpie_comment_field_mapping_container_wrapper">
-                        <div class="wpie_field_mapping_container_title wpie_active" ><?php esc_html_e( 'Search Parent Post', 'wp-import-export-lite' ); ?> <div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
+                        <div class="wpie_field_mapping_container_title wpie_active" ><?php echo esc_html( __( 'Search Parent', 'wp-import-export-lite' ) . " " . $parent_type ); ?> <div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
                         <div class="wpie_field_mapping_container_data  wpie_field_mapping_other_option_outer_wrapper wpie_show" >
-                                <div class="wpie_field_mapping_container_element">
-                                        <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Includes only these post types', 'wp-import-export-lite' ); ?></div>
-                                        <div class="wpie_content_data_wrapper">
-                                                <select class="wpie_content_data_select" name="wpie_comment_parent_include_post_types[]" multiple="multiple">
-                                                    <?php if ( ! empty( $wpie_import_type ) ) { ?>
-                                                            <?php foreach ( $wpie_import_type as $key => $value ) { ?>
-                                                                        <option value="<?php echo esc_attr( $key ); ?>" selected="selected"><?php echo (isset( $value->labels ) && isset( $value->labels->name )) ? esc_html( $value->labels->name ) : ""; ?></option>
+                                <?php if ( $wpie_import_type === "product_reviews" ) { ?>
+                                        <input type="hidden" name="wpie_comment_parent_include_post_types[]" value="product" />
+                                <?php } else { ?>
+                                        <div class="wpie_field_mapping_container_element">
+                                                <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Includes only these post types', 'wp-import-export-lite' ); ?></div>
+                                                <div class="wpie_content_data_wrapper">
+                                                        <select class="wpie_content_data_select" name="wpie_comment_parent_include_post_types[]" multiple="multiple">
+                                                                <?php if ( ! empty( $post_types ) ) { ?>
+                                                                        <?php foreach ( $post_types as $key => $value ) { ?>
+                                                                                <option value="<?php echo esc_attr( $key ); ?>" selected="selected"><?php echo (isset( $value->labels ) && isset( $value->labels->name )) ? esc_html( $value->labels->name ) : ""; ?></option>
+                                                                        <?php } ?>
                                                                 <?php } ?>
-                                                        <?php } ?>
-                                                </select>
+                                                        </select>
+                                                </div>
                                         </div>
-                                </div>
+                                <?php } ?>
                                 <div class="wpie_field_mapping_container_element">
-                                        <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Search Parent Post on your site based on...', 'wp-import-export-lite' ); ?></div>
+                                        <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Parent Post', 'wp-import-export-lite' ); ?></div>
                                         <div class="wpie_field_mapping_other_option_wrapper">
-                                                <input type="radio" class="wpie_radio wpie_item_search_post_based_on" checked="checked"  name="wpie_item_search_post_based_on" id="wpie_item_search_post_based_on_title" value="title"/>
-                                                <label for="wpie_item_search_post_based_on_title" class="wpie_radio_label"><?php esc_html_e( 'Parent Post Title', 'wp-import-export-lite' ); ?></label>
-                                                <div class="wpie_radio_container"><input type="text" class="wpie_content_data_input wpie_item_comment_post_title" name="wpie_item_comment_post_title" value=""/></div>
-                                        </div>
-                                        <div class="wpie_field_mapping_other_option_wrapper">
-                                                <input type="radio" class="wpie_radio wpie_item_search_post_based_on"  name="wpie_item_search_post_based_on" id="wpie_item_search_post_based_on_id" value="id"/>
-                                                <label for="wpie_item_search_post_based_on_id" class="wpie_radio_label"><?php esc_html_e( 'Parent Post ID', 'wp-import-export-lite' ); ?></label>
-                                                <div class="wpie_radio_container"><input type="text" class="wpie_content_data_input wpie_item_comment_post_id" name="wpie_item_comment_post_id" value=""/></div>
+                                                <input type="text" class="wpie_content_data_input wpie_item_comment_parent_post" name="wpie_item_comment_parent_post" value=""/>
                                         </div>
                                 </div>
-
                         </div>
                 </div>
                 <?php
@@ -61,7 +94,7 @@ if ( ! function_exists( "wpie_import_comment_mapping_fields" ) ) {
                 ob_start();
                 ?>
                 <div class="wpie_field_mapping_container_wrapper wpie_comment_field_mapping_container_wrapper">
-                        <div class="wpie_field_mapping_container_title" ><?php esc_html_e( 'Comments Data', 'wp-import-export-lite' ); ?> <div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
+                        <div class="wpie_field_mapping_container_title" ><?php echo esc_html( $import_title . " " . __( 'Data', 'wp-import-export-lite' ) ); ?> <div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
                         <div class="wpie_field_mapping_container_data  wpie_field_mapping_other_option_outer_wrapper">
                                 <div class="wpie_field_mapping_container_element">
                                         <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Comment Author', 'wp-import-export-lite' ); ?></div>
@@ -117,12 +150,16 @@ if ( ! function_exists( "wpie_import_comment_mapping_fields" ) ) {
                                                 <input type="text" class="wpie_content_data_input wpie_item_comment_agent" name="wpie_item_comment_agent" value=""/>
                                         </div>
                                 </div>
-                                <div class="wpie_field_mapping_container_element">
-                                        <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Comment Type', 'wp-import-export-lite' ); ?></div>
-                                        <div class="wpie_field_mapping_other_option_wrapper">
-                                                <input type="text" class="wpie_content_data_input wpie_item_comment_type" name="wpie_item_comment_type" value=""/>
+                                <?php if ( $wpie_import_type === "product_reviews" ) { ?>
+                                        <input type="hidden" name="wpie_item_comment_type" value="review" />
+                                <?php } else { ?>
+                                        <div class="wpie_field_mapping_container_element">
+                                                <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Comment Type', 'wp-import-export-lite' ); ?></div>
+                                                <div class="wpie_field_mapping_other_option_wrapper">
+                                                        <input type="text" class="wpie_content_data_input wpie_item_comment_type" name="wpie_item_comment_type" value=""/>
+                                                </div>
                                         </div>
-                                </div>
+                                <?php } ?>
                                 <div class="wpie_field_mapping_container_element">
                                         <div class="wpie_field_mapping_inner_title"><?php esc_html_e( 'Comment Parent', 'wp-import-export-lite' ); ?></div>
                                         <div class="wpie_field_mapping_other_option_wrapper">
@@ -137,7 +174,7 @@ if ( ! function_exists( "wpie_import_comment_mapping_fields" ) ) {
                 ob_start();
                 ?>
                 <div class="wpie_field_mapping_container_wrapper">
-                        <div class="wpie_field_mapping_container_title"><?php esc_html_e( 'Comment Meta', 'wp-import-export-lite' ); ?><div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
+                        <div class="wpie_field_mapping_container_title"><?php echo esc_html( $import_title . " " . __( 'Meta', 'wp-import-export-lite' ) ); ?><div class="wpie_layout_header_icon_wrapper"><i class="fas fa-chevron-up wpie_layout_header_icon wpie_layout_header_icon_collapsed" aria-hidden="true"></i><i class="fas fa-chevron-down wpie_layout_header_icon wpie_layout_header_icon_expand" aria-hidden="true"></i></div></div>
                         <div class="wpie_field_mapping_container_data">
                                 <div class="wpie_cf_wrapper">
                                         <div class="wpie_field_mapping_radio_input_wrapper wpie_cf_notice_wrapper">
@@ -196,14 +233,14 @@ if ( ! function_exists( "wpie_import_comment_mapping_fields" ) ) {
                 <?php
                 $cf_section = ob_get_clean();
 
-                $sections = array_replace( $sections, array(
+                $sections = array_replace( $sections, array (
                         '100_post_fields'            => $post_fields,
                         '200_general_fields_section' => $general_fields,
                         '300_cf_section'             => $cf_section
                         )
                 );
 
-                unset( $post_fields, $wpie_import_type_title, $general_fields, $cf_section );
+                unset( $post_fields, $general_fields, $cf_section, $post_types );
 
                 return apply_filters( "wpie_pre_comment_field_mapping_section", $sections, $wpie_import_type );
         }
@@ -360,4 +397,4 @@ if ( ! function_exists( "wpie_import_comment_update_existing_item_fields" ) ) {
                 return ob_get_clean();
         }
 
-}
+}        
