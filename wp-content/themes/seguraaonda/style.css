@@ -400,6 +400,15 @@ input#ts, input#rs, #bbp-search-form #bbp_search {
 .wp-block-coblocks-icon__inner a {
 	left: 0;
 }
+.wp-block-coblocks-posts__image {
+	margin-right: 0;
+	padding-right: var(--coblocks-spacing--2, 1em);
+}
+@media (min-width: 600px) {
+.wp-block-coblocks-posts__image {
+    padding-right: var(--coblocks-spacing--3, 1.5em);
+}
+}
 /*Jetpack*/
 .entry-content #jp-relatedposts {
 	max-width: 58rem;
