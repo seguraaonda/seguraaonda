@@ -5,7 +5,7 @@ Tags: page builder, Gutenberg blocks, WordPress blocks, gutenberg, blocks
 Requires at least: 5.0
 Tested up to: 5.7
 Requires PHP: 5.6
-Stable tag: 2.11.0
+Stable tag: 2.12.1
 License: GPL-2.0
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -115,12 +115,6 @@ Developers can also apply minor style touch-ups to their themes if necessary. If
 
 == Changelog ==
 
-### Enhancements
-* Enhance Services block extensibility and UX  [#1866](https://github.com/godaddy-wordpress/coblocks/pull/1866)
-* Enhance Collage Gallery consistency with default alignment [#1891](https://github.com/godaddy-wordpress/coblocks/pull/1891)
-
 ### Bug Fixes
-* Fix Gallery gutter controls missing values [#1883](https://github.com/godaddy-wordpress/coblocks/pull/1883)
-* Fix regression with getPhrasingContentSchema using pre 5.6 WordPress [#1882](https://github.com/godaddy-wordpress/coblocks/pull/1882)
-* Fix Stacked Gallery preview margins [#1884](https://github.com/godaddy-wordpress/coblocks/pull/1884)
-* Fix Services block selected state box shadow [#1886](https://github.com/godaddy-wordpress/coblocks/pull/1886)
+* Fix accordion items background color override [#1920](https://github.com/godaddy-wordpress/coblocks/pull/1920)
+* Fix image link controls for Services block [#1917](https://github.com/godaddy-wordpress/coblocks/pull/1917)
